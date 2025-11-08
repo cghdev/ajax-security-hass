@@ -62,18 +62,6 @@ Issues, pull requests, and feedback are welcome!
 - Fully localized in **French** and **English**
 - All entities properly translated
 
-## 🚀 Why This Integration?
-
-| Feature | This Integration | Official Ajax App | Jeedom Plugin | Others |
-|---------|-----------------|------------------|---------------|---------|
-| Real-time streaming | ✅ | ✅ | ❌ | ❌ |
-| Panic button | ✅ | ✅ | ❌ | ❌ |
-| All security modes | ✅ | ✅ | ⚠️ | ⚠️ |
-| All device types | ✅ | ✅ | ⚠️ | ⚠️ |
-| Battery status | ✅ | ✅ | ✅ | ✅ |
-| Free / No dependencies | ✅ | ✅ | ❌ (paid cloud) | ⚠️ |
-| Direct API access | ✅ | ✅ | ❌ (proxy) | ⚠️ |
-
 ## 📦 Installation
 
 ### Via HACS (Recommended)
@@ -82,7 +70,7 @@ Issues, pull requests, and feedback are welcome!
 2. Go to "Integrations"
 3. Click the 3 dots in the top right corner
 4. Select "Custom repositories"
-5. Add this repository URL: `https://github.com/YOUR_USERNAME/ajax-home-assistant`
+5. Add this repository URL: `https://github.com/foXaCe/ajax-hass`
 6. Category: "Integration"
 7. Click "Add"
 8. Search for "Ajax Security System"
@@ -276,18 +264,6 @@ Les issues, pull requests et retours d'expérience sont les bienvenus !
 - Entièrement localisé en **Français** et **Anglais**
 - Toutes les entités correctement traduites
 
-## 🚀 Pourquoi Cette Intégration ?
-
-| Fonctionnalité | Cette Intégration | App Ajax Officielle | Plugin Jeedom | Autres |
-|----------------|------------------|---------------------|---------------|---------|
-| Streaming temps réel | ✅ | ✅ | ❌ | ❌ |
-| Bouton panique | ✅ | ✅ | ❌ | ❌ |
-| Tous modes sécurité | ✅ | ✅ | ⚠️ | ⚠️ |
-| Tous types d'appareils | ✅ | ✅ | ⚠️ | ⚠️ |
-| État batterie | ✅ | ✅ | ✅ | ✅ |
-| Gratuit / Sans dépendances | ✅ | ✅ | ❌ (cloud payant) | ⚠️ |
-| Accès direct API | ✅ | ✅ | ❌ (proxy) | ⚠️ |
-
 ## 📦 Installation
 
 ### Via HACS (Recommandé)
@@ -296,7 +272,7 @@ Les issues, pull requests et retours d'expérience sont les bienvenus !
 2. Allez dans "Intégrations"
 3. Cliquez sur les 3 points en haut à droite
 4. Sélectionnez "Dépôts personnalisés"
-5. Ajoutez l'URL de ce dépôt : `https://github.com/YOUR_USERNAME/ajax-home-assistant`
+5. Ajoutez l'URL de ce dépôt : `https://github.com/foXaCe/ajax-hass`
 6. Catégorie : "Integration"
 7. Cliquez sur "Ajouter"
 8. Recherchez "Ajax Security System"
