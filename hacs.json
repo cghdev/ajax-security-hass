@@ -1,0 +1,6 @@
+{
+  "name": "Ajax Security System",
+  "render_readme": true,
+  "country": ["FR"],
+  "homeassistant": "2023.8.0"
+}
