@@ -1,6 +1,8 @@
 {
   "name": "Ajax Security System",
+  "content_in_root": false,
   "render_readme": true,
   "country": ["FR"],
-  "homeassistant": "2023.8.0"
+  "homeassistant": "2023.8.0",
+  "description": "Unofficial integration for Ajax Security System with real-time alarm control and device monitoring"
 }
