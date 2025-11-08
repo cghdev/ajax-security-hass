@@ -167,14 +167,25 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 space = self.account.spaces.get(space_id)
                 if space:
                     try:
-                        # Map security mode to our internal state
-                        if hasattr(security_mode, "mode"):
-                            mode_str = str(security_mode.mode).split("_")[-1].upper()
-                            _LOGGER.debug("Security mode raw value: %s -> %s", security_mode.mode, mode_str)
+                        # The security_mode object has: regular_mode, group_mode, displayed_security_state
+                        # Use regular_mode for the actual security state
+                        mode_value = None
 
-                            if "DISARMED" in mode_str:
+                        if hasattr(security_mode, "regular_mode"):
+                            mode_value = security_mode.regular_mode
+                            _LOGGER.debug("Using regular_mode: %s", mode_value)
+                        elif hasattr(security_mode, "displayed_security_state"):
+                            mode_value = security_mode.displayed_security_state
+                            _LOGGER.debug("Using displayed_security_state: %s", mode_value)
+
+                        if mode_value is not None:
+                            # Map security mode to our internal state
+                            mode_str = str(mode_value).split("_")[-1].upper()
+                            _LOGGER.debug("Security mode raw value: %s -> %s", mode_value, mode_str)
+
+                            if "DISARMED" in mode_str or "DISARM" in mode_str:
                                 space.security_state = SecurityState.DISARMED
-                            elif "ARMED" in mode_str:
+                            elif "ARMED" in mode_str or "ARM" in mode_str:
                                 space.security_state = SecurityState.ARMED
                             elif "NIGHT" in mode_str:
                                 space.security_state = SecurityState.NIGHT_MODE
@@ -190,7 +201,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                             # Notify Home Assistant of the change
                             self.async_set_updated_data(self.account)
                         else:
-                            _LOGGER.error("security_mode has no 'mode' attribute. Available: %s", dir(security_mode))
+                            _LOGGER.error("security_mode has no usable mode attribute. Available: %s", dir(security_mode))
                     except Exception as mode_err:
                         _LOGGER.error("Error parsing security mode: %s", mode_err, exc_info=True)
 
