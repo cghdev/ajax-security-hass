@@ -5,6 +5,43 @@ All notable changes to the Ajax Security System integration will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-11-09
+
+### Added
+- **Group/Zone support**: Full support for Ajax systems using group mode
+  - Groups/zones appear as separate alarm control panels
+  - Each group can be armed/disarmed independently
+  - Night mode support per group
+  - Real-time state updates via gRPC streaming
+- **Hub problem monitoring**: New "Problem" binary sensor for hubs
+  - Shows when any device has malfunctions
+  - Detailed attributes listing all devices with problems
+  - Includes device name, type, room location, and malfunction count
+- **Enhanced hub data parsing**:
+  - Device firmware updates tracking (device_firmware_updates)
+  - Hub connection properties (offline/online delay settings)
+  - Installation and monitoring companies information
+
+### Fixed
+- **Binary sensor filtering**: "Always Active" and "Armed in Night Mode" sensors now only created for detector devices
+  - Previously incorrectly appeared on repeaters/signal extenders
+  - Now explicitly limited to: motion detectors, door contacts, glass break, smoke, flood, and temperature sensors
+- **Firmware update detection**: Fixed false positive firmware update alerts
+  - Corrected confusion between auto-update setting and actual available updates
+  - Now properly distinguishes system_firmware_update (setting) from device_firmware_updates (actual updates)
+
+### Changed
+- **Malfunction sensor**: Now only created for hubs and enabled by default
+  - Previously created for all devices but disabled by default
+
+### Technical
+- Added `_parse_groups_from_space()` method to parse group data from Space protobuf
+- Added `_async_parse_groups_from_snapshot()` for coordinator group updates
+- Enhanced group state handling in stream updates
+- Added AjaxGroup model with GroupState enum
+- Device type whitelisting for detector-specific binary sensors
+- Comprehensive logging for hub device data and firmware updates
+
 ## [0.2.1] - 2025-11-09
 
 ### Added
