@@ -9,8 +9,8 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/foXaCe/ajax-hass/issues",
   "requirements": [
-    "grpcio==1.72.1",
+    "grpcio>=1.62.0",
     "protobuf>=4.25.0"
   ],
-  "version": "0.1.1"
+  "version": "0.1.2"
 }
