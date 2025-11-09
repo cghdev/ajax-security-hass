@@ -254,6 +254,20 @@
       },
       "armed_in_night_mode": {
         "name": "Armé en mode nuit"
+      },
+      "problem": {
+        "name": "Problème détecté",
+        "state_attributes": {
+          "total_malfunctions": {
+            "name": "Total dysfonctionnements"
+          },
+          "devices_with_problems": {
+            "name": "Dispositifs avec problèmes"
+          },
+          "problem_devices": {
+            "name": "Liste des dispositifs"
+          }
+        }
       }
     },
     "button": {

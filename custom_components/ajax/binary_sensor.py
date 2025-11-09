@@ -96,7 +96,17 @@ BINARY_SENSORS: tuple[AjaxBinarySensorDescription, ...] = (
         translation_key="always_active",
         icon="mdi:moon-waning-crescent",
         value_fn=lambda device: device.attributes.get("always_active", False),
-        should_create=lambda device: "always_active" in device.attributes and device.type != DeviceType.HUB,
+        should_create=lambda device: (
+            "always_active" in device.attributes
+            and device.type in [
+                DeviceType.MOTION_DETECTOR,
+                DeviceType.DOOR_CONTACT,
+                DeviceType.GLASS_BREAK,
+                DeviceType.SMOKE_DETECTOR,
+                DeviceType.FLOOD_DETECTOR,
+                DeviceType.TEMPERATURE_SENSOR,
+            ]
+        ),
         enabled_by_default=True,
     ),
     AjaxBinarySensorDescription(
@@ -104,7 +114,26 @@ BINARY_SENSORS: tuple[AjaxBinarySensorDescription, ...] = (
         translation_key="armed_in_night_mode",
         icon="mdi:shield-moon",
         value_fn=lambda device: device.attributes.get("armed_in_night_mode", False),
-        should_create=lambda device: "armed_in_night_mode" in device.attributes and device.type != DeviceType.HUB,
+        should_create=lambda device: (
+            "armed_in_night_mode" in device.attributes
+            and device.type in [
+                DeviceType.MOTION_DETECTOR,
+                DeviceType.DOOR_CONTACT,
+                DeviceType.GLASS_BREAK,
+                DeviceType.SMOKE_DETECTOR,
+                DeviceType.FLOOD_DETECTOR,
+                DeviceType.TEMPERATURE_SENSOR,
+            ]
+        ),
+        enabled_by_default=True,
+    ),
+    # Hub-specific binary sensors
+    AjaxBinarySensorDescription(
+        key="problem",
+        translation_key="problem",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        value_fn=lambda device: device.malfunctions > 0,
+        should_create=lambda device: device.type == DeviceType.HUB,
         enabled_by_default=True,
     ),
 )
@@ -269,5 +298,31 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
                 attributes["signal_strength"] = device.signal_strength
             if "temperature" in device.attributes:
                 attributes["temperature"] = device.attributes["temperature"]
+
+        # Add malfunction details for hub problem sensor
+        if self.entity_description.key == "problem" and device.type == DeviceType.HUB:
+            # Get all devices in this space with malfunctions
+            space = self.coordinator.account.spaces.get(self._space_id)
+            if space:
+                devices_with_problems = []
+                for dev_id, dev in space.devices.items():
+                    if dev.malfunctions > 0:
+                        problem_info = {
+                            "device_id": dev.id,
+                            "device_name": dev.name,
+                            "device_type": dev.type.value,
+                            "malfunction_count": dev.malfunctions,
+                        }
+                        # Add room info if available
+                        if dev.room_id:
+                            room = self.coordinator.get_room(self._space_id, dev.room_id)
+                            if room:
+                                problem_info["room_name"] = room.name
+                        devices_with_problems.append(problem_info)
+
+                attributes["total_malfunctions"] = device.malfunctions
+                attributes["devices_with_problems"] = len(devices_with_problems)
+                if devices_with_problems:
+                    attributes["problem_devices"] = devices_with_problems
 
         return attributes

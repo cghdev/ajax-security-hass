@@ -408,7 +408,19 @@ class AjaxApi:
     def _parse_hub_object(self, hub_obj) -> dict[str, Any]:
         """Parse a HubObject protobuf message to a dict."""
         try:
-            _LOGGER.debug("Parsing HubObject: %s", hub_obj)
+            _LOGGER.info("=" * 80)
+            _LOGGER.info("PARSING HubObject")
+            _LOGGER.info("=" * 80)
+
+            # Log all available fields
+            _LOGGER.info("Available HubObject fields: %s", [f.name for f in hub_obj.DESCRIPTOR.fields])
+
+            # Log which fields are actually set
+            set_fields = []
+            for field in hub_obj.DESCRIPTOR.fields:
+                if hub_obj.HasField(field.name) if field.message_type else getattr(hub_obj, field.name, None):
+                    set_fields.append(field.name)
+            _LOGGER.info("Fields that are set: %s", set_fields)
 
             hub_data = {
                 "hex_id": hub_obj.hex_id if hasattr(hub_obj, "hex_id") else None,
@@ -428,29 +440,115 @@ class AjaxApi:
                 _LOGGER.debug("Could not parse SIM card info: %s", e)
 
             # Parse firmware update info
+            # Note: system_firmware_update indicates auto-update is enabled, not that an update is available
             try:
                 if hasattr(hub_obj, "system_firmware_update"):
                     fw = hub_obj.system_firmware_update
-                    hub_data["firmware_update"] = {
-                        "available": True,
-                        "version": fw.version if hasattr(fw, "version") else None,
+                    hub_data["system_firmware_update"] = {
+                        "enabled": True,
+                        "version": fw.firmware_version if hasattr(fw, "firmware_version") else None,
                     }
-                    _LOGGER.debug("Firmware update available: %s", hub_data["firmware_update"])
+                    _LOGGER.debug("System firmware auto-update: %s", hub_data["system_firmware_update"])
             except (ValueError, AttributeError) as e:
-                _LOGGER.debug("Could not parse firmware update info: %s", e)
+                _LOGGER.debug("Could not parse system firmware update info: %s", e)
+
+            # Parse device firmware updates
+            try:
+                if hasattr(hub_obj, "device_firmware_updates") and hub_obj.device_firmware_updates:
+                    updates = hub_obj.device_firmware_updates
+                    _LOGGER.info("Device firmware updates available: %s", updates)
+                    if hasattr(updates, "device_firmware_update"):
+                        update_list = []
+                        for update in updates.device_firmware_update:
+                            update_info = {
+                                "device_id": update.device_id if hasattr(update, "device_id") else None,
+                                "is_critical": update.is_critical.value if hasattr(update, "is_critical") and update.is_critical else False,
+                            }
+                            # Parse status
+                            if hasattr(update, "status"):
+                                status_type = update.status.WhichOneof("status")
+                                update_info["status"] = status_type
+                            update_list.append(update_info)
+
+                        if update_list:
+                            hub_data["pending_firmware_updates"] = update_list
+                            hub_data["has_firmware_updates"] = True
+                            _LOGGER.info("Found %d device(s) with pending firmware updates", len(update_list))
+            except (ValueError, AttributeError) as e:
+                _LOGGER.debug("Could not parse device firmware updates: %s", e)
 
             # Parse hub connection properties
             try:
-                if hasattr(hub_obj, "hub_connection_properties"):
+                if hasattr(hub_obj, "hub_connection_properties") and hub_obj.hub_connection_properties:
                     props = hub_obj.hub_connection_properties
-                    # This contains delay durations for offline events
-                    # Not critical for now, can be expanded later
+                    _LOGGER.info("Hub connection properties: %s", props)
+                    _LOGGER.info("Hub connection properties fields: %s", [f.name for f in props.DESCRIPTOR.fields])
+
+                    conn_data = {}
+                    # Parse delay durations for offline detection
+                    if hasattr(props, "delay_before_hub_goes_offline"):
+                        delay = props.delay_before_hub_goes_offline
+                        if hasattr(delay, "seconds"):
+                            conn_data["offline_delay_seconds"] = delay.seconds
+
+                    if hasattr(props, "delay_before_hub_goes_online"):
+                        delay = props.delay_before_hub_goes_online
+                        if hasattr(delay, "seconds"):
+                            conn_data["online_delay_seconds"] = delay.seconds
+
+                    if conn_data:
+                        hub_data["connection_properties"] = conn_data
+                        _LOGGER.debug("Hub connection properties: %s", conn_data)
             except (ValueError, AttributeError) as e:
                 _LOGGER.debug("Could not parse hub connection properties: %s", e)
-                _LOGGER.debug("Hub connection properties found")
 
-            # Log all fields for debugging
-            _LOGGER.debug("HubObject fields: %s", [f.name for f in hub_obj.DESCRIPTOR.fields])
+            # Parse installation companies
+            try:
+                if hasattr(hub_obj, "installation_companies") and hub_obj.installation_companies:
+                    companies = hub_obj.installation_companies
+                    _LOGGER.info("Installation companies: %s", companies)
+                    if hasattr(companies, "installation_company"):
+                        company_list = []
+                        for company in companies.installation_company:
+                            company_info = {}
+                            if hasattr(company, "company_id"):
+                                company_info["id"] = company.company_id
+                            if hasattr(company, "company_name"):
+                                company_info["name"] = company.company_name
+                            if company_info:
+                                company_list.append(company_info)
+
+                        if company_list:
+                            hub_data["installation_companies"] = company_list
+                            _LOGGER.info("Found %d installation company/companies", len(company_list))
+            except (ValueError, AttributeError) as e:
+                _LOGGER.debug("Could not parse installation companies: %s", e)
+
+            # Parse monitoring companies
+            try:
+                if hasattr(hub_obj, "monitoring_companies") and hub_obj.monitoring_companies:
+                    companies = hub_obj.monitoring_companies
+                    _LOGGER.info("Monitoring companies: %s", companies)
+                    if hasattr(companies, "monitoring_company"):
+                        company_list = []
+                        for company in companies.monitoring_company:
+                            company_info = {}
+                            if hasattr(company, "company_id"):
+                                company_info["id"] = company.company_id
+                            if hasattr(company, "company_name"):
+                                company_info["name"] = company.company_name
+                            if company_info:
+                                company_list.append(company_info)
+
+                        if company_list:
+                            hub_data["monitoring_companies"] = company_list
+                            _LOGGER.info("Found %d monitoring company/companies", len(company_list))
+            except (ValueError, AttributeError) as e:
+                _LOGGER.debug("Could not parse monitoring companies: %s", e)
+
+            # Log all parsed data
+            _LOGGER.info("Parsed HubObject data: %s", hub_data)
+            _LOGGER.info("=" * 80)
 
             return hub_data
 
@@ -487,6 +585,37 @@ class AjaxApi:
                     object_type_str,
                     profile.id
                 )
+
+                # Add extensive logging for hub devices
+                if "hub" in object_type_str.lower():
+                    _LOGGER.info("=" * 80)
+                    _LOGGER.info("DETAILED HUB INFORMATION: %s", profile.name)
+                    _LOGGER.info("=" * 80)
+
+                    # Log all fields available in hub_dev
+                    _LOGGER.info("Available hub_device fields: %s", [f.name for f in hub_dev.DESCRIPTOR.fields])
+
+                    # Log common_device fields
+                    _LOGGER.info("Available common_device fields: %s", [f.name for f in common.DESCRIPTOR.fields])
+
+                    # Log profile fields
+                    _LOGGER.info("Available profile fields: %s", [f.name for f in profile.DESCRIPTOR.fields])
+
+                    # Log profile states
+                    if hasattr(profile, "states") and profile.states:
+                        _LOGGER.info("Profile states (%d): %s", len(profile.states), [str(s) for s in profile.states])
+
+                    # Log all statuses
+                    if hasattr(profile, "statuses") and profile.statuses:
+                        _LOGGER.info("Profile has %d status entries", len(profile.statuses))
+                        for idx, status in enumerate(profile.statuses):
+                            status_type = status.WhichOneof("status")
+                            _LOGGER.info("  Status[%d] type: %s", idx, status_type)
+                            if status_type:
+                                status_obj = getattr(status, status_type)
+                                _LOGGER.info("    Fields: %s", [f.name for f in status_obj.DESCRIPTOR.fields] if hasattr(status_obj, 'DESCRIPTOR') else str(status_obj))
+
+                    _LOGGER.info("=" * 80)
 
                 device_data = {
                     "id": profile.id,
@@ -777,6 +906,17 @@ class AjaxApi:
                 # Add attributes dict if we have any
                 if attributes:
                     device_data["attributes"] = attributes
+
+                # Add detailed logging for hub final data
+                if "hub" in object_type_str.lower():
+                    _LOGGER.info("=" * 80)
+                    _LOGGER.info("FINAL HUB DEVICE DATA: %s", profile.name)
+                    _LOGGER.info("=" * 80)
+                    _LOGGER.info("Device data keys: %s", list(device_data.keys()))
+                    _LOGGER.info("Device data: %s", device_data)
+                    if "attributes" in device_data:
+                        _LOGGER.info("Attributes (%d): %s", len(device_data["attributes"]), device_data["attributes"])
+                    _LOGGER.info("=" * 80)
 
                 _LOGGER.debug("Parsed device data: %s", device_data)
                 return device_data
@@ -1325,6 +1465,129 @@ class AjaxApi:
         except Exception as err:
             _LOGGER.debug("Error parsing notification: %s", err, exc_info=True)
             return None
+
+    def _parse_groups_from_space(self, space) -> dict[str, Any]:
+        """Parse groups from a Space protobuf message.
+
+        Args:
+            space: The Space protobuf message from snapshot
+
+        Returns:
+            Dictionary with:
+            - group_mode_enabled: bool - whether system uses group mode
+            - night_mode_enabled: bool - whether night mode is enabled
+            - groups: dict - group ID -> group data mapping
+        """
+        result = {
+            "group_mode_enabled": False,
+            "night_mode_enabled": False,
+            "groups": {},
+        }
+
+        try:
+            # Check if space has security field
+            if not hasattr(space, "security") or not space.security:
+                _LOGGER.debug("Space has no security field")
+                return result
+
+            security = space.security
+
+            # Parse groups metadata (id, name, bulk arm/disarm settings)
+            groups_metadata = {}
+            if hasattr(security, "groups") and security.groups:
+                _LOGGER.debug("Found %d groups in space security", len(security.groups))
+                for group in security.groups:
+                    group_id = group.id if hasattr(group, "id") else None
+                    if not group_id:
+                        continue
+
+                    # Extract image ID if available
+                    image_id = None
+                    if hasattr(group, "images") and group.images:
+                        images = group.images
+                        if hasattr(images, "light") and images.light:
+                            image_id = images.light if isinstance(images.light, str) else None
+
+                    groups_metadata[group_id] = {
+                        "id": group_id,
+                        "name": group.name if hasattr(group, "name") else f"Group {group_id}",
+                        "bulk_arm_involved": group.bulk_arm_involved if hasattr(group, "bulk_arm_involved") else False,
+                        "bulk_disarm_involved": group.bulk_disarm_involved if hasattr(group, "bulk_disarm_involved") else False,
+                        "image_id": image_id,
+                    }
+
+            # Check security mode
+            if hasattr(security, "mode") and security.mode:
+                mode = security.mode
+
+                # Check if it's group mode
+                if mode.HasField("group_mode"):
+                    _LOGGER.debug("Space is in group mode")
+                    result["group_mode_enabled"] = True
+                    group_mode = mode.group_mode
+
+                    # Parse night mode
+                    if hasattr(group_mode, "night_mode_enabled"):
+                        result["night_mode_enabled"] = group_mode.night_mode_enabled
+
+                    # Parse group security states
+                    if hasattr(group_mode, "groups") and group_mode.groups:
+                        _LOGGER.debug("Found %d group security states", len(group_mode.groups))
+                        for group_security in group_mode.groups:
+                            group_id = group_security.group_id if hasattr(group_security, "group_id") else None
+                            if not group_id:
+                                continue
+
+                            # Get metadata for this group
+                            metadata = groups_metadata.get(group_id, {
+                                "id": group_id,
+                                "name": f"Group {group_id}",
+                                "bulk_arm_involved": False,
+                                "bulk_disarm_involved": False,
+                                "image_id": None,
+                            })
+
+                            # Parse state
+                            state = "none"
+                            if hasattr(group_security, "state"):
+                                state_value = group_security.state
+                                # GroupSecurity.State enum values
+                                if state_value == 1:  # GROUP_SECURITY_STATE_ARMED
+                                    state = "armed"
+                                elif state_value == 2:  # GROUP_SECURITY_STATE_DISARMED
+                                    state = "disarmed"
+
+                            # Parse night mode for this group
+                            group_night_mode = False
+                            if hasattr(group_security, "transition") and group_security.transition:
+                                transition = group_security.transition
+                                if hasattr(transition, "desired_state") and transition.desired_state:
+                                    desired = transition.desired_state
+                                    if hasattr(desired, "night_mode_enabled"):
+                                        group_night_mode = desired.night_mode_enabled
+
+                            result["groups"][group_id] = {
+                                **metadata,
+                                "state": state,
+                                "night_mode_enabled": group_night_mode,
+                            }
+
+                elif mode.HasField("regular_mode"):
+                    _LOGGER.debug("Space is in regular mode (not group mode)")
+                    # In regular mode, there are no groups
+                    # The overall space security state is handled separately
+
+            _LOGGER.info(
+                "Parsed %d groups, group_mode=%s, night_mode=%s",
+                len(result["groups"]),
+                result["group_mode_enabled"],
+                result["night_mode_enabled"],
+            )
+            return result
+
+        except Exception as err:
+            _LOGGER.exception("Error parsing groups from space: %s", err)
+            return result
 
     async def close(self) -> None:
         """Close the gRPC channel."""

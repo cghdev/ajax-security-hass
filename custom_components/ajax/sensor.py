@@ -188,8 +188,8 @@ DEVICE_SENSORS: tuple[AjaxDeviceSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda device: device.malfunctions,
-        should_create=lambda device: True,  # All devices can have malfunctions
-        enabled_by_default=False,  # Disabled by default, available for troubleshooting
+        should_create=lambda device: device.type == DeviceType.HUB,
+        enabled_by_default=True,  # Enabled for hubs
     ),
     AjaxDeviceSensorDescription(
         key="firmware_version",

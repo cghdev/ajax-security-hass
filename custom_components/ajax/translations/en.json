@@ -213,6 +213,20 @@
       },
       "armed_in_night_mode": {
         "name": "Armed in night mode"
+      },
+      "problem": {
+        "name": "Problem detected",
+        "state_attributes": {
+          "total_malfunctions": {
+            "name": "Total malfunctions"
+          },
+          "devices_with_problems": {
+            "name": "Devices with problems"
+          },
+          "problem_devices": {
+            "name": "Problem devices list"
+          }
+        }
       }
     },
     "button": {
