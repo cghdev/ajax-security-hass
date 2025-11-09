@@ -589,6 +589,16 @@ class AjaxApi:
                                 attributes["motion_detected_at"] = str(status.motion_detected.detected_at)
                                 _LOGGER.debug("Motion detected at: %s", attributes["motion_detected_at"])
 
+                        # Always active (device active even in night mode)
+                        elif status.HasField("always_active"):
+                            attributes["always_active"] = True
+                            _LOGGER.debug("Device is always active")
+
+                        # Armed in night mode
+                        elif status.HasField("armed_in_night_mode"):
+                            attributes["armed_in_night_mode"] = True
+                            _LOGGER.debug("Device armed in night mode")
+
                         # Smoke detection
                         elif status.HasField("smoke_detected"):
                             attributes["smoke_detected"] = True
@@ -742,6 +752,27 @@ class AjaxApi:
                         if hw_parts:
                             device_data["hardware_version"] = ", ".join(hw_parts)
                             _LOGGER.debug("Hardware versions: %s", device_data["hardware_version"])
+
+                # Check for spread_properties and device_specific_properties
+                # These might contain arming mode information
+                if hasattr(hub_dev, "spread_properties") and hub_dev.spread_properties:
+                    _LOGGER.debug("Device %s has %d spread_properties", profile.name, len(hub_dev.spread_properties))
+                    for idx, prop in enumerate(hub_dev.spread_properties):
+                        _LOGGER.debug("  spread_property[%d]: %s", idx, prop)
+
+                if hasattr(hub_dev, "device_specific_properties") and hub_dev.device_specific_properties:
+                    _LOGGER.debug("Device %s has %d device_specific_properties", profile.name, len(hub_dev.device_specific_properties))
+                    for idx, prop in enumerate(hub_dev.device_specific_properties):
+                        _LOGGER.debug("  device_specific_property[%d]: %s", idx, prop)
+
+                # Add default values for always_active and armed_in_night_mode if not set
+                # (these fields only appear when True, but we want to show them as False when absent)
+                # Note: These attributes only apply to detectors, not to hubs
+                if "hub" not in object_type_str.lower():
+                    if "always_active" not in attributes:
+                        attributes["always_active"] = False
+                    if "armed_in_night_mode" not in attributes:
+                        attributes["armed_in_night_mode"] = False
 
                 # Add attributes dict if we have any
                 if attributes:

@@ -185,6 +185,12 @@
           },
           "high": {
             "name": "High noise"
+          },
+          "always_active": {
+            "name": "Always active"
+          },
+          "armed_in_night_mode": {
+            "name": "Armed in night mode"
           }
         }
       }
@@ -201,6 +207,12 @@
       },
       "external_power": {
         "name": "External power"
+      },
+      "always_active": {
+        "name": "Always active"
+      },
+      "armed_in_night_mode": {
+        "name": "Armed in night mode"
       }
     },
     "button": {

@@ -226,6 +226,12 @@
           },
           "high": {
             "name": "Bruit élevé"
+          },
+          "always_active": {
+            "name": "Toujours actif"
+          },
+          "armed_in_night_mode": {
+            "name": "Armé en mode nuit"
           }
         }
       }
@@ -242,6 +248,12 @@
       },
       "external_power": {
         "name": "Alimentation externe"
+      },
+      "always_active": {
+        "name": "Toujours actif"
+      },
+      "armed_in_night_mode": {
+        "name": "Armé en mode nuit"
       }
     },
     "button": {

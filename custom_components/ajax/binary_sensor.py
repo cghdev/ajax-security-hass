@@ -91,6 +91,22 @@ BINARY_SENSORS: tuple[AjaxBinarySensorDescription, ...] = (
         should_create=lambda device: "tampered" in device.attributes,
         enabled_by_default=False,  # Disabled by default as it's rarely triggered
     ),
+    AjaxBinarySensorDescription(
+        key="always_active",
+        translation_key="always_active",
+        icon="mdi:moon-waning-crescent",
+        value_fn=lambda device: device.attributes.get("always_active", False),
+        should_create=lambda device: "always_active" in device.attributes and device.type != DeviceType.HUB,
+        enabled_by_default=True,
+    ),
+    AjaxBinarySensorDescription(
+        key="armed_in_night_mode",
+        translation_key="armed_in_night_mode",
+        icon="mdi:shield-moon",
+        value_fn=lambda device: device.attributes.get("armed_in_night_mode", False),
+        should_create=lambda device: "armed_in_night_mode" in device.attributes and device.type != DeviceType.HUB,
+        enabled_by_default=True,
+    ),
 )
 
 
