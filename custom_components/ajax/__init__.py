@@ -149,6 +149,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
                 device_info = {
                     "type": device.type.value if device.type else "unknown",
+                    "raw_type": device.raw_type or "unknown",
                     "has_room": bool(room_name),
                     "firmware_version": device.firmware_version or "unknown",
                     "hardware_version": device.hardware_version or "unknown",
@@ -190,6 +191,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "devices_by_type": {},
             "firmware_versions": {},
             "hardware_versions": {},
+            "unknown_device_raw_types": {},  # Track raw types of unknown devices for debugging
             "devices": devices_info,
         }
 
@@ -197,6 +199,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         for dev in devices_info:
             dev_type = dev["type"]
             report["devices_by_type"][dev_type] = report["devices_by_type"].get(dev_type, 0) + 1
+
+            # Track raw types for unknown devices
+            if dev_type == "unknown":
+                raw_type = dev.get("raw_type", "unknown")
+                report["unknown_device_raw_types"][raw_type] = report["unknown_device_raw_types"].get(raw_type, 0) + 1
 
             # Count firmware versions
             fw = dev["firmware_version"]
@@ -222,15 +229,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.info("Device info report saved to: %s", report_path)
 
             # Send persistent notification to user
+            unknown_count = report["devices_by_type"].get("unknown", 0)
+            message = (
+                f"Device information report has been generated.\n\n"
+                f"Location: {report_path}\n"
+                f"Total devices: {report['total_devices']}\n"
+                f"Device types: {len(report['devices_by_type'])}"
+            )
+
+            if unknown_count > 0:
+                message += f"\n\n⚠️ Warning: {unknown_count} unknown device(s) detected!\n"
+                message += "Raw types: " + ", ".join(report["unknown_device_raw_types"].keys())
+
             await hass.services.async_call(
                 "persistent_notification",
                 "create",
                 {
                     "title": "Ajax Device Info Generated",
-                    "message": f"Device information report has been generated.\n\n"
-                              f"Location: {report_path}\n"
-                              f"Total devices: {report['total_devices']}\n"
-                              f"Device types: {len(report['devices_by_type'])}",
+                    "message": message,
                     "notification_id": "ajax_device_info_generated",
                 },
             )

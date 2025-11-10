@@ -824,7 +824,8 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 continue
 
             # Parse device type
-            device_type = self._parse_device_type(device_data.get("type", "unknown"))
+            raw_device_type = device_data.get("type", "unknown")
+            device_type = self._parse_device_type(raw_device_type)
 
             # Create or update device
             if device_id not in space.devices:
@@ -832,15 +833,29 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     id=device_id,
                     name=device_data.get("name", "Unknown Device"),
                     type=device_type,
+                    raw_type=raw_device_type,
                     space_id=space_id,
                     hub_id=device_data.get("hub_id", space.hub_id or ""),
                     room_id=device_data.get("room_id"),
                     group_id=device_data.get("group_id"),
                 )
                 space.devices[device_id] = device
-                _LOGGER.info("Added new device: %s (%s)", device.name, device.type.value)
+
+                # Log warning for unknown device types
+                if device_type == DeviceType.UNKNOWN:
+                    _LOGGER.warning(
+                        "Unknown device type detected: '%s' for device '%s' (ID: %s). "
+                        "Please report this to the integration developer.",
+                        raw_device_type,
+                        device.name,
+                        device_id,
+                    )
+                else:
+                    _LOGGER.info("Added new device: %s (%s)", device.name, device.type.value)
             else:
                 device = space.devices[device_id]
+                # Update raw_type in case it changed
+                device.raw_type = raw_device_type
 
             # Update device attributes
             device.online = device_data.get("online", True)
