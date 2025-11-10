@@ -5,6 +5,26 @@ All notable changes to the Ajax Security System integration will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.6] - 2025-11-10
+
+### Changed
+- **Groups/zones now use switches instead of alarm control panels** (Fixes #2)
+  - Groups/zones appear as switches: ON = Armed, OFF = Disarmed
+  - Removed night mode from individual zones (not relevant)
+  - Main alarm control panel remains for the entire space/hub
+  - Simpler and more intuitive interface for zone control
+
+### Fixed
+- Fixed protobuf class names for group arming/disarming
+  - `ArmGroupRequest` → `ArmSpaceGroupRequest`
+  - `DisarmGroupRequest` → `DisarmSpaceGroupRequest`
+- Resolved AttributeError when arming/disarming groups
+
+### Technical
+- Added `AjaxGroupSwitch` class to switch.py
+- Removed `AjaxGroupAlarmControlPanel` class from alarm_control_panel.py
+- Added translations for security_group switches (EN/FR)
+
 ## [0.4.5] - 2025-11-10
 
 ### Added
