@@ -30,7 +30,15 @@ Issues, pull requests, and feedback are welcome!
 - ✅ **Arm** (Away mode)
 - ✅ **Disarm**
 - ✅ **Night Mode**
+- ✅ **Partial Arming** - Group-based arming
+- ✅ **Force Arm** - Arm with open sensors/problems
 - ✅ **Panic Button** - Trigger emergency alarm from Home Assistant
+
+### 🔔 Notifications
+- ✅ **Real-time Notifications** - Arming/disarming events with user name
+- ✅ **Persistent Notifications** - Optional Home Assistant notifications
+- ✅ **Notification Filters** - None, Alarms only, Security events, or All notifications
+- ✅ **Device Events** - Motion detection, door/window opened, etc.
 
 ### 📱 Device Support
 
@@ -40,22 +48,24 @@ Issues, pull requests, and feedback are welcome!
 
 **Theoretically Supported** (via official API, not personally tested):
 - **Other Hubs** - Hub, Hub Plus, Hub 2, Hub 2 (4G)
-- **Motion Detectors** - MotionProtect, CombiProtect
+- **Motion Detectors** - MotionProtect, MotionProtect Plus, MotionProtect Outdoor, CombiProtect
 - **Door/Window Contacts** - DoorProtect, DoorProtect Plus
 - **Fire Safety** - FireProtect, FireProtect Plus, FireProtect 2
 - **Flood Detectors** - LeaksProtect
 - **Glass Break** - GlassProtect
-- **Sirens** - HomeSiren, StreetSiren
-- **Keypads** - KeyPad, KeyPad Plus
+- **Sirens** - HomeSiren, StreetSiren, StreetSiren DoubleDeck
+- **Keypads** - KeyPad, KeyPad Plus, KeyPad TouchScreen
 - **Smart Devices** - Socket, WallSwitch, Relay
+- **Other Devices** - SpaceControl (key fob), Button (panic button), Tag (keyring)
 
 **Note**: The integration uses Ajax's official API and is designed to work with all Ajax devices. If you have devices not listed as tested, they should still work - please report your experience!
 
 ### 📊 Rich Entity Support
-- **Alarm Control Panel** - Full security system control
-- **Binary Sensors** - Motion, door/window, smoke, flood, glass break, tamper, power status
-- **Sensors** - Battery level, signal strength, temperature, humidity, device counts, notifications
+- **Alarm Control Panel** - Full security system control with support for groups/zones
+- **Binary Sensors** - Motion, door/window, smoke, flood, glass break, tamper, power status, moisture
+- **Sensors** - Battery level, signal strength, temperature, humidity, CO2, device counts, notifications, SIM status
 - **Button** - Panic button for emergency situations
+- **Switch** - Smart sockets and relays with channel control
 
 ### 🌍 Multi-Hub & Multi-Language
 - Support for multiple Ajax Hubs in one Home Assistant instance
@@ -91,6 +101,12 @@ Issues, pull requests, and feedback are welcome!
 4. Enter your Ajax account credentials:
    - **Email**: Your Ajax account email
    - **Password**: Your Ajax account password
+   - **Persistent Notifications** (optional): Show notifications in Home Assistant UI
+   - **Notification Filter** (optional): Choose which notifications to display:
+     - **None**: No notifications
+     - **Alarms only**: Only alarm/intrusion notifications
+     - **Security events**: Alarms + arming/disarming events
+     - **All notifications**: All notifications including device events
 5. Click **Submit**
 
 The integration will automatically discover all your Ajax devices and create entities for them.
@@ -145,6 +161,36 @@ automation:
         target:
           entity_id: alarm_control_panel.ajax_alarm_home
 ```
+
+### Force Arming
+
+Use force arming to arm the system even with open sensors or problems:
+
+```yaml
+# Example: Force arm at night
+automation:
+  - alias: "Force arm at bedtime"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - service: ajax.force_arm
+        target:
+          entity_id: alarm_control_panel.ajax_alarm_home
+
+# Example: Force arm in night mode
+automation:
+  - alias: "Force arm night mode"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - service: ajax.force_arm_night
+        target:
+          entity_id: alarm_control_panel.ajax_alarm_home
+```
+
+⚠️ **Warning**: Force arming ignores open sensors and system problems. Use with caution.
 
 ### Panic Button
 
@@ -275,7 +321,15 @@ Les issues, pull requests et retours d'expérience sont les bienvenus !
 - ✅ **Armement** (mode absent)
 - ✅ **Désarmement**
 - ✅ **Mode Nuit**
+- ✅ **Armement Partiel** - Armement par groupe/zone
+- ✅ **Armement Forcé** - Armer avec capteurs ouverts/problèmes
 - ✅ **Bouton Panique** - Déclencher une alarme d'urgence depuis Home Assistant
+
+### 🔔 Notifications
+- ✅ **Notifications Temps Réel** - Événements d'armement/désarmement avec nom d'utilisateur
+- ✅ **Notifications Persistantes** - Notifications optionnelles dans Home Assistant
+- ✅ **Filtres de Notifications** - Aucune, Alarmes uniquement, Événements de sécurité, ou Toutes les notifications
+- ✅ **Événements Dispositifs** - Détection de mouvement, ouverture porte/fenêtre, etc.
 
 ### 📱 Support des Appareils
 
@@ -285,22 +339,24 @@ Les issues, pull requests et retours d'expérience sont les bienvenus !
 
 **Théoriquement Supportés** (via l'API officielle, non testés personnellement) :
 - **Autres Hubs** - Hub, Hub Plus, Hub 2, Hub 2 (4G)
-- **Détecteurs de Mouvement** - MotionProtect, CombiProtect
+- **Détecteurs de Mouvement** - MotionProtect, MotionProtect Plus, MotionProtect Outdoor, CombiProtect
 - **Contacts de Porte/Fenêtre** - DoorProtect, DoorProtect Plus
 - **Sécurité Incendie** - FireProtect, FireProtect Plus, FireProtect 2
 - **Détecteurs d'Inondation** - LeaksProtect
 - **Bris de Vitre** - GlassProtect
-- **Sirènes** - HomeSiren, StreetSiren
-- **Claviers** - KeyPad, KeyPad Plus
+- **Sirènes** - HomeSiren, StreetSiren, StreetSiren DoubleDeck
+- **Claviers** - KeyPad, KeyPad Plus, KeyPad TouchScreen
 - **Appareils Intelligents** - Socket, WallSwitch, Relay
+- **Autres Appareils** - SpaceControl (télécommande), Button (bouton panique), Tag (badge)
 
 **Note** : L'intégration utilise l'API officielle Ajax et est conçue pour fonctionner avec tous les appareils Ajax. Si vous avez des appareils non listés comme testés, ils devraient quand même fonctionner - merci de partager votre expérience !
 
 ### 📊 Entités Riches
-- **Panneau de Contrôle d'Alarme** - Contrôle complet du système de sécurité
-- **Capteurs Binaires** - Mouvement, porte/fenêtre, fumée, inondation, bris de vitre, sabotage, état alimentation
-- **Capteurs** - Niveau batterie, force signal, température, humidité, compteurs d'appareils, notifications
+- **Panneau de Contrôle d'Alarme** - Contrôle complet du système de sécurité avec support groupes/zones
+- **Capteurs Binaires** - Mouvement, porte/fenêtre, fumée, inondation, bris de vitre, sabotage, état alimentation, humidité
+- **Capteurs** - Niveau batterie, force signal, température, humidité, CO2, compteurs d'appareils, notifications, statut SIM
 - **Bouton** - Bouton panique pour les situations d'urgence
+- **Interrupteur** - Prises intelligentes et relais avec contrôle de canal
 
 ### 🌍 Multi-Hub & Multilingue
 - Support de plusieurs Hubs Ajax dans une instance Home Assistant
@@ -336,6 +392,12 @@ Les issues, pull requests et retours d'expérience sont les bienvenus !
 4. Entrez vos identifiants de compte Ajax :
    - **Email** : Votre email de compte Ajax
    - **Mot de passe** : Votre mot de passe de compte Ajax
+   - **Notifications Persistantes** (optionnel) : Afficher les notifications dans l'interface Home Assistant
+   - **Filtre de Notifications** (optionnel) : Choisir quelles notifications afficher :
+     - **Aucune** : Pas de notifications
+     - **Alarmes uniquement** : Seulement les notifications d'alarme/intrusion
+     - **Événements de sécurité** : Alarmes + événements d'armement/désarmement
+     - **Toutes les notifications** : Toutes les notifications incluant les événements des appareils
 5. Cliquez sur **Soumettre**
 
 L'intégration découvrira automatiquement tous vos appareils Ajax et créera des entités pour eux.
@@ -390,6 +452,36 @@ automation:
         target:
           entity_id: alarm_control_panel.ajax_alarm_maison
 ```
+
+### Armement Forcé
+
+Utilisez l'armement forcé pour armer le système même avec des capteurs ouverts ou des problèmes :
+
+```yaml
+# Exemple : Armement forcé au coucher
+automation:
+  - alias: "Armement forcé au coucher"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - service: ajax.force_arm
+        target:
+          entity_id: alarm_control_panel.ajax_alarm_maison
+
+# Exemple : Armement forcé en mode nuit
+automation:
+  - alias: "Armement forcé mode nuit"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - service: ajax.force_arm_night
+        target:
+          entity_id: alarm_control_panel.ajax_alarm_maison
+```
+
+⚠️ **Attention** : L'armement forcé ignore les capteurs ouverts et les problèmes système. Utilisez avec précaution.
 
 ### Bouton Panique
 
