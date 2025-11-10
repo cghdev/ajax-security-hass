@@ -5,6 +5,41 @@ All notable changes to the Ajax Security System integration will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2025-11-10
+
+### Added
+- **Socket/Relay support**: Full control of Ajax smart sockets and relays
+  - New switch platform for turning sockets on/off
+  - Support for multi-channel devices (up to 4 channels)
+  - Real-time state updates via coordinator
+  - Channel information in entity attributes (channel_id, output_mode, operating_mode)
+  - Added `async_turn_on_device` and `async_turn_off_device` API methods
+
+### Fixed
+- **Door sensor closed state detection**: Door sensors now properly detect both opening and closing
+  - `door_opened` attribute now correctly initializes to `False` when absent
+  - Previously only detected opening, not closing events
+- **Users without notification access**: Integration no longer crashes for users without notification permissions
+  - Returns empty notification list instead of raising exception
+  - Logs informational message when access is denied
+- **Real-time alarm status updates**: Improved reliability of streaming tasks
+  - Added automatic retry logic with exponential backoff (5s, 10s, 20s, 40s, 60s intervals)
+  - Streaming tasks now retry up to 10 times on errors
+  - Enhanced logging to track streaming status and state changes
+- **Duplicate hub devices**: Fixed issue where hub appeared twice in device list
+  - Hub device-level sensors now merge with alarm control panel device
+  - All hub entities (alarm panel, sensors, binary sensors) appear on single device
+- **Privacy**: Removed email address from debug logs
+
+### Technical
+- Parse socket channel data from `spread_properties.channel`
+- Device type filtering now uses explicit whitelisting for detector-specific sensors
+- Alarm control panel now includes `device_info` property
+- Hub device sensors use space identifier to merge with space-level entities
+
+### Migration Notes
+- **Manual cleanup required**: Users may need to manually remove the old duplicate hub device from Home Assistant after updating (Settings > Devices & Services > Ajax > find empty hub device and delete it)
+
 ## [0.3.0] - 2025-11-09
 
 ### Added
