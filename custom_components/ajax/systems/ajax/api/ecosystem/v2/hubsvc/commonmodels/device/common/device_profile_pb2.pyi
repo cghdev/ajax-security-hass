@@ -1,25 +1,52 @@
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_color_pb2 as _device_color_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_label_pb2 as _device_label_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_firmware_update_part_pb2 as _device_firmware_update_part_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_firmware_version_pb2 as _device_firmware_version_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.meta import meta_pb2 as _meta_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_appearance_pb2 as _device_appearance_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    device_appearance_pb2 as _device_appearance_pb2,
+)
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    device_color_pb2 as _device_color_pb2,
+)
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    device_firmware_update_part_pb2 as _device_firmware_update_part_pb2,
+)
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    device_firmware_version_pb2 as _device_firmware_version_pb2,
+)
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    device_label_pb2 as _device_label_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DeviceProfile(_message.Message):
-    __slots__ = ("id", "name", "device_color", "device_label", "displayed_id", "device_profile_settings", "device_appearance", "marketing_device_index", "room_id", "group_id", "device_firmware_version", "device_firmware_update", "device_location")
+    __slots__ = (
+        "device_appearance",
+        "device_color",
+        "device_firmware_update",
+        "device_firmware_version",
+        "device_label",
+        "device_location",
+        "device_profile_settings",
+        "displayed_id",
+        "group_id",
+        "id",
+        "marketing_device_index",
+        "name",
+        "room_id",
+    )
     class DeviceProfileSettings(_message.Message):
-        __slots__ = ("name", "device_location")
+        __slots__ = ("device_location", "name")
         NAME_FIELD_NUMBER: _ClassVar[int]
         DEVICE_LOCATION_FIELD_NUMBER: _ClassVar[int]
         name: str
         device_location: str
-        def __init__(self, name: _Optional[str] = ..., device_location: _Optional[str] = ...) -> None: ...
+        def __init__(
+            self, name: str | None = ..., device_location: str | None = ...
+        ) -> None: ...
+
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     DEVICE_COLOR_FIELD_NUMBER: _ClassVar[int]
@@ -46,4 +73,27 @@ class DeviceProfile(_message.Message):
     device_firmware_version: _device_firmware_version_pb2.DeviceFirmwareVersion
     device_firmware_update: _device_firmware_update_part_pb2.DeviceFirmwareUpdatePart
     device_location: str
-    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., device_color: _Optional[_Union[_device_color_pb2.DeviceColor, str]] = ..., device_label: _Optional[_Union[_device_label_pb2.DeviceLabel, str]] = ..., displayed_id: _Optional[str] = ..., device_profile_settings: _Optional[_Union[DeviceProfile.DeviceProfileSettings, _Mapping]] = ..., device_appearance: _Optional[_Union[_device_appearance_pb2.DeviceAppearance, _Mapping]] = ..., marketing_device_index: _Optional[int] = ..., room_id: _Optional[str] = ..., group_id: _Optional[str] = ..., device_firmware_version: _Optional[_Union[_device_firmware_version_pb2.DeviceFirmwareVersion, _Mapping]] = ..., device_firmware_update: _Optional[_Union[_device_firmware_update_part_pb2.DeviceFirmwareUpdatePart, _Mapping]] = ..., device_location: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        id: str | None = ...,
+        name: str | None = ...,
+        device_color: _device_color_pb2.DeviceColor | str | None = ...,
+        device_label: _device_label_pb2.DeviceLabel | str | None = ...,
+        displayed_id: str | None = ...,
+        device_profile_settings: DeviceProfile.DeviceProfileSettings
+        | _Mapping
+        | None = ...,
+        device_appearance: _device_appearance_pb2.DeviceAppearance
+        | _Mapping
+        | None = ...,
+        marketing_device_index: int | None = ...,
+        room_id: str | None = ...,
+        group_id: str | None = ...,
+        device_firmware_version: _device_firmware_version_pb2.DeviceFirmwareVersion
+        | _Mapping
+        | None = ...,
+        device_firmware_update: _device_firmware_update_part_pb2.DeviceFirmwareUpdatePart
+        | _Mapping
+        | None = ...,
+        device_location: str | None = ...,
+    ) -> None: ...

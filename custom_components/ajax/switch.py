@@ -5,15 +5,13 @@ This module creates switch entities for:
 - Ajax Relays
 - Ajax Security Groups/Zones (ON = Armed, OFF = Disarmed)
 """
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from homeassistant.components.switch import (
-    SwitchEntity,
-    SwitchEntityDescription,
-)
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -207,7 +205,9 @@ class AjaxSwitch(CoordinatorEntity[AjaxDataCoordinator], SwitchEntity):
                 room_name = space.rooms[device.room_id].name
 
         # Include room name in device name if available
-        device_display_name = f"{room_name} - {device.name}" if room_name else device.name
+        device_display_name = (
+            f"{room_name} - {device.name}" if room_name else device.name
+        )
 
         return {
             "identifiers": {(DOMAIN, self._device_id)},
@@ -307,7 +307,9 @@ class AjaxGroupSwitch(CoordinatorEntity[AjaxDataCoordinator], SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Disarm the security group."""
-        _LOGGER.info("Disarming Ajax group %s in space %s", self._group_id, self._space_id)
+        _LOGGER.info(
+            "Disarming Ajax group %s in space %s", self._group_id, self._space_id
+        )
 
         try:
             await self.coordinator.async_disarm_group(self._space_id, self._group_id)

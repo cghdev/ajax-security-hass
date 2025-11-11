@@ -1,15 +1,26 @@
-from systems.ajax.api.mobile.v2.common.image import image_pb2 as _image_pb2
-from systems.ajax.api.mobile.v2.common.space.member import space_member_role_pb2 as _space_member_role_pb2
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.image import image_pb2 as _image_pb2
+from systems.ajax.api.mobile.v2.common.space.member import (
+    space_member_role_pb2 as _space_member_role_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class LiteSpaceMember(_message.Message):
-    __slots__ = ("id", "name", "email", "role", "images", "has_privacy_permission", "sorting_key", "hex_id")
+    __slots__ = (
+        "email",
+        "has_privacy_permission",
+        "hex_id",
+        "id",
+        "images",
+        "name",
+        "role",
+        "sorting_key",
+    )
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
@@ -26,4 +37,14 @@ class LiteSpaceMember(_message.Message):
     has_privacy_permission: bool
     sorting_key: str
     hex_id: str
-    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., email: _Optional[str] = ..., role: _Optional[_Union[_space_member_role_pb2.SpaceMemberRole, str]] = ..., images: _Optional[_Union[_image_pb2.Images, _Mapping]] = ..., has_privacy_permission: bool = ..., sorting_key: _Optional[str] = ..., hex_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        id: str | None = ...,
+        name: str | None = ...,
+        email: str | None = ...,
+        role: _space_member_role_pb2.SpaceMemberRole | str | None = ...,
+        images: _image_pb2.Images | _Mapping | None = ...,
+        has_privacy_permission: bool = ...,
+        sorting_key: str | None = ...,
+        hex_id: str | None = ...,
+    ) -> None: ...

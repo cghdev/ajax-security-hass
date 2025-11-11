@@ -1,6 +1,7 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -14,6 +15,7 @@ class HubObjectTypeWithIndex(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     HUB_OBJECT_TYPE_WITH_INDEX_ACCESS_CARD: _ClassVar[HubObjectTypeWithIndex]
     HUB_OBJECT_TYPE_WITH_INDEX_ACCESS_KEY: _ClassVar[HubObjectTypeWithIndex]
     HUB_OBJECT_TYPE_WITH_INDEX_ACCESS_CODE: _ClassVar[HubObjectTypeWithIndex]
+
 HUB_OBJECT_TYPE_WITH_INDEX_UNSPECIFIED: HubObjectTypeWithIndex
 HUB_OBJECT_TYPE_WITH_INDEX_USER: HubObjectTypeWithIndex
 HUB_OBJECT_TYPE_WITH_INDEX_PRO: HubObjectTypeWithIndex

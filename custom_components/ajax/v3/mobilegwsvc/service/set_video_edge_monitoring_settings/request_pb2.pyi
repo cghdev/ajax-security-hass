@@ -1,7 +1,7 @@
-from systems.ajax.logging.proto import log_marker_pb2 as _log_marker_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -13,4 +13,9 @@ class SetVideoEdgeMonitoringSettingsRequest(_message.Message):
     space_id: str
     video_edge_id: str
     zone_number: str
-    def __init__(self, space_id: _Optional[str] = ..., video_edge_id: _Optional[str] = ..., zone_number: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        space_id: str | None = ...,
+        video_edge_id: str | None = ...,
+        zone_number: str | None = ...,
+    ) -> None: ...

@@ -1,16 +1,34 @@
-from systems.ajax.api.mobile.v2.common.hub.device.common import battery_charged_state_pb2 as _battery_charged_state_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import chime_pb2 as _chime_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import mcu_pb2 as _mcu_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import operating_mode_pb2 as _operating_mode_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.hub.device.common import (
+    battery_charged_state_pb2 as _battery_charged_state_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import (
+    chime_pb2 as _chime_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import mcu_pb2 as _mcu_pb2
+from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import (
+    operating_mode_pb2 as _operating_mode_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class McuBase(_message.Message):
-    __slots__ = ("external_power_state", "mcu_state", "operating_mode", "battery_state", "battery_charged_state", "chime", "battery_temperature_state", "pir_motion_led_indication", "ring_button_bell_state", "capabilities")
+    __slots__ = (
+        "battery_charged_state",
+        "battery_state",
+        "battery_temperature_state",
+        "capabilities",
+        "chime",
+        "external_power_state",
+        "mcu_state",
+        "operating_mode",
+        "pir_motion_led_indication",
+        "ring_button_bell_state",
+    )
     EXTERNAL_POWER_STATE_FIELD_NUMBER: _ClassVar[int]
     MCU_STATE_FIELD_NUMBER: _ClassVar[int]
     OPERATING_MODE_FIELD_NUMBER: _ClassVar[int]
@@ -31,4 +49,22 @@ class McuBase(_message.Message):
     pir_motion_led_indication: _mcu_pb2.Mcu.PirMotionLedIndication
     ring_button_bell_state: _mcu_pb2.Mcu.RingButtonBellState
     capabilities: _mcu_pb2.Mcu.Capabilities
-    def __init__(self, external_power_state: _Optional[_Union[_mcu_pb2.Mcu.ExternalPowerState, str]] = ..., mcu_state: _Optional[_Union[_mcu_pb2.Mcu.McuState, str]] = ..., operating_mode: _Optional[_Union[_operating_mode_pb2.OperatingMode, str]] = ..., battery_state: _Optional[_Union[_mcu_pb2.Mcu.BatteryState, str]] = ..., battery_charged_state: _Optional[_Union[_battery_charged_state_pb2.BatteryChargedState, str]] = ..., chime: _Optional[_Union[_chime_pb2.Chime, _Mapping]] = ..., battery_temperature_state: _Optional[_Union[_mcu_pb2.Mcu.BatteryTemperatureState, str]] = ..., pir_motion_led_indication: _Optional[_Union[_mcu_pb2.Mcu.PirMotionLedIndication, str]] = ..., ring_button_bell_state: _Optional[_Union[_mcu_pb2.Mcu.RingButtonBellState, str]] = ..., capabilities: _Optional[_Union[_mcu_pb2.Mcu.Capabilities, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        external_power_state: _mcu_pb2.Mcu.ExternalPowerState | str | None = ...,
+        mcu_state: _mcu_pb2.Mcu.McuState | str | None = ...,
+        operating_mode: _operating_mode_pb2.OperatingMode | str | None = ...,
+        battery_state: _mcu_pb2.Mcu.BatteryState | str | None = ...,
+        battery_charged_state: _battery_charged_state_pb2.BatteryChargedState
+        | str
+        | None = ...,
+        chime: _chime_pb2.Chime | _Mapping | None = ...,
+        battery_temperature_state: _mcu_pb2.Mcu.BatteryTemperatureState
+        | str
+        | None = ...,
+        pir_motion_led_indication: _mcu_pb2.Mcu.PirMotionLedIndication
+        | str
+        | None = ...,
+        ring_button_bell_state: _mcu_pb2.Mcu.RingButtonBellState | str | None = ...,
+        capabilities: _mcu_pb2.Mcu.Capabilities | _Mapping | None = ...,
+    ) -> None: ...

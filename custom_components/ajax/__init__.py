@@ -1,16 +1,16 @@
 """The Ajax Security System integration."""
+
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING
-
-import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
+import voluptuous as vol
 
 from .api import AjaxApi, AjaxApiError, AjaxAuthError
 from .const import DOMAIN
@@ -170,13 +170,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if device.type:
                     type_value = device.type.value
                     if "motion" in type_value.lower():
-                        device_info["attributes"]["motion_detected"] = "motion_detected" in device.states
-                    elif "door" in type_value.lower() or "contact" in type_value.lower():
+                        device_info["attributes"]["motion_detected"] = (
+                            "motion_detected" in device.states
+                        )
+                    elif (
+                        "door" in type_value.lower() or "contact" in type_value.lower()
+                    ):
                         device_info["attributes"]["opened"] = "opened" in device.states
                     elif "smoke" in type_value.lower():
-                        device_info["attributes"]["smoke_detected"] = "smoke_detected" in device.states
+                        device_info["attributes"]["smoke_detected"] = (
+                            "smoke_detected" in device.states
+                        )
                     elif "leak" in type_value.lower() or "water" in type_value.lower():
-                        device_info["attributes"]["leak_detected"] = "leak_detected" in device.states
+                        device_info["attributes"]["leak_detected"] = (
+                            "leak_detected" in device.states
+                        )
 
                 # Add any additional states
                 if device.states:
@@ -198,22 +206,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Count by type
         for dev in devices_info:
             dev_type = dev["type"]
-            report["devices_by_type"][dev_type] = report["devices_by_type"].get(dev_type, 0) + 1
+            report["devices_by_type"][dev_type] = (
+                report["devices_by_type"].get(dev_type, 0) + 1
+            )
 
             # Track raw types for unknown devices
             if dev_type == "unknown":
                 raw_type = dev.get("raw_type", "unknown")
-                report["unknown_device_raw_types"][raw_type] = report["unknown_device_raw_types"].get(raw_type, 0) + 1
+                report["unknown_device_raw_types"][raw_type] = (
+                    report["unknown_device_raw_types"].get(raw_type, 0) + 1
+                )
 
             # Count firmware versions
             fw = dev["firmware_version"]
             if fw != "unknown":
-                report["firmware_versions"][fw] = report["firmware_versions"].get(fw, 0) + 1
+                report["firmware_versions"][fw] = (
+                    report["firmware_versions"].get(fw, 0) + 1
+                )
 
             # Count hardware versions
             hw = dev["hardware_version"]
             if hw != "unknown":
-                report["hardware_versions"][hw] = report["hardware_versions"].get(hw, 0) + 1
+                report["hardware_versions"][hw] = (
+                    report["hardware_versions"].get(hw, 0) + 1
+                )
 
         # Save to file in config directory
         config_path = Path(hass.config.config_dir)
@@ -238,8 +254,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             )
 
             if unknown_count > 0:
-                message += f"\n\n⚠️ Warning: {unknown_count} unknown device(s) detected!\n"
-                message += "Raw types: " + ", ".join(report["unknown_device_raw_types"].keys())
+                message += (
+                    f"\n\n⚠️ Warning: {unknown_count} unknown device(s) detected!\n"
+                )
+                message += "Raw types: " + ", ".join(
+                    report["unknown_device_raw_types"].keys()
+                )
 
             await hass.services.async_call(
                 "persistent_notification",
@@ -268,18 +288,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         DOMAIN,
         "force_arm",
         async_handle_force_arm,
-        schema=vol.Schema({
-            vol.Required("entity_id"): cv.entity_id,
-        }),
+        schema=vol.Schema(
+            {
+                vol.Required("entity_id"): cv.entity_id,
+            }
+        ),
     )
 
     hass.services.async_register(
         DOMAIN,
         "force_arm_night",
         async_handle_force_arm_night,
-        schema=vol.Schema({
-            vol.Required("entity_id"): cv.entity_id,
-        }),
+        schema=vol.Schema(
+            {
+                vol.Required("entity_id"): cv.entity_id,
+            }
+        ),
     )
 
     hass.services.async_register(

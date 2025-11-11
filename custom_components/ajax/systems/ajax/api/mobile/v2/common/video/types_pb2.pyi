@@ -1,11 +1,11 @@
-from google.protobuf import duration_pb2 as _duration_pb2
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import duration_pb2 as _duration_pb2
+from google.protobuf import message as _message
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -71,8 +71,12 @@ class ExposurePriority(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
 
 class PredefinedExposureMeteringArea(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
-    PREDEFINED_EXPOSURE_METERING_AREA_UNSPECIFIED: _ClassVar[PredefinedExposureMeteringArea]
-    PREDEFINED_EXPOSURE_METERING_AREA_FULL_FRAME: _ClassVar[PredefinedExposureMeteringArea]
+    PREDEFINED_EXPOSURE_METERING_AREA_UNSPECIFIED: _ClassVar[
+        PredefinedExposureMeteringArea
+    ]
+    PREDEFINED_EXPOSURE_METERING_AREA_FULL_FRAME: _ClassVar[
+        PredefinedExposureMeteringArea
+    ]
     PREDEFINED_EXPOSURE_METERING_AREA_TOP: _ClassVar[PredefinedExposureMeteringArea]
     PREDEFINED_EXPOSURE_METERING_AREA_RIGHT: _ClassVar[PredefinedExposureMeteringArea]
     PREDEFINED_EXPOSURE_METERING_AREA_BOTTOM: _ClassVar[PredefinedExposureMeteringArea]
@@ -146,6 +150,7 @@ class ImageProfileType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     IMAGE_PROFILE_TYPE_UNSPECIFIED: _ClassVar[ImageProfileType]
     IMAGE_PROFILE_TYPE_NATURAL: _ClassVar[ImageProfileType]
     IMAGE_PROFILE_TYPE_INSTAMODE: _ClassVar[ImageProfileType]
+
 ST_UNKNOWN: StreamType
 ST_MAIN: StreamType
 ST_SUB: StreamType
@@ -231,65 +236,86 @@ class FrameTypeId(_message.Message):
     METADATA_TYPE_FIELD_NUMBER: _ClassVar[int]
     frame_type: FrameType
     metadata_type: str
-    def __init__(self, frame_type: _Optional[_Union[FrameType, str]] = ..., metadata_type: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, frame_type: FrameType | str | None = ..., metadata_type: str | None = ...
+    ) -> None: ...
 
 class Mask(_message.Message):
-    __slots__ = ("width", "height", "data")
+    __slots__ = ("data", "height", "width")
     WIDTH_FIELD_NUMBER: _ClassVar[int]
     HEIGHT_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     width: int
     height: int
     data: bytes
-    def __init__(self, width: _Optional[int] = ..., height: _Optional[int] = ..., data: _Optional[bytes] = ...) -> None: ...
+    def __init__(
+        self,
+        width: int | None = ...,
+        height: int | None = ...,
+        data: bytes | None = ...,
+    ) -> None: ...
 
 class VideoResolution(_message.Message):
-    __slots__ = ("width", "height")
+    __slots__ = ("height", "width")
     WIDTH_FIELD_NUMBER: _ClassVar[int]
     HEIGHT_FIELD_NUMBER: _ClassVar[int]
     width: int
     height: int
-    def __init__(self, width: _Optional[int] = ..., height: _Optional[int] = ...) -> None: ...
+    def __init__(self, width: int | None = ..., height: int | None = ...) -> None: ...
 
 class Int32Range(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: int
     max_value: int
-    def __init__(self, min_value: _Optional[int] = ..., max_value: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, min_value: int | None = ..., max_value: int | None = ...
+    ) -> None: ...
 
 class UInt32Range(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: int
     max_value: int
-    def __init__(self, min_value: _Optional[int] = ..., max_value: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, min_value: int | None = ..., max_value: int | None = ...
+    ) -> None: ...
 
 class FloatRange(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: float
     max_value: float
-    def __init__(self, min_value: _Optional[float] = ..., max_value: _Optional[float] = ...) -> None: ...
+    def __init__(
+        self, min_value: float | None = ..., max_value: float | None = ...
+    ) -> None: ...
 
 class DurationRange(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: _duration_pb2.Duration
     max_value: _duration_pb2.Duration
-    def __init__(self, min_value: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., max_value: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        min_value: _duration_pb2.Duration | _Mapping | None = ...,
+        max_value: _duration_pb2.Duration | _Mapping | None = ...,
+    ) -> None: ...
 
 class TimestampRange(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: _timestamp_pb2.Timestamp
     max_value: _timestamp_pb2.Timestamp
-    def __init__(self, min_value: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., max_value: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        min_value: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+        max_value: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+    ) -> None: ...
 
 class Point2f(_message.Message):
     __slots__ = ("x", "y")
@@ -297,7 +323,7 @@ class Point2f(_message.Message):
     Y_FIELD_NUMBER: _ClassVar[int]
     x: float
     y: float
-    def __init__(self, x: _Optional[float] = ..., y: _Optional[float] = ...) -> None: ...
+    def __init__(self, x: float | None = ..., y: float | None = ...) -> None: ...
 
 class Point2i(_message.Message):
     __slots__ = ("x", "y")
@@ -305,29 +331,37 @@ class Point2i(_message.Message):
     Y_FIELD_NUMBER: _ClassVar[int]
     x: int
     y: int
-    def __init__(self, x: _Optional[int] = ..., y: _Optional[int] = ...) -> None: ...
+    def __init__(self, x: int | None = ..., y: int | None = ...) -> None: ...
 
 class Rect2f(_message.Message):
-    __slots__ = ("top_left", "size")
+    __slots__ = ("size", "top_left")
     TOP_LEFT_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
     top_left: Point2f
     size: Point2f
-    def __init__(self, top_left: _Optional[_Union[Point2f, _Mapping]] = ..., size: _Optional[_Union[Point2f, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        top_left: Point2f | _Mapping | None = ...,
+        size: Point2f | _Mapping | None = ...,
+    ) -> None: ...
 
 class Rect2i(_message.Message):
-    __slots__ = ("top_left", "size")
+    __slots__ = ("size", "top_left")
     TOP_LEFT_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
     top_left: Point2i
     size: Point2i
-    def __init__(self, top_left: _Optional[_Union[Point2i, _Mapping]] = ..., size: _Optional[_Union[Point2i, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        top_left: Point2i | _Mapping | None = ...,
+        size: Point2i | _Mapping | None = ...,
+    ) -> None: ...
 
 class MacAddress(_message.Message):
     __slots__ = ("data",)
     DATA_FIELD_NUMBER: _ClassVar[int]
     data: bytes
-    def __init__(self, data: _Optional[bytes] = ...) -> None: ...
+    def __init__(self, data: bytes | None = ...) -> None: ...
 
 class IpAddress(_message.Message):
     __slots__ = ("v4", "v6")
@@ -335,13 +369,17 @@ class IpAddress(_message.Message):
     V6_FIELD_NUMBER: _ClassVar[int]
     v4: IpAddressV4
     v6: IpAddressV6
-    def __init__(self, v4: _Optional[_Union[IpAddressV4, _Mapping]] = ..., v6: _Optional[_Union[IpAddressV6, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        v4: IpAddressV4 | _Mapping | None = ...,
+        v6: IpAddressV6 | _Mapping | None = ...,
+    ) -> None: ...
 
 class IpAddressV4(_message.Message):
     __slots__ = ("data",)
     DATA_FIELD_NUMBER: _ClassVar[int]
     data: int
-    def __init__(self, data: _Optional[int] = ...) -> None: ...
+    def __init__(self, data: int | None = ...) -> None: ...
 
 class IpAddressV6(_message.Message):
     __slots__ = ("data", "scope_id")
@@ -349,10 +387,12 @@ class IpAddressV6(_message.Message):
     SCOPE_ID_FIELD_NUMBER: _ClassVar[int]
     data: bytes
     scope_id: int
-    def __init__(self, data: _Optional[bytes] = ..., scope_id: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, data: bytes | None = ..., scope_id: int | None = ...
+    ) -> None: ...
 
 class Color(_message.Message):
-    __slots__ = ("r", "g", "b", "a")
+    __slots__ = ("a", "b", "g", "r")
     R_FIELD_NUMBER: _ClassVar[int]
     G_FIELD_NUMBER: _ClassVar[int]
     B_FIELD_NUMBER: _ClassVar[int]
@@ -361,12 +401,22 @@ class Color(_message.Message):
     g: int
     b: int
     a: int
-    def __init__(self, r: _Optional[int] = ..., g: _Optional[int] = ..., b: _Optional[int] = ..., a: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self,
+        r: int | None = ...,
+        g: int | None = ...,
+        b: int | None = ...,
+        a: int | None = ...,
+    ) -> None: ...
 
 class ShutterSpeed(_message.Message):
-    __slots__ = ("id", "duration")
+    __slots__ = ("duration", "id")
     ID_FIELD_NUMBER: _ClassVar[int]
     DURATION_FIELD_NUMBER: _ClassVar[int]
     id: str
     duration: _duration_pb2.Duration
-    def __init__(self, id: _Optional[str] = ..., duration: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        id: str | None = ...,
+        duration: _duration_pb2.Duration | _Mapping | None = ...,
+    ) -> None: ...

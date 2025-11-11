@@ -1,9 +1,12 @@
-from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
-from systems.ajax.api.mobile.v2.common.space import space_locator_pb2 as _space_locator_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
+from systems.ajax.api.mobile.v2.common.space import (
+    space_locator_pb2 as _space_locator_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -11,12 +14,25 @@ class DisarmSpaceFromNightModeRequest(_message.Message):
     __slots__ = ("space_locator",)
     SPACE_LOCATOR_FIELD_NUMBER: _ClassVar[int]
     space_locator: _space_locator_pb2.SpaceLocator
-    def __init__(self, space_locator: _Optional[_Union[_space_locator_pb2.SpaceLocator, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, space_locator: _space_locator_pb2.SpaceLocator | _Mapping | None = ...
+    ) -> None: ...
 
 class DisarmSpaceFromNightModeResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class Failure(_message.Message):
-        __slots__ = ("bad_request", "space_not_found", "permission_denied", "another_transition_is_in_progress", "already_in_the_requested_security_state", "illegal_space_security_mode", "hub_offline", "hub_busy", "space_locked", "hub_not_allowed_to_perform_command")
+        __slots__ = (
+            "already_in_the_requested_security_state",
+            "another_transition_is_in_progress",
+            "bad_request",
+            "hub_busy",
+            "hub_not_allowed_to_perform_command",
+            "hub_offline",
+            "illegal_space_security_mode",
+            "permission_denied",
+            "space_locked",
+            "space_not_found",
+        )
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         SPACE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
@@ -37,9 +53,34 @@ class DisarmSpaceFromNightModeResponse(_message.Message):
         hub_busy: _response_pb2.HubBusyError
         space_locked: _response_pb2.SpaceLockedError
         hub_not_allowed_to_perform_command: _response_pb2.DefaultError
-        def __init__(self, bad_request: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., another_transition_is_in_progress: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., already_in_the_requested_security_state: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., illegal_space_security_mode: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., hub_offline: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., hub_busy: _Optional[_Union[_response_pb2.HubBusyError, _Mapping]] = ..., space_locked: _Optional[_Union[_response_pb2.SpaceLockedError, _Mapping]] = ..., hub_not_allowed_to_perform_command: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            bad_request: _response_pb2.DefaultError | _Mapping | None = ...,
+            space_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
+            permission_denied: _response_pb2.DefaultError | _Mapping | None = ...,
+            another_transition_is_in_progress: _response_pb2.DefaultError
+            | _Mapping
+            | None = ...,
+            already_in_the_requested_security_state: _response_pb2.DefaultError
+            | _Mapping
+            | None = ...,
+            illegal_space_security_mode: _response_pb2.DefaultError
+            | _Mapping
+            | None = ...,
+            hub_offline: _response_pb2.DefaultError | _Mapping | None = ...,
+            hub_busy: _response_pb2.HubBusyError | _Mapping | None = ...,
+            space_locked: _response_pb2.SpaceLockedError | _Mapping | None = ...,
+            hub_not_allowed_to_perform_command: _response_pb2.DefaultError
+            | _Mapping
+            | None = ...,
+        ) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: DisarmSpaceFromNightModeResponse.Failure
-    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[DisarmSpaceFromNightModeResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: _response_pb2.Success | _Mapping | None = ...,
+        failure: DisarmSpaceFromNightModeResponse.Failure | _Mapping | None = ...,
+    ) -> None: ...

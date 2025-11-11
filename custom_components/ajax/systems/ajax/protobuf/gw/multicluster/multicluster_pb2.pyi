@@ -1,6 +1,7 @@
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -10,4 +11,6 @@ class ClusterInfo(_message.Message):
     PING_INTERVAL_SECONDS_FIELD_NUMBER: _ClassVar[int]
     cluster_id: str
     ping_interval_seconds: int
-    def __init__(self, cluster_id: _Optional[str] = ..., ping_interval_seconds: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, cluster_id: str | None = ..., ping_interval_seconds: int | None = ...
+    ) -> None: ...

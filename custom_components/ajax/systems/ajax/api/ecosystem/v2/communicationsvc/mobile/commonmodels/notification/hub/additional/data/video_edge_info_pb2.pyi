@@ -1,7 +1,8 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -14,6 +15,7 @@ class VideoEdgeInfo(_message.Message):
         BLACK: _ClassVar[VideoEdgeInfo.Color]
         GREY: _ClassVar[VideoEdgeInfo.Color]
         GRAPHITE: _ClassVar[VideoEdgeInfo.Color]
+
     COLOR_UNKNOWN: VideoEdgeInfo.Color
     WHITE: VideoEdgeInfo.Color
     BLACK: VideoEdgeInfo.Color
@@ -45,6 +47,7 @@ class VideoEdgeInfo(_message.Message):
         MINIDOME_HL: _ClassVar[VideoEdgeInfo.Type]
         MINIDOME_HL_VF: _ClassVar[VideoEdgeInfo.Type]
         S_MINIDOME_HL_VF: _ClassVar[VideoEdgeInfo.Type]
+
     TYPE_UNKNOWN: VideoEdgeInfo.Type
     NVR: VideoEdgeInfo.Type
     TURRET: VideoEdgeInfo.Type
@@ -73,4 +76,8 @@ class VideoEdgeInfo(_message.Message):
     TYPE_FIELD_NUMBER: _ClassVar[int]
     color: VideoEdgeInfo.Color
     type: VideoEdgeInfo.Type
-    def __init__(self, color: _Optional[_Union[VideoEdgeInfo.Color, str]] = ..., type: _Optional[_Union[VideoEdgeInfo.Type, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        color: VideoEdgeInfo.Color | str | None = ...,
+        type: VideoEdgeInfo.Type | str | None = ...,
+    ) -> None: ...

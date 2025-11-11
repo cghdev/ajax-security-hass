@@ -1,22 +1,43 @@
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import common_fibra_part_pb2 as _common_fibra_part_pb2
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    common_fibra_part_pb2 as _common_fibra_part_pb2,
+)
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DeviceCommandStartScanFibraDevicesResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class Failure(_message.Message):
-        __slots__ = ("command_not_performed", "permission_denied", "hub_wrong_state", "hub_offline", "unknown_command", "hub_error", "hub_busy", "power_disabled_on_lines", "unregistered_rings")
+        __slots__ = (
+            "command_not_performed",
+            "hub_busy",
+            "hub_error",
+            "hub_offline",
+            "hub_wrong_state",
+            "permission_denied",
+            "power_disabled_on_lines",
+            "unknown_command",
+            "unregistered_rings",
+        )
         class UnregisteredRings(_message.Message):
             __slots__ = ("lines",)
             LINES_FIELD_NUMBER: _ClassVar[int]
-            lines: _containers.RepeatedCompositeFieldContainer[_common_fibra_part_pb2.FibraLine]
-            def __init__(self, lines: _Optional[_Iterable[_Union[_common_fibra_part_pb2.FibraLine, _Mapping]]] = ...) -> None: ...
+            lines: _containers.RepeatedCompositeFieldContainer[
+                _common_fibra_part_pb2.FibraLine
+            ]
+            def __init__(
+                self,
+                lines: _Iterable[_common_fibra_part_pb2.FibraLine | _Mapping]
+                | None = ...,
+            ) -> None: ...
+
         COMMAND_NOT_PERFORMED_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
         HUB_WRONG_STATE_FIELD_NUMBER: _ClassVar[int]
@@ -34,10 +55,32 @@ class DeviceCommandStartScanFibraDevicesResponse(_message.Message):
         hub_error: _response_pb2.Error
         hub_busy: _response_pb2.HubBusyError
         power_disabled_on_lines: _response_pb2.Error
-        unregistered_rings: DeviceCommandStartScanFibraDevicesResponse.Failure.UnregisteredRings
-        def __init__(self, command_not_performed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_wrong_state: _Optional[_Union[_response_pb2.HubWrongStateError, _Mapping]] = ..., hub_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., unknown_command: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_error: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_busy: _Optional[_Union[_response_pb2.HubBusyError, _Mapping]] = ..., power_disabled_on_lines: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., unregistered_rings: _Optional[_Union[DeviceCommandStartScanFibraDevicesResponse.Failure.UnregisteredRings, _Mapping]] = ...) -> None: ...
+        unregistered_rings: (
+            DeviceCommandStartScanFibraDevicesResponse.Failure.UnregisteredRings
+        )
+        def __init__(
+            self,
+            command_not_performed: _response_pb2.Error | _Mapping | None = ...,
+            permission_denied: _response_pb2.Error | _Mapping | None = ...,
+            hub_wrong_state: _response_pb2.HubWrongStateError | _Mapping | None = ...,
+            hub_offline: _response_pb2.Error | _Mapping | None = ...,
+            unknown_command: _response_pb2.Error | _Mapping | None = ...,
+            hub_error: _response_pb2.Error | _Mapping | None = ...,
+            hub_busy: _response_pb2.HubBusyError | _Mapping | None = ...,
+            power_disabled_on_lines: _response_pb2.Error | _Mapping | None = ...,
+            unregistered_rings: DeviceCommandStartScanFibraDevicesResponse.Failure.UnregisteredRings
+            | _Mapping
+            | None = ...,
+        ) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: DeviceCommandStartScanFibraDevicesResponse.Failure
-    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[DeviceCommandStartScanFibraDevicesResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: _response_pb2.Success | _Mapping | None = ...,
+        failure: DeviceCommandStartScanFibraDevicesResponse.Failure
+        | _Mapping
+        | None = ...,
+    ) -> None: ...

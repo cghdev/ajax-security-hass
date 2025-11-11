@@ -1,9 +1,10 @@
-from v1.common import role_pb2 as _role_pb2
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from v1.common import role_pb2 as _role_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -11,4 +12,4 @@ class UserStreamCompaniesRequest(_message.Message):
     __slots__ = ("roles",)
     ROLES_FIELD_NUMBER: _ClassVar[int]
     roles: _containers.RepeatedScalarFieldContainer[_role_pb2.Role]
-    def __init__(self, roles: _Optional[_Iterable[_Union[_role_pb2.Role, str]]] = ...) -> None: ...
+    def __init__(self, roles: _Iterable[_role_pb2.Role | str] | None = ...) -> None: ...

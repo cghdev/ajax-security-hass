@@ -1,11 +1,14 @@
-from ajax.video.v1.types import types_pb2 as _types_pb2
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
 from google.protobuf import empty_pb2 as _empty_pb2
+from google.protobuf import message as _message
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+
+from ajax.video.v1.types import types_pb2 as _types_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -37,6 +40,7 @@ class NetworkWifiSecurity(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     NWS_PSK: _ClassVar[NetworkWifiSecurity]
     NWS_IEEE8021X: _ClassVar[NetworkWifiSecurity]
     NWS_WPS: _ClassVar[NetworkWifiSecurity]
+
 NS_NONE: NetworkState
 NS_OFFLINE: NetworkState
 NS_CONFIGURING: NetworkState
@@ -59,21 +63,46 @@ NWS_IEEE8021X: NetworkWifiSecurity
 NWS_WPS: NetworkWifiSecurity
 
 class NetworkInterface(_message.Message):
-    __slots__ = ("guid", "mac_address", "enabled", "ethernet", "wifi", "name", "status", "desired_configuration", "configuration", "stats")
+    __slots__ = (
+        "configuration",
+        "desired_configuration",
+        "enabled",
+        "ethernet",
+        "guid",
+        "mac_address",
+        "name",
+        "stats",
+        "status",
+        "wifi",
+    )
     class Ethernet(_message.Message):
         __slots__ = ()
         def __init__(self) -> None: ...
+
     class Wifi(_message.Message):
-        __slots__ = ("signal_strength", "security", "credentials")
+        __slots__ = ("credentials", "security", "signal_strength")
         SIGNAL_STRENGTH_FIELD_NUMBER: _ClassVar[int]
         SECURITY_FIELD_NUMBER: _ClassVar[int]
         CREDENTIALS_FIELD_NUMBER: _ClassVar[int]
         signal_strength: int
         security: _containers.RepeatedScalarFieldContainer[NetworkWifiSecurity]
         credentials: NetworkWifiCredentials
-        def __init__(self, signal_strength: _Optional[int] = ..., security: _Optional[_Iterable[_Union[NetworkWifiSecurity, str]]] = ..., credentials: _Optional[_Union[NetworkWifiCredentials, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            signal_strength: int | None = ...,
+            security: _Iterable[NetworkWifiSecurity | str] | None = ...,
+            credentials: NetworkWifiCredentials | _Mapping | None = ...,
+        ) -> None: ...
+
     class Stats(_message.Message):
-        __slots__ = ("tx_bytes", "rx_bytes", "tx_errors", "rx_errors", "tx_dropped", "rx_dropped")
+        __slots__ = (
+            "rx_bytes",
+            "rx_dropped",
+            "rx_errors",
+            "tx_bytes",
+            "tx_dropped",
+            "tx_errors",
+        )
         TX_BYTES_FIELD_NUMBER: _ClassVar[int]
         RX_BYTES_FIELD_NUMBER: _ClassVar[int]
         TX_ERRORS_FIELD_NUMBER: _ClassVar[int]
@@ -86,7 +115,16 @@ class NetworkInterface(_message.Message):
         rx_errors: int
         tx_dropped: int
         rx_dropped: int
-        def __init__(self, tx_bytes: _Optional[int] = ..., rx_bytes: _Optional[int] = ..., tx_errors: _Optional[int] = ..., rx_errors: _Optional[int] = ..., tx_dropped: _Optional[int] = ..., rx_dropped: _Optional[int] = ...) -> None: ...
+        def __init__(
+            self,
+            tx_bytes: int | None = ...,
+            rx_bytes: int | None = ...,
+            tx_errors: int | None = ...,
+            rx_errors: int | None = ...,
+            tx_dropped: int | None = ...,
+            rx_dropped: int | None = ...,
+        ) -> None: ...
+
     GUID_FIELD_NUMBER: _ClassVar[int]
     MAC_ADDRESS_FIELD_NUMBER: _ClassVar[int]
     ENABLED_FIELD_NUMBER: _ClassVar[int]
@@ -107,34 +145,56 @@ class NetworkInterface(_message.Message):
     desired_configuration: NetworkConfiguration
     configuration: NetworkConfiguration
     stats: NetworkInterface.Stats
-    def __init__(self, guid: _Optional[str] = ..., mac_address: _Optional[_Union[_types_pb2.MacAddress, _Mapping]] = ..., enabled: bool = ..., ethernet: _Optional[_Union[NetworkInterface.Ethernet, _Mapping]] = ..., wifi: _Optional[_Union[NetworkInterface.Wifi, _Mapping]] = ..., name: _Optional[str] = ..., status: _Optional[_Union[NetworkStatus, _Mapping]] = ..., desired_configuration: _Optional[_Union[NetworkConfiguration, _Mapping]] = ..., configuration: _Optional[_Union[NetworkConfiguration, _Mapping]] = ..., stats: _Optional[_Union[NetworkInterface.Stats, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        guid: str | None = ...,
+        mac_address: _types_pb2.MacAddress | _Mapping | None = ...,
+        enabled: bool = ...,
+        ethernet: NetworkInterface.Ethernet | _Mapping | None = ...,
+        wifi: NetworkInterface.Wifi | _Mapping | None = ...,
+        name: str | None = ...,
+        status: NetworkStatus | _Mapping | None = ...,
+        desired_configuration: NetworkConfiguration | _Mapping | None = ...,
+        configuration: NetworkConfiguration | _Mapping | None = ...,
+        stats: NetworkInterface.Stats | _Mapping | None = ...,
+    ) -> None: ...
 
 class NetworkStatus(_message.Message):
-    __slots__ = ("state", "error")
+    __slots__ = ("error", "state")
     STATE_FIELD_NUMBER: _ClassVar[int]
     ERROR_FIELD_NUMBER: _ClassVar[int]
     state: NetworkState
     error: NetworkError
-    def __init__(self, state: _Optional[_Union[NetworkState, str]] = ..., error: _Optional[_Union[NetworkError, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        state: NetworkState | str | None = ...,
+        error: NetworkError | str | None = ...,
+    ) -> None: ...
 
 class NetworkConfiguration(_message.Message):
-    __slots__ = ("v4", "v6", "name_servers")
+    __slots__ = ("name_servers", "v4", "v6")
     V4_FIELD_NUMBER: _ClassVar[int]
     V6_FIELD_NUMBER: _ClassVar[int]
     NAME_SERVERS_FIELD_NUMBER: _ClassVar[int]
     v4: NetworkConfigurationIPv4
     v6: NetworkConfigurationIPv6
     name_servers: _containers.RepeatedCompositeFieldContainer[_types_pb2.IpAddress]
-    def __init__(self, v4: _Optional[_Union[NetworkConfigurationIPv4, _Mapping]] = ..., v6: _Optional[_Union[NetworkConfigurationIPv6, _Mapping]] = ..., name_servers: _Optional[_Iterable[_Union[_types_pb2.IpAddress, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        v4: NetworkConfigurationIPv4 | _Mapping | None = ...,
+        v6: NetworkConfigurationIPv6 | _Mapping | None = ...,
+        name_servers: _Iterable[_types_pb2.IpAddress | _Mapping] | None = ...,
+    ) -> None: ...
 
 class NetworkConfigurationIPv4(_message.Message):
-    __slots__ = ("method", "address", "netmask", "gateway")
+    __slots__ = ("address", "gateway", "method", "netmask")
     class Method(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NONE: _ClassVar[NetworkConfigurationIPv4.Method]
         OFF: _ClassVar[NetworkConfigurationIPv4.Method]
         DHCP: _ClassVar[NetworkConfigurationIPv4.Method]
         MANUAL: _ClassVar[NetworkConfigurationIPv4.Method]
+
     NONE: NetworkConfigurationIPv4.Method
     OFF: NetworkConfigurationIPv4.Method
     DHCP: NetworkConfigurationIPv4.Method
@@ -147,16 +207,23 @@ class NetworkConfigurationIPv4(_message.Message):
     address: _types_pb2.IpAddressV4
     netmask: _types_pb2.IpAddressV4
     gateway: _types_pb2.IpAddressV4
-    def __init__(self, method: _Optional[_Union[NetworkConfigurationIPv4.Method, str]] = ..., address: _Optional[_Union[_types_pb2.IpAddressV4, _Mapping]] = ..., netmask: _Optional[_Union[_types_pb2.IpAddressV4, _Mapping]] = ..., gateway: _Optional[_Union[_types_pb2.IpAddressV4, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        method: NetworkConfigurationIPv4.Method | str | None = ...,
+        address: _types_pb2.IpAddressV4 | _Mapping | None = ...,
+        netmask: _types_pb2.IpAddressV4 | _Mapping | None = ...,
+        gateway: _types_pb2.IpAddressV4 | _Mapping | None = ...,
+    ) -> None: ...
 
 class NetworkConfigurationIPv6(_message.Message):
-    __slots__ = ("method", "address", "prefix_length", "gateway")
+    __slots__ = ("address", "gateway", "method", "prefix_length")
     class Method(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NONE: _ClassVar[NetworkConfigurationIPv6.Method]
         OFF: _ClassVar[NetworkConfigurationIPv6.Method]
         AUTO: _ClassVar[NetworkConfigurationIPv6.Method]
         MANUAL: _ClassVar[NetworkConfigurationIPv6.Method]
+
     NONE: NetworkConfigurationIPv6.Method
     OFF: NetworkConfigurationIPv6.Method
     AUTO: NetworkConfigurationIPv6.Method
@@ -169,7 +236,13 @@ class NetworkConfigurationIPv6(_message.Message):
     address: _types_pb2.IpAddressV6
     prefix_length: int
     gateway: _types_pb2.IpAddressV6
-    def __init__(self, method: _Optional[_Union[NetworkConfigurationIPv6.Method, str]] = ..., address: _Optional[_Union[_types_pb2.IpAddressV6, _Mapping]] = ..., prefix_length: _Optional[int] = ..., gateway: _Optional[_Union[_types_pb2.IpAddressV6, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        method: NetworkConfigurationIPv6.Method | str | None = ...,
+        address: _types_pb2.IpAddressV6 | _Mapping | None = ...,
+        prefix_length: int | None = ...,
+        gateway: _types_pb2.IpAddressV6 | _Mapping | None = ...,
+    ) -> None: ...
 
 class NetworkWifiCredentials(_message.Message):
     __slots__ = ("none", "psk")
@@ -177,9 +250,14 @@ class NetworkWifiCredentials(_message.Message):
         __slots__ = ("password",)
         PASSWORD_FIELD_NUMBER: _ClassVar[int]
         password: str
-        def __init__(self, password: _Optional[str] = ...) -> None: ...
+        def __init__(self, password: str | None = ...) -> None: ...
+
     NONE_FIELD_NUMBER: _ClassVar[int]
     PSK_FIELD_NUMBER: _ClassVar[int]
     none: _empty_pb2.Empty
     psk: NetworkWifiCredentials.PSK
-    def __init__(self, none: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., psk: _Optional[_Union[NetworkWifiCredentials.PSK, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        none: _empty_pb2.Empty | _Mapping | None = ...,
+        psk: NetworkWifiCredentials.PSK | _Mapping | None = ...,
+    ) -> None: ...

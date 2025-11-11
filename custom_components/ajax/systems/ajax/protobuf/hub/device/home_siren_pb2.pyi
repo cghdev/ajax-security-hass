@@ -1,22 +1,39 @@
-from google.protobuf import wrappers_pb2 as _wrappers_pb2
-from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class HomeSiren(_message.Message):
-    __slots__ = ("common_part", "alarm_duration", "beep_on_arm_disarm", "beep_on_arm_disarm_v2", "blink_while_armed", "siren_volume_level", "buzzer_state", "beep_on_delay", "beep_on_delay_v2", "beep_volume_level", "associated_group_id", "chimes_enabled", "post_alarm_indication_enabled", "subtype")
+    __slots__ = (
+        "alarm_duration",
+        "associated_group_id",
+        "beep_on_arm_disarm",
+        "beep_on_arm_disarm_v2",
+        "beep_on_delay",
+        "beep_on_delay_v2",
+        "beep_volume_level",
+        "blink_while_armed",
+        "buzzer_state",
+        "chimes_enabled",
+        "common_part",
+        "post_alarm_indication_enabled",
+        "siren_volume_level",
+        "subtype",
+    )
     class ArmedLightIndication(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_ARMED_LIGHT_INDICATION_INFO: _ClassVar[HomeSiren.ArmedLightIndication]
         OFF_ARMED_LIGHT_INDICATION: _ClassVar[HomeSiren.ArmedLightIndication]
         BLINK_ARMED_LIGHT_INDICATION: _ClassVar[HomeSiren.ArmedLightIndication]
         CONSTANT_ON_ARMED_LIGHT_INDICATION: _ClassVar[HomeSiren.ArmedLightIndication]
+
     NO_ARMED_LIGHT_INDICATION_INFO: HomeSiren.ArmedLightIndication
     OFF_ARMED_LIGHT_INDICATION: HomeSiren.ArmedLightIndication
     BLINK_ARMED_LIGHT_INDICATION: HomeSiren.ArmedLightIndication
@@ -28,6 +45,7 @@ class HomeSiren(_message.Message):
         ON_BUZZER_STATE: _ClassVar[HomeSiren.BuzzerState]
         WAIT_START_BUZZER_STATE: _ClassVar[HomeSiren.BuzzerState]
         WAIT_STOP_BUZZER_STATE: _ClassVar[HomeSiren.BuzzerState]
+
     NOT_BUZZER_STATE_INFO: HomeSiren.BuzzerState
     OFF_BUZZER_STATE: HomeSiren.BuzzerState
     ON_BUZZER_STATE: HomeSiren.BuzzerState
@@ -40,6 +58,7 @@ class HomeSiren(_message.Message):
         LOUD_SIREN_VOLUME_LEVEL: _ClassVar[HomeSiren.SirenVolumeLevel]
         QUIET_SIREN_VOLUME_LEVEL: _ClassVar[HomeSiren.SirenVolumeLevel]
         DISABLED_SIREN_VOLUME_LEVEL: _ClassVar[HomeSiren.SirenVolumeLevel]
+
     NO_SIREN_VOLUME_LEVEL_INFO: HomeSiren.SirenVolumeLevel
     VERY_LOUD_SIREN_VOLUME_LEVEL: HomeSiren.SirenVolumeLevel
     LOUD_SIREN_VOLUME_LEVEL: HomeSiren.SirenVolumeLevel
@@ -51,6 +70,7 @@ class HomeSiren(_message.Message):
         VERY_LOUD_BEEP_VOLUME_LEVEL: _ClassVar[HomeSiren.BeepVolumeLevel]
         LOUD_BEEP_VOLUME_LEVEL: _ClassVar[HomeSiren.BeepVolumeLevel]
         QUIET_BEEP_VOLUME_LEVEL: _ClassVar[HomeSiren.BeepVolumeLevel]
+
     NO_BEEP_VOLUME_LEVEL_INFO: HomeSiren.BeepVolumeLevel
     VERY_LOUD_BEEP_VOLUME_LEVEL: HomeSiren.BeepVolumeLevel
     LOUD_BEEP_VOLUME_LEVEL: HomeSiren.BeepVolumeLevel
@@ -62,6 +82,7 @@ class HomeSiren(_message.Message):
         BEEP_ON_DISARM: _ClassVar[HomeSiren.BeepOnArmDisarm]
         BEEP_ON_NIGHT_ARM: _ClassVar[HomeSiren.BeepOnArmDisarm]
         BEEP_ON_NIGHT_DISARM: _ClassVar[HomeSiren.BeepOnArmDisarm]
+
     NO_BEEP_ON_ARM_DISARM_INFO: HomeSiren.BeepOnArmDisarm
     BEEP_ON_ARM: HomeSiren.BeepOnArmDisarm
     BEEP_ON_DISARM: HomeSiren.BeepOnArmDisarm
@@ -74,6 +95,7 @@ class HomeSiren(_message.Message):
         BEEP_ON_DISARM_DELAY: _ClassVar[HomeSiren.BeepOnDelay]
         BEEP_ON_NIGHT_ARM_DELAY: _ClassVar[HomeSiren.BeepOnDelay]
         BEEP_ON_NIGHT_DISARM_DELAY: _ClassVar[HomeSiren.BeepOnDelay]
+
     NO_BEEP_ON_DELAY_INFO: HomeSiren.BeepOnDelay
     BEEP_ON_ARM_DELAY: HomeSiren.BeepOnDelay
     BEEP_ON_DISARM_DELAY: HomeSiren.BeepOnDelay
@@ -82,6 +104,7 @@ class HomeSiren(_message.Message):
     class Subtype(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_SUBTYPE: _ClassVar[HomeSiren.Subtype]
+
     NO_SUBTYPE: HomeSiren.Subtype
     COMMON_PART_FIELD_NUMBER: _ClassVar[int]
     ALARM_DURATION_FIELD_NUMBER: _ClassVar[int]
@@ -100,7 +123,9 @@ class HomeSiren(_message.Message):
     common_part: _common_device_pb2.CommonDevicePart
     alarm_duration: int
     beep_on_arm_disarm: bool
-    beep_on_arm_disarm_v2: _containers.RepeatedScalarFieldContainer[HomeSiren.BeepOnArmDisarm]
+    beep_on_arm_disarm_v2: _containers.RepeatedScalarFieldContainer[
+        HomeSiren.BeepOnArmDisarm
+    ]
     blink_while_armed: HomeSiren.ArmedLightIndication
     siren_volume_level: HomeSiren.SirenVolumeLevel
     buzzer_state: HomeSiren.BuzzerState
@@ -111,4 +136,20 @@ class HomeSiren(_message.Message):
     chimes_enabled: bool
     post_alarm_indication_enabled: bool
     subtype: HomeSiren.Subtype
-    def __init__(self, common_part: _Optional[_Union[_common_device_pb2.CommonDevicePart, _Mapping]] = ..., alarm_duration: _Optional[int] = ..., beep_on_arm_disarm: bool = ..., beep_on_arm_disarm_v2: _Optional[_Iterable[_Union[HomeSiren.BeepOnArmDisarm, str]]] = ..., blink_while_armed: _Optional[_Union[HomeSiren.ArmedLightIndication, str]] = ..., siren_volume_level: _Optional[_Union[HomeSiren.SirenVolumeLevel, str]] = ..., buzzer_state: _Optional[_Union[HomeSiren.BuzzerState, str]] = ..., beep_on_delay: bool = ..., beep_on_delay_v2: _Optional[_Iterable[_Union[HomeSiren.BeepOnDelay, str]]] = ..., beep_volume_level: _Optional[_Union[HomeSiren.BeepVolumeLevel, str]] = ..., associated_group_id: _Optional[str] = ..., chimes_enabled: bool = ..., post_alarm_indication_enabled: bool = ..., subtype: _Optional[_Union[HomeSiren.Subtype, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        common_part: _common_device_pb2.CommonDevicePart | _Mapping | None = ...,
+        alarm_duration: int | None = ...,
+        beep_on_arm_disarm: bool = ...,
+        beep_on_arm_disarm_v2: _Iterable[HomeSiren.BeepOnArmDisarm | str] | None = ...,
+        blink_while_armed: HomeSiren.ArmedLightIndication | str | None = ...,
+        siren_volume_level: HomeSiren.SirenVolumeLevel | str | None = ...,
+        buzzer_state: HomeSiren.BuzzerState | str | None = ...,
+        beep_on_delay: bool = ...,
+        beep_on_delay_v2: _Iterable[HomeSiren.BeepOnDelay | str] | None = ...,
+        beep_volume_level: HomeSiren.BeepVolumeLevel | str | None = ...,
+        associated_group_id: str | None = ...,
+        chimes_enabled: bool = ...,
+        post_alarm_indication_enabled: bool = ...,
+        subtype: HomeSiren.Subtype | str | None = ...,
+    ) -> None: ...

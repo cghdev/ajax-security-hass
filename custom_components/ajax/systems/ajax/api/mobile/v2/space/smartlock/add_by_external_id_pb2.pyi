@@ -1,14 +1,24 @@
-from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
-from systems.ajax.api.mobile.v2.common.space.smartlock import smart_lock_pb2 as _smart_lock_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
+from systems.ajax.api.mobile.v2.common.space.smartlock import (
+    smart_lock_pb2 as _smart_lock_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class AddSmartLockByExternalIdRequest(_message.Message):
-    __slots__ = ("space_id", "room_id", "external_smart_lock_id", "type", "name", "group_id")
+    __slots__ = (
+        "external_smart_lock_id",
+        "group_id",
+        "name",
+        "room_id",
+        "space_id",
+        "type",
+    )
     SPACE_ID_FIELD_NUMBER: _ClassVar[int]
     ROOM_ID_FIELD_NUMBER: _ClassVar[int]
     EXTERNAL_SMART_LOCK_ID_FIELD_NUMBER: _ClassVar[int]
@@ -21,12 +31,33 @@ class AddSmartLockByExternalIdRequest(_message.Message):
     type: _smart_lock_pb2.SmartLockType
     name: str
     group_id: str
-    def __init__(self, space_id: _Optional[str] = ..., room_id: _Optional[str] = ..., external_smart_lock_id: _Optional[str] = ..., type: _Optional[_Union[_smart_lock_pb2.SmartLockType, str]] = ..., name: _Optional[str] = ..., group_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        space_id: str | None = ...,
+        room_id: str | None = ...,
+        external_smart_lock_id: str | None = ...,
+        type: _smart_lock_pb2.SmartLockType | str | None = ...,
+        name: str | None = ...,
+        group_id: str | None = ...,
+    ) -> None: ...
 
 class AddSmartLockByExternalIdResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class Failure(_message.Message):
-        __slots__ = ("external_service_access_denied", "bad_request", "smart_lock_not_found", "smart_lock_already_added_by_another_space_member", "permission_denied", "space_not_found", "room_not_found", "space_armed", "smart_lock_offline", "members_limit_exceeded", "group_not_found", "smart_lock_without_group")
+        __slots__ = (
+            "bad_request",
+            "external_service_access_denied",
+            "group_not_found",
+            "members_limit_exceeded",
+            "permission_denied",
+            "room_not_found",
+            "smart_lock_already_added_by_another_space_member",
+            "smart_lock_not_found",
+            "smart_lock_offline",
+            "smart_lock_without_group",
+            "space_armed",
+            "space_not_found",
+        )
         EXTERNAL_SERVICE_ACCESS_DENIED_FIELD_NUMBER: _ClassVar[int]
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         SMART_LOCK_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
@@ -51,9 +82,34 @@ class AddSmartLockByExternalIdResponse(_message.Message):
         members_limit_exceeded: _response_pb2.DefaultError
         group_not_found: _response_pb2.DefaultError
         smart_lock_without_group: _response_pb2.DefaultError
-        def __init__(self, external_service_access_denied: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., bad_request: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., smart_lock_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., smart_lock_already_added_by_another_space_member: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., room_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_armed: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., smart_lock_offline: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., members_limit_exceeded: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., group_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., smart_lock_without_group: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            external_service_access_denied: _response_pb2.DefaultError
+            | _Mapping
+            | None = ...,
+            bad_request: _response_pb2.DefaultError | _Mapping | None = ...,
+            smart_lock_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
+            smart_lock_already_added_by_another_space_member: _response_pb2.DefaultError
+            | _Mapping
+            | None = ...,
+            permission_denied: _response_pb2.DefaultError | _Mapping | None = ...,
+            space_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
+            room_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
+            space_armed: _response_pb2.DefaultError | _Mapping | None = ...,
+            smart_lock_offline: _response_pb2.DefaultError | _Mapping | None = ...,
+            members_limit_exceeded: _response_pb2.DefaultError | _Mapping | None = ...,
+            group_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
+            smart_lock_without_group: _response_pb2.DefaultError
+            | _Mapping
+            | None = ...,
+        ) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: AddSmartLockByExternalIdResponse.Failure
-    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[AddSmartLockByExternalIdResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: _response_pb2.Success | _Mapping | None = ...,
+        failure: AddSmartLockByExternalIdResponse.Failure | _Mapping | None = ...,
+    ) -> None: ...

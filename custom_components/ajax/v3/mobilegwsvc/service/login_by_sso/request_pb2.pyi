@@ -1,12 +1,12 @@
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class LoginBySsoRequest(_message.Message):
-    __slots__ = ("email", "client_device_id", "relay_state", "request_id", "company_id")
+    __slots__ = ("client_device_id", "company_id", "email", "relay_state", "request_id")
     EMAIL_FIELD_NUMBER: _ClassVar[int]
     CLIENT_DEVICE_ID_FIELD_NUMBER: _ClassVar[int]
     RELAY_STATE_FIELD_NUMBER: _ClassVar[int]
@@ -17,4 +17,11 @@ class LoginBySsoRequest(_message.Message):
     relay_state: str
     request_id: str
     company_id: str
-    def __init__(self, email: _Optional[str] = ..., client_device_id: _Optional[str] = ..., relay_state: _Optional[str] = ..., request_id: _Optional[str] = ..., company_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        email: str | None = ...,
+        client_device_id: str | None = ...,
+        relay_state: str | None = ...,
+        request_id: str | None = ...,
+        company_id: str | None = ...,
+    ) -> None: ...

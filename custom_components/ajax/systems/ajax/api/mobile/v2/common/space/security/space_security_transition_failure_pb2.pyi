@@ -1,13 +1,22 @@
-from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class SpaceSecurityTransitionFailure(_message.Message):
-    __slots__ = ("timed_out", "cancelled", "hub_offline", "hub_busy", "hub_blocked_by_service_provider", "hub_alarm_reset_required", "hub_detected_malfunctions")
+    __slots__ = (
+        "cancelled",
+        "hub_alarm_reset_required",
+        "hub_blocked_by_service_provider",
+        "hub_busy",
+        "hub_detected_malfunctions",
+        "hub_offline",
+        "timed_out",
+    )
     TIMED_OUT_FIELD_NUMBER: _ClassVar[int]
     CANCELLED_FIELD_NUMBER: _ClassVar[int]
     HUB_OFFLINE_FIELD_NUMBER: _ClassVar[int]
@@ -22,4 +31,17 @@ class SpaceSecurityTransitionFailure(_message.Message):
     hub_blocked_by_service_provider: _response_pb2.DefaultError
     hub_alarm_reset_required: _response_pb2.DefaultError
     hub_detected_malfunctions: _response_pb2.HubDetectedMalfunctionsError
-    def __init__(self, timed_out: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., cancelled: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., hub_offline: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., hub_busy: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., hub_blocked_by_service_provider: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., hub_alarm_reset_required: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., hub_detected_malfunctions: _Optional[_Union[_response_pb2.HubDetectedMalfunctionsError, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        timed_out: _response_pb2.DefaultError | _Mapping | None = ...,
+        cancelled: _response_pb2.DefaultError | _Mapping | None = ...,
+        hub_offline: _response_pb2.DefaultError | _Mapping | None = ...,
+        hub_busy: _response_pb2.DefaultError | _Mapping | None = ...,
+        hub_blocked_by_service_provider: _response_pb2.DefaultError
+        | _Mapping
+        | None = ...,
+        hub_alarm_reset_required: _response_pb2.DefaultError | _Mapping | None = ...,
+        hub_detected_malfunctions: _response_pb2.HubDetectedMalfunctionsError
+        | _Mapping
+        | None = ...,
+    ) -> None: ...

@@ -1,13 +1,13 @@
-from v3.mobilegwsvc.commonmodels.type import user_role_pb2 as _user_role_pb2
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from v3.mobilegwsvc.commonmodels.type import user_role_pb2 as _user_role_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class LoginByTotpRequest(_message.Message):
-    __slots__ = ("email", "user_role", "totp", "request_id")
+    __slots__ = ("email", "request_id", "totp", "user_role")
     EMAIL_FIELD_NUMBER: _ClassVar[int]
     USER_ROLE_FIELD_NUMBER: _ClassVar[int]
     TOTP_FIELD_NUMBER: _ClassVar[int]
@@ -16,4 +16,10 @@ class LoginByTotpRequest(_message.Message):
     user_role: _user_role_pb2.UserRole
     totp: str
     request_id: str
-    def __init__(self, email: _Optional[str] = ..., user_role: _Optional[_Union[_user_role_pb2.UserRole, str]] = ..., totp: _Optional[str] = ..., request_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        email: str | None = ...,
+        user_role: _user_role_pb2.UserRole | str | None = ...,
+        totp: str | None = ...,
+        request_id: str | None = ...,
+    ) -> None: ...

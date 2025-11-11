@@ -1,9 +1,10 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -15,6 +16,7 @@ class BypassPart(_message.Message):
         CAPABILITY_BYPASS: _ClassVar[BypassPart.Capability]
         CAPABILITY_TAMPER_BYPASS: _ClassVar[BypassPart.Capability]
         CAPABILITY_ONE_TIME_BYPASS: _ClassVar[BypassPart.Capability]
+
     CAPABILITY_UNSPECIFIED: BypassPart.Capability
     CAPABILITY_BYPASS: BypassPart.Capability
     CAPABILITY_TAMPER_BYPASS: BypassPart.Capability
@@ -29,6 +31,7 @@ class BypassPart(_message.Message):
         BYPASS_MODE_AUTO_BYPASS_BY_ACTIVE: _ClassVar[BypassPart.BypassMode]
         BYPASS_MODE_ONETIME_FULL_ENABLED: _ClassVar[BypassPart.BypassMode]
         BYPASS_MODE_ONETIME_TAMPER_ENABLED: _ClassVar[BypassPart.BypassMode]
+
     BYPASS_MODE_UNSPECIFIED: BypassPart.BypassMode
     BYPASS_MODE_DISABLED: BypassPart.BypassMode
     BYPASS_MODE_ENABLED_ENGINEER_BYPASS: BypassPart.BypassMode
@@ -41,4 +44,8 @@ class BypassPart(_message.Message):
     CAPABILITIES_FIELD_NUMBER: _ClassVar[int]
     bypass_mode: _containers.RepeatedScalarFieldContainer[BypassPart.BypassMode]
     capabilities: _containers.RepeatedScalarFieldContainer[BypassPart.Capability]
-    def __init__(self, bypass_mode: _Optional[_Iterable[_Union[BypassPart.BypassMode, str]]] = ..., capabilities: _Optional[_Iterable[_Union[BypassPart.Capability, str]]] = ...) -> None: ...
+    def __init__(
+        self,
+        bypass_mode: _Iterable[BypassPart.BypassMode | str] | None = ...,
+        capabilities: _Iterable[BypassPart.Capability | str] | None = ...,
+    ) -> None: ...

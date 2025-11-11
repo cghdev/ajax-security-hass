@@ -1,14 +1,16 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class En54DisablementEndpoints(_message.Message):
-    __slots__ = ("endpoints", "endpoint_data")
+    __slots__ = ("endpoint_data", "endpoints")
     class Endpoint(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         ENDPOINT_UNSPECIFIED: _ClassVar[En54DisablementEndpoints.Endpoint]
@@ -22,6 +24,7 @@ class En54DisablementEndpoints(_message.Message):
         ENDPOINT_OUTPUTS: _ClassVar[En54DisablementEndpoints.Endpoint]
         ENDPOINT_INPUT: _ClassVar[En54DisablementEndpoints.Endpoint]
         ENDPOINT_MCP: _ClassVar[En54DisablementEndpoints.Endpoint]
+
     ENDPOINT_UNSPECIFIED: En54DisablementEndpoints.Endpoint
     ENDPOINT_SMOKE: En54DisablementEndpoints.Endpoint
     ENDPOINT_TEMP: En54DisablementEndpoints.Endpoint
@@ -39,9 +42,23 @@ class En54DisablementEndpoints(_message.Message):
         NAME_FIELD_NUMBER: _ClassVar[int]
         endpoint: En54DisablementEndpoints.Endpoint
         name: str
-        def __init__(self, endpoint: _Optional[_Union[En54DisablementEndpoints.Endpoint, str]] = ..., name: _Optional[str] = ...) -> None: ...
+        def __init__(
+            self,
+            endpoint: En54DisablementEndpoints.Endpoint | str | None = ...,
+            name: str | None = ...,
+        ) -> None: ...
+
     ENDPOINTS_FIELD_NUMBER: _ClassVar[int]
     ENDPOINT_DATA_FIELD_NUMBER: _ClassVar[int]
-    endpoints: _containers.RepeatedScalarFieldContainer[En54DisablementEndpoints.Endpoint]
-    endpoint_data: _containers.RepeatedCompositeFieldContainer[En54DisablementEndpoints.EndpointData]
-    def __init__(self, endpoints: _Optional[_Iterable[_Union[En54DisablementEndpoints.Endpoint, str]]] = ..., endpoint_data: _Optional[_Iterable[_Union[En54DisablementEndpoints.EndpointData, _Mapping]]] = ...) -> None: ...
+    endpoints: _containers.RepeatedScalarFieldContainer[
+        En54DisablementEndpoints.Endpoint
+    ]
+    endpoint_data: _containers.RepeatedCompositeFieldContainer[
+        En54DisablementEndpoints.EndpointData
+    ]
+    def __init__(
+        self,
+        endpoints: _Iterable[En54DisablementEndpoints.Endpoint | str] | None = ...,
+        endpoint_data: _Iterable[En54DisablementEndpoints.EndpointData | _Mapping]
+        | None = ...,
+    ) -> None: ...

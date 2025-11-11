@@ -1,29 +1,63 @@
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification import source_image_info_pb2 as _source_image_info_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import access_card_type_pb2 as _access_card_type_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import device_color_pb2 as _device_color_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import device_label_pb2 as _device_label_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import hub_box_type_pb2 as _hub_box_type_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import source_type_pb2 as _source_type_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import wire_input_alarm_type_pb2 as _wire_input_alarm_type_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import yavir_access_control_type_pb2 as _yavir_access_control_type_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import device_special_appearance_type_pb2 as _device_special_appearance_type_pb2
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification import (
+    source_image_info_pb2 as _source_image_info_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    access_card_type_pb2 as _access_card_type_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    device_color_pb2 as _device_color_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    device_label_pb2 as _device_label_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    device_special_appearance_type_pb2 as _device_special_appearance_type_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    hub_box_type_pb2 as _hub_box_type_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    source_type_pb2 as _source_type_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    wire_input_alarm_type_pb2 as _wire_input_alarm_type_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.hub import (
+    yavir_access_control_type_pb2 as _yavir_access_control_type_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class HubNotificationSource(_message.Message):
-    __slots__ = ("type", "id", "name", "device_color", "device_label", "hub_user_type", "access_card_type", "yavir_access_control_type", "box_type", "wire_input_alarm_type", "device_special_appearance_type", "image_info", "room_hex_id", "room_name")
+    __slots__ = (
+        "access_card_type",
+        "box_type",
+        "device_color",
+        "device_label",
+        "device_special_appearance_type",
+        "hub_user_type",
+        "id",
+        "image_info",
+        "name",
+        "room_hex_id",
+        "room_name",
+        "type",
+        "wire_input_alarm_type",
+        "yavir_access_control_type",
+    )
     class HubUserType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         USER_TYPE_UNSPECIFIED: _ClassVar[HubNotificationSource.HubUserType]
         USER: _ClassVar[HubNotificationSource.HubUserType]
         PRO: _ClassVar[HubNotificationSource.HubUserType]
         COMPANY: _ClassVar[HubNotificationSource.HubUserType]
+
     USER_TYPE_UNSPECIFIED: HubNotificationSource.HubUserType
     USER: HubNotificationSource.HubUserType
     PRO: HubNotificationSource.HubUserType
@@ -52,8 +86,32 @@ class HubNotificationSource(_message.Message):
     yavir_access_control_type: _yavir_access_control_type_pb2.YavirAccessControlType
     box_type: _hub_box_type_pb2.HubBoxType
     wire_input_alarm_type: _wire_input_alarm_type_pb2.CustomAlarmType
-    device_special_appearance_type: _device_special_appearance_type_pb2.DeviceSpecialAppearanceType
+    device_special_appearance_type: (
+        _device_special_appearance_type_pb2.DeviceSpecialAppearanceType
+    )
     image_info: _source_image_info_pb2.SourceImageInfo
     room_hex_id: str
     room_name: str
-    def __init__(self, type: _Optional[_Union[_source_type_pb2.HubNotificationSourceType, str]] = ..., id: _Optional[str] = ..., name: _Optional[str] = ..., device_color: _Optional[_Union[_device_color_pb2.DeviceColor, str]] = ..., device_label: _Optional[_Union[_device_label_pb2.DeviceLabel, str]] = ..., hub_user_type: _Optional[_Union[HubNotificationSource.HubUserType, str]] = ..., access_card_type: _Optional[_Union[_access_card_type_pb2.AccessCardType, str]] = ..., yavir_access_control_type: _Optional[_Union[_yavir_access_control_type_pb2.YavirAccessControlType, str]] = ..., box_type: _Optional[_Union[_hub_box_type_pb2.HubBoxType, str]] = ..., wire_input_alarm_type: _Optional[_Union[_wire_input_alarm_type_pb2.CustomAlarmType, str]] = ..., device_special_appearance_type: _Optional[_Union[_device_special_appearance_type_pb2.DeviceSpecialAppearanceType, str]] = ..., image_info: _Optional[_Union[_source_image_info_pb2.SourceImageInfo, _Mapping]] = ..., room_hex_id: _Optional[str] = ..., room_name: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        type: _source_type_pb2.HubNotificationSourceType | str | None = ...,
+        id: str | None = ...,
+        name: str | None = ...,
+        device_color: _device_color_pb2.DeviceColor | str | None = ...,
+        device_label: _device_label_pb2.DeviceLabel | str | None = ...,
+        hub_user_type: HubNotificationSource.HubUserType | str | None = ...,
+        access_card_type: _access_card_type_pb2.AccessCardType | str | None = ...,
+        yavir_access_control_type: _yavir_access_control_type_pb2.YavirAccessControlType
+        | str
+        | None = ...,
+        box_type: _hub_box_type_pb2.HubBoxType | str | None = ...,
+        wire_input_alarm_type: _wire_input_alarm_type_pb2.CustomAlarmType
+        | str
+        | None = ...,
+        device_special_appearance_type: _device_special_appearance_type_pb2.DeviceSpecialAppearanceType
+        | str
+        | None = ...,
+        image_info: _source_image_info_pb2.SourceImageInfo | _Mapping | None = ...,
+        room_hex_id: str | None = ...,
+        room_name: str | None = ...,
+    ) -> None: ...

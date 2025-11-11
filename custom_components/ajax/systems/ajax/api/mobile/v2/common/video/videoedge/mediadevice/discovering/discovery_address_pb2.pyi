@@ -1,7 +1,10 @@
-from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import media_device_pb2 as _media_device_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import (
+    media_device_pb2 as _media_device_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -13,4 +16,9 @@ class DiscoveryAddress(_message.Message):
     host: str
     port: str
     protocol: _media_device_pb2.MediaDeviceProtocol
-    def __init__(self, host: _Optional[str] = ..., port: _Optional[str] = ..., protocol: _Optional[_Union[_media_device_pb2.MediaDeviceProtocol, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        host: str | None = ...,
+        port: str | None = ...,
+        protocol: _media_device_pb2.MediaDeviceProtocol | str | None = ...,
+    ) -> None: ...

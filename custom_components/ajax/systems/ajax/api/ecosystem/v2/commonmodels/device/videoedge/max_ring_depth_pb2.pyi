@@ -1,6 +1,7 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -19,6 +20,7 @@ class MaxRingDepth(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     MAX_RING_DEPTH_180_DAYS: _ClassVar[MaxRingDepth]
     MAX_RING_DEPTH_360_DAYS: _ClassVar[MaxRingDepth]
     MAX_RING_DEPTH_UNLIMITED: _ClassVar[MaxRingDepth]
+
 MAX_RING_DEPTH_UNSPECIFIED: MaxRingDepth
 MAX_RING_DEPTH_1_DAY: MaxRingDepth
 MAX_RING_DEPTH_2_DAYS: MaxRingDepth

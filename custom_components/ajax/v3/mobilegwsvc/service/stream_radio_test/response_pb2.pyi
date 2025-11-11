@@ -1,24 +1,36 @@
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
-from v3.mobilegwsvc.commonmodels.hub.device.common import device_radio_test_type_pb2 as _device_radio_test_type_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_signal_level_pb2 as _device_signal_level_pb2
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    device_signal_level_pb2 as _device_signal_level_pb2,
+)
+from v3.mobilegwsvc.commonmodels.hub.device.common import (
+    device_radio_test_type_pb2 as _device_radio_test_type_pb2,
+)
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class StreamRadioTestResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class RadioTestStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        RADIO_TEST_STATUS_UNSPECIFIED: _ClassVar[StreamRadioTestResponse.RadioTestStatus]
-        RADIO_TEST_STATUS_READY_TO_START: _ClassVar[StreamRadioTestResponse.RadioTestStatus]
+        RADIO_TEST_STATUS_UNSPECIFIED: _ClassVar[
+            StreamRadioTestResponse.RadioTestStatus
+        ]
+        RADIO_TEST_STATUS_READY_TO_START: _ClassVar[
+            StreamRadioTestResponse.RadioTestStatus
+        ]
         RADIO_TEST_STATUS_STARTING: _ClassVar[StreamRadioTestResponse.RadioTestStatus]
-        RADIO_TEST_STATUS_IN_PROGRESS: _ClassVar[StreamRadioTestResponse.RadioTestStatus]
+        RADIO_TEST_STATUS_IN_PROGRESS: _ClassVar[
+            StreamRadioTestResponse.RadioTestStatus
+        ]
         RADIO_TEST_STATUS_STOPPING: _ClassVar[StreamRadioTestResponse.RadioTestStatus]
+
     RADIO_TEST_STATUS_UNSPECIFIED: StreamRadioTestResponse.RadioTestStatus
     RADIO_TEST_STATUS_READY_TO_START: StreamRadioTestResponse.RadioTestStatus
     RADIO_TEST_STATUS_STARTING: StreamRadioTestResponse.RadioTestStatus
@@ -28,14 +40,20 @@ class StreamRadioTestResponse(_message.Message):
         __slots__ = ("snapshot",)
         SNAPSHOT_FIELD_NUMBER: _ClassVar[int]
         snapshot: StreamRadioTestResponse.Snapshot
-        def __init__(self, snapshot: _Optional[_Union[StreamRadioTestResponse.Snapshot, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, snapshot: StreamRadioTestResponse.Snapshot | _Mapping | None = ...
+        ) -> None: ...
+
     class Snapshot(_message.Message):
         __slots__ = ("info",)
         INFO_FIELD_NUMBER: _ClassVar[int]
         info: StreamRadioTestResponse.RadioTestInfo
-        def __init__(self, info: _Optional[_Union[StreamRadioTestResponse.RadioTestInfo, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, info: StreamRadioTestResponse.RadioTestInfo | _Mapping | None = ...
+        ) -> None: ...
+
     class RadioTestInfo(_message.Message):
-        __slots__ = ("device_id", "status", "test_type", "signal_level", "started_at")
+        __slots__ = ("device_id", "signal_level", "started_at", "status", "test_type")
         DEVICE_ID_FIELD_NUMBER: _ClassVar[int]
         STATUS_FIELD_NUMBER: _ClassVar[int]
         TEST_TYPE_FIELD_NUMBER: _ClassVar[int]
@@ -46,16 +64,35 @@ class StreamRadioTestResponse(_message.Message):
         test_type: _device_radio_test_type_pb2.DeviceRadioTestType
         signal_level: _device_signal_level_pb2.DeviceSignalLevel
         started_at: _timestamp_pb2.Timestamp
-        def __init__(self, device_id: _Optional[str] = ..., status: _Optional[_Union[StreamRadioTestResponse.RadioTestStatus, str]] = ..., test_type: _Optional[_Union[_device_radio_test_type_pb2.DeviceRadioTestType, str]] = ..., signal_level: _Optional[_Union[_device_signal_level_pb2.DeviceSignalLevel, str]] = ..., started_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            device_id: str | None = ...,
+            status: StreamRadioTestResponse.RadioTestStatus | str | None = ...,
+            test_type: _device_radio_test_type_pb2.DeviceRadioTestType
+            | str
+            | None = ...,
+            signal_level: _device_signal_level_pb2.DeviceSignalLevel | str | None = ...,
+            started_at: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+        ) -> None: ...
+
     class Failure(_message.Message):
         __slots__ = ("bad_request", "device_not_found")
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         DEVICE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
         bad_request: _response_pb2.Error
         device_not_found: _response_pb2.Error
-        def __init__(self, bad_request: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., device_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            bad_request: _response_pb2.Error | _Mapping | None = ...,
+            device_not_found: _response_pb2.Error | _Mapping | None = ...,
+        ) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: StreamRadioTestResponse.Success
     failure: StreamRadioTestResponse.Failure
-    def __init__(self, success: _Optional[_Union[StreamRadioTestResponse.Success, _Mapping]] = ..., failure: _Optional[_Union[StreamRadioTestResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: StreamRadioTestResponse.Success | _Mapping | None = ...,
+        failure: StreamRadioTestResponse.Failure | _Mapping | None = ...,
+    ) -> None: ...

@@ -1,6 +1,7 @@
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -10,19 +11,21 @@ class PtzMove(_message.Message):
     SPEED_Y_FIELD_NUMBER: _ClassVar[int]
     speed_x: int
     speed_y: int
-    def __init__(self, speed_x: _Optional[int] = ..., speed_y: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, speed_x: int | None = ..., speed_y: int | None = ...
+    ) -> None: ...
 
 class PtzZoom(_message.Message):
     __slots__ = ("speed",)
     SPEED_FIELD_NUMBER: _ClassVar[int]
     speed: int
-    def __init__(self, speed: _Optional[int] = ...) -> None: ...
+    def __init__(self, speed: int | None = ...) -> None: ...
 
 class PtzFocus(_message.Message):
     __slots__ = ("speed",)
     SPEED_FIELD_NUMBER: _ClassVar[int]
     speed: int
-    def __init__(self, speed: _Optional[int] = ...) -> None: ...
+    def __init__(self, speed: int | None = ...) -> None: ...
 
 class PtzStop(_message.Message):
     __slots__ = ()

@@ -1,22 +1,31 @@
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
 from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
 from v1.facility import facility_pb2 as _facility_pb2
 from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2_1
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class CreateFacilityOnInstallationResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class Success(_message.Message):
         __slots__ = ("facility",)
         FACILITY_FIELD_NUMBER: _ClassVar[int]
         facility: _facility_pb2.Facility
-        def __init__(self, facility: _Optional[_Union[_facility_pb2.Facility, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, facility: _facility_pb2.Facility | _Mapping | None = ...
+        ) -> None: ...
+
     class Failure(_message.Message):
-        __slots__ = ("bad_request", "registration_number_not_unique", "add_device_failed", "empty_spaces_limit_exceeded")
+        __slots__ = (
+            "add_device_failed",
+            "bad_request",
+            "empty_spaces_limit_exceeded",
+            "registration_number_not_unique",
+        )
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         REGISTRATION_NUMBER_NOT_UNIQUE_FIELD_NUMBER: _ClassVar[int]
         ADD_DEVICE_FAILED_FIELD_NUMBER: _ClassVar[int]
@@ -25,9 +34,22 @@ class CreateFacilityOnInstallationResponse(_message.Message):
         registration_number_not_unique: _response_pb2_1.Error
         add_device_failed: _response_pb2.AddDeviceError
         empty_spaces_limit_exceeded: _response_pb2_1.Error
-        def __init__(self, bad_request: _Optional[_Union[_response_pb2_1.Error, _Mapping]] = ..., registration_number_not_unique: _Optional[_Union[_response_pb2_1.Error, _Mapping]] = ..., add_device_failed: _Optional[_Union[_response_pb2.AddDeviceError, _Mapping]] = ..., empty_spaces_limit_exceeded: _Optional[_Union[_response_pb2_1.Error, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            bad_request: _response_pb2_1.Error | _Mapping | None = ...,
+            registration_number_not_unique: _response_pb2_1.Error
+            | _Mapping
+            | None = ...,
+            add_device_failed: _response_pb2.AddDeviceError | _Mapping | None = ...,
+            empty_spaces_limit_exceeded: _response_pb2_1.Error | _Mapping | None = ...,
+        ) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: CreateFacilityOnInstallationResponse.Success
     failure: CreateFacilityOnInstallationResponse.Failure
-    def __init__(self, success: _Optional[_Union[CreateFacilityOnInstallationResponse.Success, _Mapping]] = ..., failure: _Optional[_Union[CreateFacilityOnInstallationResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: CreateFacilityOnInstallationResponse.Success | _Mapping | None = ...,
+        failure: CreateFacilityOnInstallationResponse.Failure | _Mapping | None = ...,
+    ) -> None: ...

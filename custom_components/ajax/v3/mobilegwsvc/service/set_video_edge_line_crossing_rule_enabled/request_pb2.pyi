@@ -1,12 +1,12 @@
-from systems.ajax.logging.proto import log_marker_pb2 as _log_marker_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class SetVideoEdgeLineCrossingRuleEnabledRequest(_message.Message):
-    __slots__ = ("space_id", "video_edge_id", "channel_id", "rule_id", "enabled")
+    __slots__ = ("channel_id", "enabled", "rule_id", "space_id", "video_edge_id")
     SPACE_ID_FIELD_NUMBER: _ClassVar[int]
     VIDEO_EDGE_ID_FIELD_NUMBER: _ClassVar[int]
     CHANNEL_ID_FIELD_NUMBER: _ClassVar[int]
@@ -17,4 +17,11 @@ class SetVideoEdgeLineCrossingRuleEnabledRequest(_message.Message):
     channel_id: str
     rule_id: int
     enabled: bool
-    def __init__(self, space_id: _Optional[str] = ..., video_edge_id: _Optional[str] = ..., channel_id: _Optional[str] = ..., rule_id: _Optional[int] = ..., enabled: bool = ...) -> None: ...
+    def __init__(
+        self,
+        space_id: str | None = ...,
+        video_edge_id: str | None = ...,
+        channel_id: str | None = ...,
+        rule_id: int | None = ...,
+        enabled: bool = ...,
+    ) -> None: ...

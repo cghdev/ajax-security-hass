@@ -1,6 +1,7 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -27,6 +28,7 @@ class DurationOption(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     DURATION_OPTION_14_DAYS: _ClassVar[DurationOption]
     DURATION_OPTION_28_DAYS: _ClassVar[DurationOption]
     DURATION_OPTION_30_DAYS: _ClassVar[DurationOption]
+
 DURATION_OPTION_UNSPECIFIED: DurationOption
 DURATION_OPTION_UNLIMITED: DurationOption
 DURATION_OPTION_ZERO: DurationOption

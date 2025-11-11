@@ -1,11 +1,12 @@
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class NewUserSession(_message.Message):
-    __slots__ = ("sessionId", "client_os", "device_model", "last_connection_ip")
+    __slots__ = ("client_os", "device_model", "last_connection_ip", "sessionId")
     SESSIONID_FIELD_NUMBER: _ClassVar[int]
     CLIENT_OS_FIELD_NUMBER: _ClassVar[int]
     DEVICE_MODEL_FIELD_NUMBER: _ClassVar[int]
@@ -14,4 +15,10 @@ class NewUserSession(_message.Message):
     client_os: str
     device_model: str
     last_connection_ip: str
-    def __init__(self, sessionId: _Optional[int] = ..., client_os: _Optional[str] = ..., device_model: _Optional[str] = ..., last_connection_ip: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        sessionId: int | None = ...,
+        client_os: str | None = ...,
+        device_model: str | None = ...,
+        last_connection_ip: str | None = ...,
+    ) -> None: ...

@@ -1,15 +1,16 @@
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Image(_message.Message):
-    __slots__ = ("url", "resolution")
+    __slots__ = ("resolution", "url")
     class Resolution(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         RESOLUTION_UNSPECIFIED: _ClassVar[Image.Resolution]
@@ -18,6 +19,7 @@ class Image(_message.Message):
         _64x64: _ClassVar[Image.Resolution]
         _100x100: _ClassVar[Image.Resolution]
         _200x200: _ClassVar[Image.Resolution]
+
     RESOLUTION_UNSPECIFIED: Image.Resolution
     _300x300: Image.Resolution
     _128x128: Image.Resolution
@@ -28,12 +30,18 @@ class Image(_message.Message):
     RESOLUTION_FIELD_NUMBER: _ClassVar[int]
     url: str
     resolution: Image.Resolution
-    def __init__(self, url: _Optional[str] = ..., resolution: _Optional[_Union[Image.Resolution, str]] = ...) -> None: ...
+    def __init__(
+        self, url: str | None = ..., resolution: Image.Resolution | str | None = ...
+    ) -> None: ...
 
 class Images(_message.Message):
-    __slots__ = ("images", "image_id")
+    __slots__ = ("image_id", "images")
     IMAGES_FIELD_NUMBER: _ClassVar[int]
     IMAGE_ID_FIELD_NUMBER: _ClassVar[int]
     images: _containers.RepeatedCompositeFieldContainer[Image]
     image_id: str
-    def __init__(self, images: _Optional[_Iterable[_Union[Image, _Mapping]]] = ..., image_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        images: _Iterable[Image | _Mapping] | None = ...,
+        image_id: str | None = ...,
+    ) -> None: ...

@@ -1,12 +1,17 @@
-from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import media_device_capabilities_pb2 as _media_device_capabilities_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import media_device_settings_pb2 as _media_device_settings_pb2
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import (
+    media_device_capabilities_pb2 as _media_device_capabilities_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import (
+    media_device_settings_pb2 as _media_device_settings_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -26,6 +31,7 @@ class MediaDeviceProtocol(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     P_NONE: _ClassVar[MediaDeviceProtocol]
     P_ONVIF: _ClassVar[MediaDeviceProtocol]
+
 DS_NONE: MediaDeviceState
 CONNECTING: MediaDeviceState
 CONNECTED: MediaDeviceState
@@ -39,7 +45,18 @@ P_NONE: MediaDeviceProtocol
 P_ONVIF: MediaDeviceProtocol
 
 class MediaDevice(_message.Message):
-    __slots__ = ("guid", "family", "model", "enabled", "info", "state", "connection_settings", "capabilities", "device_settings", "permanent")
+    __slots__ = (
+        "capabilities",
+        "connection_settings",
+        "device_settings",
+        "enabled",
+        "family",
+        "guid",
+        "info",
+        "model",
+        "permanent",
+        "state",
+    )
     GUID_FIELD_NUMBER: _ClassVar[int]
     FAMILY_FIELD_NUMBER: _ClassVar[int]
     MODEL_FIELD_NUMBER: _ClassVar[int]
@@ -60,10 +77,28 @@ class MediaDevice(_message.Message):
     capabilities: _media_device_capabilities_pb2.MediaDeviceCapabilities
     device_settings: _media_device_settings_pb2.MediaDeviceSettings
     permanent: bool
-    def __init__(self, guid: _Optional[str] = ..., family: _Optional[str] = ..., model: _Optional[str] = ..., enabled: bool = ..., info: _Optional[_Union[MediaDeviceInfo, _Mapping]] = ..., state: _Optional[_Iterable[_Union[MediaDeviceState, str]]] = ..., connection_settings: _Optional[_Union[_media_device_settings_pb2.ConnectionSettings, _Mapping]] = ..., capabilities: _Optional[_Union[_media_device_capabilities_pb2.MediaDeviceCapabilities, _Mapping]] = ..., device_settings: _Optional[_Union[_media_device_settings_pb2.MediaDeviceSettings, _Mapping]] = ..., permanent: bool = ...) -> None: ...
+    def __init__(
+        self,
+        guid: str | None = ...,
+        family: str | None = ...,
+        model: str | None = ...,
+        enabled: bool = ...,
+        info: MediaDeviceInfo | _Mapping | None = ...,
+        state: _Iterable[MediaDeviceState | str] | None = ...,
+        connection_settings: _media_device_settings_pb2.ConnectionSettings
+        | _Mapping
+        | None = ...,
+        capabilities: _media_device_capabilities_pb2.MediaDeviceCapabilities
+        | _Mapping
+        | None = ...,
+        device_settings: _media_device_settings_pb2.MediaDeviceSettings
+        | _Mapping
+        | None = ...,
+        permanent: bool = ...,
+    ) -> None: ...
 
 class MediaDeviceInfo(_message.Message):
     __slots__ = ("name",)
     NAME_FIELD_NUMBER: _ClassVar[int]
     name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
+    def __init__(self, name: str | None = ...) -> None: ...

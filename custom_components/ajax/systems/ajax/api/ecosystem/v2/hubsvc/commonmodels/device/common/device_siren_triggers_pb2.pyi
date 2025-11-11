@@ -1,11 +1,14 @@
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.meta import meta_pb2 as _meta_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import patch_type_pb2 as _patch_type_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import (
+    patch_type_pb2 as _patch_type_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -50,6 +53,7 @@ class SirenTriggers(_message.Message):
         TRIGGER_OVERHEAT: _ClassVar[SirenTriggers.Trigger]
         TRIGGER_ENTRY_DELAY: _ClassVar[SirenTriggers.Trigger]
         TRIGGER_POWER_SUPPLY_SHORTED_OUT: _ClassVar[SirenTriggers.Trigger]
+
     TRIGGER_UNSPECIFIED: SirenTriggers.Trigger
     TRIGGER_TAMPER: SirenTriggers.Trigger
     TRIGGER_REED: SirenTriggers.Trigger
@@ -90,22 +94,45 @@ class SirenTriggers(_message.Message):
     class SirenTriggerSettings(_message.Message):
         __slots__ = ("siren_triggers",)
         SIREN_TRIGGERS_FIELD_NUMBER: _ClassVar[int]
-        siren_triggers: _containers.RepeatedCompositeFieldContainer[SirenTriggers.SirenTriggerPatch]
-        def __init__(self, siren_triggers: _Optional[_Iterable[_Union[SirenTriggers.SirenTriggerPatch, _Mapping]]] = ...) -> None: ...
+        siren_triggers: _containers.RepeatedCompositeFieldContainer[
+            SirenTriggers.SirenTriggerPatch
+        ]
+        def __init__(
+            self,
+            siren_triggers: _Iterable[SirenTriggers.SirenTriggerPatch | _Mapping]
+            | None = ...,
+        ) -> None: ...
+
     class SirenTriggerPatch(_message.Message):
-        __slots__ = ("type", "trigger")
+        __slots__ = ("trigger", "type")
         TYPE_FIELD_NUMBER: _ClassVar[int]
         TRIGGER_FIELD_NUMBER: _ClassVar[int]
         type: _patch_type_pb2.PatchType
         trigger: SirenTriggers.Trigger
-        def __init__(self, type: _Optional[_Union[_patch_type_pb2.PatchType, str]] = ..., trigger: _Optional[_Union[SirenTriggers.Trigger, str]] = ...) -> None: ...
+        def __init__(
+            self,
+            type: _patch_type_pb2.PatchType | str | None = ...,
+            trigger: SirenTriggers.Trigger | str | None = ...,
+        ) -> None: ...
+
     class EnabledSirenTriggers(_message.Message):
         __slots__ = ("enabled_triggers",)
         ENABLED_TRIGGERS_FIELD_NUMBER: _ClassVar[int]
-        enabled_triggers: _containers.RepeatedScalarFieldContainer[SirenTriggers.Trigger]
-        def __init__(self, enabled_triggers: _Optional[_Iterable[_Union[SirenTriggers.Trigger, str]]] = ...) -> None: ...
+        enabled_triggers: _containers.RepeatedScalarFieldContainer[
+            SirenTriggers.Trigger
+        ]
+        def __init__(
+            self, enabled_triggers: _Iterable[SirenTriggers.Trigger | str] | None = ...
+        ) -> None: ...
+
     SETTINGS_FIELD_NUMBER: _ClassVar[int]
     SIREN_TRIGGER_CAPABILITIES_FIELD_NUMBER: _ClassVar[int]
     settings: SirenTriggers.EnabledSirenTriggers
-    siren_trigger_capabilities: _containers.RepeatedScalarFieldContainer[SirenTriggers.Trigger]
-    def __init__(self, settings: _Optional[_Union[SirenTriggers.EnabledSirenTriggers, _Mapping]] = ..., siren_trigger_capabilities: _Optional[_Iterable[_Union[SirenTriggers.Trigger, str]]] = ...) -> None: ...
+    siren_trigger_capabilities: _containers.RepeatedScalarFieldContainer[
+        SirenTriggers.Trigger
+    ]
+    def __init__(
+        self,
+        settings: SirenTriggers.EnabledSirenTriggers | _Mapping | None = ...,
+        siren_trigger_capabilities: _Iterable[SirenTriggers.Trigger | str] | None = ...,
+    ) -> None: ...

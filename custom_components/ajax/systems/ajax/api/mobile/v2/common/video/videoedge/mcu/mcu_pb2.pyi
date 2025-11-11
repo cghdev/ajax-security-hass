@@ -1,24 +1,52 @@
-from systems.ajax.api.mobile.v2.common.hub.device.common import battery_charged_state_pb2 as _battery_charged_state_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.backupchannel import backup_channel_info_pb2 as _backup_channel_info_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import chime_pb2 as _chime_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import operating_mode_pb2 as _operating_mode_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mcu.spacesettings import backup_channel_space_settings_pb2 as _backup_channel_space_settings_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.api.mobile.v2.common.hub.device.common import (
+    battery_charged_state_pb2 as _battery_charged_state_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.backupchannel import (
+    backup_channel_info_pb2 as _backup_channel_info_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import (
+    chime_pb2 as _chime_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.mcu import (
+    operating_mode_pb2 as _operating_mode_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.mcu.spacesettings import (
+    backup_channel_space_settings_pb2 as _backup_channel_space_settings_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Mcu(_message.Message):
-    __slots__ = ("battery_status", "external_power_state", "mcu_state", "backup_channel_info", "backup_channel_space_settings", "operating_mode", "battery_state", "battery_charged_state", "chime", "assigned_extender_device_index", "battery_temperature_state", "pir_motion_led_indication", "ring_button_bell_state", "capabilities")
+    __slots__ = (
+        "assigned_extender_device_index",
+        "backup_channel_info",
+        "backup_channel_space_settings",
+        "battery_charged_state",
+        "battery_state",
+        "battery_status",
+        "battery_temperature_state",
+        "capabilities",
+        "chime",
+        "external_power_state",
+        "mcu_state",
+        "operating_mode",
+        "pir_motion_led_indication",
+        "ring_button_bell_state",
+    )
     class ExternalPowerState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         EXTERNAL_POWER_STATE_UNSPECIFIED: _ClassVar[Mcu.ExternalPowerState]
         EXTERNAL_POWER_STATE_CONNECTED: _ClassVar[Mcu.ExternalPowerState]
         EXTERNAL_POWER_STATE_DISCONNECTED: _ClassVar[Mcu.ExternalPowerState]
+
     EXTERNAL_POWER_STATE_UNSPECIFIED: Mcu.ExternalPowerState
     EXTERNAL_POWER_STATE_CONNECTED: Mcu.ExternalPowerState
     EXTERNAL_POWER_STATE_DISCONNECTED: Mcu.ExternalPowerState
@@ -27,6 +55,7 @@ class Mcu(_message.Message):
         BATTERY_STATE_UNSPECIFIED: _ClassVar[Mcu.BatteryState]
         BATTERY_STATE_BROKEN: _ClassVar[Mcu.BatteryState]
         BATTERY_STATE_OK: _ClassVar[Mcu.BatteryState]
+
     BATTERY_STATE_UNSPECIFIED: Mcu.BatteryState
     BATTERY_STATE_BROKEN: Mcu.BatteryState
     BATTERY_STATE_OK: Mcu.BatteryState
@@ -36,6 +65,7 @@ class Mcu(_message.Message):
         MCU_STATE_FIRMWARE_UPGRADE_IN_PROGRESS: _ClassVar[Mcu.McuState]
         MCU_STATE_OK: _ClassVar[Mcu.McuState]
         MCU_STATE_FAILED: _ClassVar[Mcu.McuState]
+
     MCU_STATE_UNSPECIFIED: Mcu.McuState
     MCU_STATE_FIRMWARE_UPGRADE_IN_PROGRESS: Mcu.McuState
     MCU_STATE_OK: Mcu.McuState
@@ -45,6 +75,7 @@ class Mcu(_message.Message):
         BATTERY_TEMPERATURE_STATE_UNSPECIFIED: _ClassVar[Mcu.BatteryTemperatureState]
         BATTERY_TEMPERATURE_STATE_OK: _ClassVar[Mcu.BatteryTemperatureState]
         BATTERY_TEMPERATURE_STATE_OUT_OF_RANGE: _ClassVar[Mcu.BatteryTemperatureState]
+
     BATTERY_TEMPERATURE_STATE_UNSPECIFIED: Mcu.BatteryTemperatureState
     BATTERY_TEMPERATURE_STATE_OK: Mcu.BatteryTemperatureState
     BATTERY_TEMPERATURE_STATE_OUT_OF_RANGE: Mcu.BatteryTemperatureState
@@ -53,6 +84,7 @@ class Mcu(_message.Message):
         PIR_MOTION_LED_INDICATION_UNSPECIFIED: _ClassVar[Mcu.PirMotionLedIndication]
         PIR_MOTION_LED_INDICATION_ENABLED: _ClassVar[Mcu.PirMotionLedIndication]
         PIR_MOTION_LED_INDICATION_DISABLED: _ClassVar[Mcu.PirMotionLedIndication]
+
     PIR_MOTION_LED_INDICATION_UNSPECIFIED: Mcu.PirMotionLedIndication
     PIR_MOTION_LED_INDICATION_ENABLED: Mcu.PirMotionLedIndication
     PIR_MOTION_LED_INDICATION_DISABLED: Mcu.PirMotionLedIndication
@@ -61,16 +93,24 @@ class Mcu(_message.Message):
         RING_BUTTON_BELL_STATE_UNSPECIFIED: _ClassVar[Mcu.RingButtonBellState]
         RING_BUTTON_BELL_STATE_ENABLED: _ClassVar[Mcu.RingButtonBellState]
         RING_BUTTON_BELL_STATE_DISABLED: _ClassVar[Mcu.RingButtonBellState]
+
     RING_BUTTON_BELL_STATE_UNSPECIFIED: Mcu.RingButtonBellState
     RING_BUTTON_BELL_STATE_ENABLED: Mcu.RingButtonBellState
     RING_BUTTON_BELL_STATE_DISABLED: Mcu.RingButtonBellState
     class BatteryStatus(_message.Message):
-        __slots__ = ("battery_state", "battery_charged_state")
+        __slots__ = ("battery_charged_state", "battery_state")
         BATTERY_STATE_FIELD_NUMBER: _ClassVar[int]
         BATTERY_CHARGED_STATE_FIELD_NUMBER: _ClassVar[int]
         battery_state: Mcu.BatteryState
         battery_charged_state: _battery_charged_state_pb2.BatteryChargedState
-        def __init__(self, battery_state: _Optional[_Union[Mcu.BatteryState, str]] = ..., battery_charged_state: _Optional[_Union[_battery_charged_state_pb2.BatteryChargedState, str]] = ...) -> None: ...
+        def __init__(
+            self,
+            battery_state: Mcu.BatteryState | str | None = ...,
+            battery_charged_state: _battery_charged_state_pb2.BatteryChargedState
+            | str
+            | None = ...,
+        ) -> None: ...
+
     class Capabilities(_message.Message):
         __slots__ = ("flags",)
         class Flag(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -81,6 +121,7 @@ class Mcu(_message.Message):
             FLAG_HAVE_CHIME: _ClassVar[Mcu.Capabilities.Flag]
             FLAG_HAVE_RING_BUTTON: _ClassVar[Mcu.Capabilities.Flag]
             FLAG_HAVE_PIR_MOTION_LED_INDICATION: _ClassVar[Mcu.Capabilities.Flag]
+
         FLAG_UNSPECIFIED: Mcu.Capabilities.Flag
         FLAG_HAVE_BATTERY: Mcu.Capabilities.Flag
         FLAG_SUPPORTS_INTRUSION: Mcu.Capabilities.Flag
@@ -89,7 +130,10 @@ class Mcu(_message.Message):
         FLAG_HAVE_PIR_MOTION_LED_INDICATION: Mcu.Capabilities.Flag
         FLAGS_FIELD_NUMBER: _ClassVar[int]
         flags: _containers.RepeatedScalarFieldContainer[Mcu.Capabilities.Flag]
-        def __init__(self, flags: _Optional[_Iterable[_Union[Mcu.Capabilities.Flag, str]]] = ...) -> None: ...
+        def __init__(
+            self, flags: _Iterable[Mcu.Capabilities.Flag | str] | None = ...
+        ) -> None: ...
+
     BATTERY_STATUS_FIELD_NUMBER: _ClassVar[int]
     EXTERNAL_POWER_STATE_FIELD_NUMBER: _ClassVar[int]
     MCU_STATE_FIELD_NUMBER: _ClassVar[int]
@@ -108,7 +152,9 @@ class Mcu(_message.Message):
     external_power_state: Mcu.ExternalPowerState
     mcu_state: Mcu.McuState
     backup_channel_info: _backup_channel_info_pb2.BackupChannelInfo
-    backup_channel_space_settings: _backup_channel_space_settings_pb2.BackupChannelSpaceSettings
+    backup_channel_space_settings: (
+        _backup_channel_space_settings_pb2.BackupChannelSpaceSettings
+    )
     operating_mode: _operating_mode_pb2.OperatingMode
     battery_state: Mcu.BatteryState
     battery_charged_state: _battery_charged_state_pb2.BatteryChargedState
@@ -118,4 +164,26 @@ class Mcu(_message.Message):
     pir_motion_led_indication: Mcu.PirMotionLedIndication
     ring_button_bell_state: Mcu.RingButtonBellState
     capabilities: Mcu.Capabilities
-    def __init__(self, battery_status: _Optional[_Union[Mcu.BatteryStatus, _Mapping]] = ..., external_power_state: _Optional[_Union[Mcu.ExternalPowerState, str]] = ..., mcu_state: _Optional[_Union[Mcu.McuState, str]] = ..., backup_channel_info: _Optional[_Union[_backup_channel_info_pb2.BackupChannelInfo, _Mapping]] = ..., backup_channel_space_settings: _Optional[_Union[_backup_channel_space_settings_pb2.BackupChannelSpaceSettings, _Mapping]] = ..., operating_mode: _Optional[_Union[_operating_mode_pb2.OperatingMode, str]] = ..., battery_state: _Optional[_Union[Mcu.BatteryState, str]] = ..., battery_charged_state: _Optional[_Union[_battery_charged_state_pb2.BatteryChargedState, str]] = ..., chime: _Optional[_Union[_chime_pb2.Chime, _Mapping]] = ..., assigned_extender_device_index: _Optional[int] = ..., battery_temperature_state: _Optional[_Union[Mcu.BatteryTemperatureState, str]] = ..., pir_motion_led_indication: _Optional[_Union[Mcu.PirMotionLedIndication, str]] = ..., ring_button_bell_state: _Optional[_Union[Mcu.RingButtonBellState, str]] = ..., capabilities: _Optional[_Union[Mcu.Capabilities, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        battery_status: Mcu.BatteryStatus | _Mapping | None = ...,
+        external_power_state: Mcu.ExternalPowerState | str | None = ...,
+        mcu_state: Mcu.McuState | str | None = ...,
+        backup_channel_info: _backup_channel_info_pb2.BackupChannelInfo
+        | _Mapping
+        | None = ...,
+        backup_channel_space_settings: _backup_channel_space_settings_pb2.BackupChannelSpaceSettings
+        | _Mapping
+        | None = ...,
+        operating_mode: _operating_mode_pb2.OperatingMode | str | None = ...,
+        battery_state: Mcu.BatteryState | str | None = ...,
+        battery_charged_state: _battery_charged_state_pb2.BatteryChargedState
+        | str
+        | None = ...,
+        chime: _chime_pb2.Chime | _Mapping | None = ...,
+        assigned_extender_device_index: int | None = ...,
+        battery_temperature_state: Mcu.BatteryTemperatureState | str | None = ...,
+        pir_motion_led_indication: Mcu.PirMotionLedIndication | str | None = ...,
+        ring_button_bell_state: Mcu.RingButtonBellState | str | None = ...,
+        capabilities: Mcu.Capabilities | _Mapping | None = ...,
+    ) -> None: ...

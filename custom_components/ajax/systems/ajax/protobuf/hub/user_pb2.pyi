@@ -1,15 +1,36 @@
-from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class User(_message.Message):
-    __slots__ = ("id", "first_name", "email", "phone", "language", "index", "agreement_version", "attached_company_id", "permissions", "hub_binding_role", "restore_permissions", "password_hash", "password_hash_duress", "image_id", "keypad_prefix", "image_urls", "notification_settings", "group_permissions")
+    __slots__ = (
+        "agreement_version",
+        "attached_company_id",
+        "email",
+        "first_name",
+        "group_permissions",
+        "hub_binding_role",
+        "id",
+        "image_id",
+        "image_urls",
+        "index",
+        "keypad_prefix",
+        "language",
+        "notification_settings",
+        "password_hash",
+        "password_hash_duress",
+        "permissions",
+        "phone",
+        "restore_permissions",
+    )
     class HubBindingRole(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_ROLE_INFO: _ClassVar[User.HubBindingRole]
@@ -17,6 +38,7 @@ class User(_message.Message):
         MASTER: _ClassVar[User.HubBindingRole]
         PRO: _ClassVar[User.HubBindingRole]
         COMPANY: _ClassVar[User.HubBindingRole]
+
     NO_ROLE_INFO: User.HubBindingRole
     USER: User.HubBindingRole
     MASTER: User.HubBindingRole
@@ -56,6 +78,7 @@ class User(_message.Message):
         RESERVED_29: _ClassVar[User.Permission]
         RESERVED_30: _ClassVar[User.Permission]
         RESERVED_31: _ClassVar[User.Permission]
+
     RESERVED_0: User.Permission
     USER_DELETE: User.Permission
     USER_ADD: User.Permission
@@ -99,6 +122,7 @@ class User(_message.Message):
         RESTORE_EXTERNAL_POWER_ACTIVATION: _ClassVar[User.RestorePermission]
         RESTORE_ATS_ACTIVATION: _ClassVar[User.RestorePermission]
         RESTORE_OTHER_FAULT_ACTIVATION: _ClassVar[User.RestorePermission]
+
     NO_RESTORE_PERMISSION_INFO: User.RestorePermission
     RESTORE_CONFIRMED_ALARMS: User.RestorePermission
     RESTORE_CONFIRMED_HU_ALARMS: User.RestorePermission
@@ -109,40 +133,81 @@ class User(_message.Message):
     RESTORE_ATS_ACTIVATION: User.RestorePermission
     RESTORE_OTHER_FAULT_ACTIVATION: User.RestorePermission
     class NotificationSettings(_message.Message):
-        __slots__ = ("alarms", "events", "malfunctions", "armings")
+        __slots__ = ("alarms", "armings", "events", "malfunctions")
         class NotificationChannel(_message.Message):
             __slots__ = ()
             class Type(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
                 __slots__ = ()
-                NO_NOTIFICATION_CHANNEL_INFO: _ClassVar[User.NotificationSettings.NotificationChannel.Type]
+                NO_NOTIFICATION_CHANNEL_INFO: _ClassVar[
+                    User.NotificationSettings.NotificationChannel.Type
+                ]
                 PUSH: _ClassVar[User.NotificationSettings.NotificationChannel.Type]
                 SMS: _ClassVar[User.NotificationSettings.NotificationChannel.Type]
                 CALL: _ClassVar[User.NotificationSettings.NotificationChannel.Type]
-            NO_NOTIFICATION_CHANNEL_INFO: User.NotificationSettings.NotificationChannel.Type
+
+            NO_NOTIFICATION_CHANNEL_INFO: (
+                User.NotificationSettings.NotificationChannel.Type
+            )
             PUSH: User.NotificationSettings.NotificationChannel.Type
             SMS: User.NotificationSettings.NotificationChannel.Type
             CALL: User.NotificationSettings.NotificationChannel.Type
             def __init__(self) -> None: ...
+
         class MessageNotificationChannel(_message.Message):
             __slots__ = ()
             class Type(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
                 __slots__ = ()
-                NO_MESSAGE_NOTIFICATION_CHANNEL_INFO: _ClassVar[User.NotificationSettings.MessageNotificationChannel.Type]
-                PUSH: _ClassVar[User.NotificationSettings.MessageNotificationChannel.Type]
-                SMS: _ClassVar[User.NotificationSettings.MessageNotificationChannel.Type]
-            NO_MESSAGE_NOTIFICATION_CHANNEL_INFO: User.NotificationSettings.MessageNotificationChannel.Type
+                NO_MESSAGE_NOTIFICATION_CHANNEL_INFO: _ClassVar[
+                    User.NotificationSettings.MessageNotificationChannel.Type
+                ]
+                PUSH: _ClassVar[
+                    User.NotificationSettings.MessageNotificationChannel.Type
+                ]
+                SMS: _ClassVar[
+                    User.NotificationSettings.MessageNotificationChannel.Type
+                ]
+
+            NO_MESSAGE_NOTIFICATION_CHANNEL_INFO: (
+                User.NotificationSettings.MessageNotificationChannel.Type
+            )
             PUSH: User.NotificationSettings.MessageNotificationChannel.Type
             SMS: User.NotificationSettings.MessageNotificationChannel.Type
             def __init__(self) -> None: ...
+
         ALARMS_FIELD_NUMBER: _ClassVar[int]
         EVENTS_FIELD_NUMBER: _ClassVar[int]
         MALFUNCTIONS_FIELD_NUMBER: _ClassVar[int]
         ARMINGS_FIELD_NUMBER: _ClassVar[int]
-        alarms: _containers.RepeatedScalarFieldContainer[User.NotificationSettings.NotificationChannel.Type]
-        events: _containers.RepeatedScalarFieldContainer[User.NotificationSettings.MessageNotificationChannel.Type]
-        malfunctions: _containers.RepeatedScalarFieldContainer[User.NotificationSettings.MessageNotificationChannel.Type]
-        armings: _containers.RepeatedScalarFieldContainer[User.NotificationSettings.MessageNotificationChannel.Type]
-        def __init__(self, alarms: _Optional[_Iterable[_Union[User.NotificationSettings.NotificationChannel.Type, str]]] = ..., events: _Optional[_Iterable[_Union[User.NotificationSettings.MessageNotificationChannel.Type, str]]] = ..., malfunctions: _Optional[_Iterable[_Union[User.NotificationSettings.MessageNotificationChannel.Type, str]]] = ..., armings: _Optional[_Iterable[_Union[User.NotificationSettings.MessageNotificationChannel.Type, str]]] = ...) -> None: ...
+        alarms: _containers.RepeatedScalarFieldContainer[
+            User.NotificationSettings.NotificationChannel.Type
+        ]
+        events: _containers.RepeatedScalarFieldContainer[
+            User.NotificationSettings.MessageNotificationChannel.Type
+        ]
+        malfunctions: _containers.RepeatedScalarFieldContainer[
+            User.NotificationSettings.MessageNotificationChannel.Type
+        ]
+        armings: _containers.RepeatedScalarFieldContainer[
+            User.NotificationSettings.MessageNotificationChannel.Type
+        ]
+        def __init__(
+            self,
+            alarms: _Iterable[User.NotificationSettings.NotificationChannel.Type | str]
+            | None = ...,
+            events: _Iterable[
+                User.NotificationSettings.MessageNotificationChannel.Type | str
+            ]
+            | None = ...,
+            malfunctions: _Iterable[
+                User.NotificationSettings.MessageNotificationChannel.Type | str
+            ]
+            | None = ...,
+            armings: _Iterable[
+                User.NotificationSettings.MessageNotificationChannel.Type | str
+            ]
+            | None = ...,
+        ) -> None: ...
+
     class GroupPermissions(_message.Message):
         __slots__ = ("group_id", "permissions")
         class Permission(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -150,14 +215,22 @@ class User(_message.Message):
             NO_PERMISSION_INFO: _ClassVar[User.GroupPermissions.Permission]
             ARM: _ClassVar[User.GroupPermissions.Permission]
             DISARM: _ClassVar[User.GroupPermissions.Permission]
+
         NO_PERMISSION_INFO: User.GroupPermissions.Permission
         ARM: User.GroupPermissions.Permission
         DISARM: User.GroupPermissions.Permission
         GROUP_ID_FIELD_NUMBER: _ClassVar[int]
         PERMISSIONS_FIELD_NUMBER: _ClassVar[int]
         group_id: str
-        permissions: _containers.RepeatedScalarFieldContainer[User.GroupPermissions.Permission]
-        def __init__(self, group_id: _Optional[str] = ..., permissions: _Optional[_Iterable[_Union[User.GroupPermissions.Permission, str]]] = ...) -> None: ...
+        permissions: _containers.RepeatedScalarFieldContainer[
+            User.GroupPermissions.Permission
+        ]
+        def __init__(
+            self,
+            group_id: str | None = ...,
+            permissions: _Iterable[User.GroupPermissions.Permission | str] | None = ...,
+        ) -> None: ...
+
     ID_FIELD_NUMBER: _ClassVar[int]
     FIRST_NAME_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
@@ -186,12 +259,36 @@ class User(_message.Message):
     attached_company_id: str
     permissions: _containers.RepeatedScalarFieldContainer[User.Permission]
     hub_binding_role: User.HubBindingRole
-    restore_permissions: _containers.RepeatedScalarFieldContainer[User.RestorePermission]
+    restore_permissions: _containers.RepeatedScalarFieldContainer[
+        User.RestorePermission
+    ]
     password_hash: str
     password_hash_duress: str
     image_id: str
     keypad_prefix: str
     image_urls: _image_urls_pb2.ImageUrls
     notification_settings: User.NotificationSettings
-    group_permissions: _containers.RepeatedCompositeFieldContainer[User.GroupPermissions]
-    def __init__(self, id: _Optional[str] = ..., first_name: _Optional[str] = ..., email: _Optional[str] = ..., phone: _Optional[str] = ..., language: _Optional[str] = ..., index: _Optional[int] = ..., agreement_version: _Optional[int] = ..., attached_company_id: _Optional[str] = ..., permissions: _Optional[_Iterable[_Union[User.Permission, str]]] = ..., hub_binding_role: _Optional[_Union[User.HubBindingRole, str]] = ..., restore_permissions: _Optional[_Iterable[_Union[User.RestorePermission, str]]] = ..., password_hash: _Optional[str] = ..., password_hash_duress: _Optional[str] = ..., image_id: _Optional[str] = ..., keypad_prefix: _Optional[str] = ..., image_urls: _Optional[_Union[_image_urls_pb2.ImageUrls, _Mapping]] = ..., notification_settings: _Optional[_Union[User.NotificationSettings, _Mapping]] = ..., group_permissions: _Optional[_Iterable[_Union[User.GroupPermissions, _Mapping]]] = ...) -> None: ...
+    group_permissions: _containers.RepeatedCompositeFieldContainer[
+        User.GroupPermissions
+    ]
+    def __init__(
+        self,
+        id: str | None = ...,
+        first_name: str | None = ...,
+        email: str | None = ...,
+        phone: str | None = ...,
+        language: str | None = ...,
+        index: int | None = ...,
+        agreement_version: int | None = ...,
+        attached_company_id: str | None = ...,
+        permissions: _Iterable[User.Permission | str] | None = ...,
+        hub_binding_role: User.HubBindingRole | str | None = ...,
+        restore_permissions: _Iterable[User.RestorePermission | str] | None = ...,
+        password_hash: str | None = ...,
+        password_hash_duress: str | None = ...,
+        image_id: str | None = ...,
+        keypad_prefix: str | None = ...,
+        image_urls: _image_urls_pb2.ImageUrls | _Mapping | None = ...,
+        notification_settings: User.NotificationSettings | _Mapping | None = ...,
+        group_permissions: _Iterable[User.GroupPermissions | _Mapping] | None = ...,
+    ) -> None: ...

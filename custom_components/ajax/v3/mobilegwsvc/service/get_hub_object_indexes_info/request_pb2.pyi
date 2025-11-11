@@ -1,7 +1,10 @@
-from v3.mobilegwsvc.commonmodels.hub.object import hub_object_type_with_index_pb2 as _hub_object_type_with_index_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from v3.mobilegwsvc.commonmodels.hub.object import (
+    hub_object_type_with_index_pb2 as _hub_object_type_with_index_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -13,4 +16,11 @@ class GetHubObjectIndexesInfoRequest(_message.Message):
     hub_id: str
     hub_object_type_with_index: _hub_object_type_with_index_pb2.HubObjectTypeWithIndex
     object_id: str
-    def __init__(self, hub_id: _Optional[str] = ..., hub_object_type_with_index: _Optional[_Union[_hub_object_type_with_index_pb2.HubObjectTypeWithIndex, str]] = ..., object_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        hub_id: str | None = ...,
+        hub_object_type_with_index: _hub_object_type_with_index_pb2.HubObjectTypeWithIndex
+        | str
+        | None = ...,
+        object_id: str | None = ...,
+    ) -> None: ...

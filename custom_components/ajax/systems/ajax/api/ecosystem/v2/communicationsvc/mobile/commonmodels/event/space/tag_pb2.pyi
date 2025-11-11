@@ -1,7 +1,8 @@
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -142,7 +143,42 @@ class ExitDelayComplete(_message.Message):
     def __init__(self) -> None: ...
 
 class SpaceEventTag(_message.Message):
-    __slots__ = ("space_armed", "space_disarmed", "space_night_mode_on", "space_night_mode_off", "space_group_armed", "space_group_disarmed", "permanent_permissions_request_received", "temporary_permissions_request_received", "requested_permanent_permissions_approved", "requested_temporary_permissions_approved", "requested_full_permissions_rejected", "space_group_armed_with_malfunctions", "space_armed_with_malfunctions", "space_night_mode_on_with_malfunctions", "space_duress_disarmed", "space_duress_night_mode_off", "space_group_duress_disarmed", "space_panic_button_pressed", "timezone_changed", "added", "removed", "created", "deleted", "notified_about_removing", "exit_delay_complete", "space_group_auto_armed", "space_group_auto_armed_with_malfunctions", "space_group_auto_disarmed", "space_auto_armed", "space_auto_armed_with_malfunctions", "space_auto_disarmed", "join_space_request_received", "join_space_request_declined", "unknown_event")
+    __slots__ = (
+        "added",
+        "created",
+        "deleted",
+        "exit_delay_complete",
+        "join_space_request_declined",
+        "join_space_request_received",
+        "notified_about_removing",
+        "permanent_permissions_request_received",
+        "removed",
+        "requested_full_permissions_rejected",
+        "requested_permanent_permissions_approved",
+        "requested_temporary_permissions_approved",
+        "space_armed",
+        "space_armed_with_malfunctions",
+        "space_auto_armed",
+        "space_auto_armed_with_malfunctions",
+        "space_auto_disarmed",
+        "space_disarmed",
+        "space_duress_disarmed",
+        "space_duress_night_mode_off",
+        "space_group_armed",
+        "space_group_armed_with_malfunctions",
+        "space_group_auto_armed",
+        "space_group_auto_armed_with_malfunctions",
+        "space_group_auto_disarmed",
+        "space_group_disarmed",
+        "space_group_duress_disarmed",
+        "space_night_mode_off",
+        "space_night_mode_on",
+        "space_night_mode_on_with_malfunctions",
+        "space_panic_button_pressed",
+        "temporary_permissions_request_received",
+        "timezone_changed",
+        "unknown_event",
+    )
     SPACE_ARMED_FIELD_NUMBER: _ClassVar[int]
     SPACE_DISARMED_FIELD_NUMBER: _ClassVar[int]
     SPACE_NIGHT_MODE_ON_FIELD_NUMBER: _ClassVar[int]
@@ -211,4 +247,60 @@ class SpaceEventTag(_message.Message):
     join_space_request_received: JoinSpaceRequestReceived
     join_space_request_declined: JoinSpaceRequestDeclined
     unknown_event: UnknownEvent
-    def __init__(self, space_armed: _Optional[_Union[SpaceArmed, _Mapping]] = ..., space_disarmed: _Optional[_Union[SpaceDisarmed, _Mapping]] = ..., space_night_mode_on: _Optional[_Union[SpaceNightModeOn, _Mapping]] = ..., space_night_mode_off: _Optional[_Union[SpaceNightModeOff, _Mapping]] = ..., space_group_armed: _Optional[_Union[SpaceGroupArmed, _Mapping]] = ..., space_group_disarmed: _Optional[_Union[SpaceGroupDisarmed, _Mapping]] = ..., permanent_permissions_request_received: _Optional[_Union[PermanentPermissionsRequestReceived, _Mapping]] = ..., temporary_permissions_request_received: _Optional[_Union[TemporaryPermissionsRequestReceived, _Mapping]] = ..., requested_permanent_permissions_approved: _Optional[_Union[RequestedPermanentPermissionsApproved, _Mapping]] = ..., requested_temporary_permissions_approved: _Optional[_Union[RequestedTemporaryPermissionsApproved, _Mapping]] = ..., requested_full_permissions_rejected: _Optional[_Union[RequestedFullPermissionsRejected, _Mapping]] = ..., space_group_armed_with_malfunctions: _Optional[_Union[SpaceGroupArmedWithMalfunctions, _Mapping]] = ..., space_armed_with_malfunctions: _Optional[_Union[SpaceArmedWithMalfunctions, _Mapping]] = ..., space_night_mode_on_with_malfunctions: _Optional[_Union[SpaceNightModeOnWithMalfunctions, _Mapping]] = ..., space_duress_disarmed: _Optional[_Union[SpaceDuressDisarmed, _Mapping]] = ..., space_duress_night_mode_off: _Optional[_Union[SpaceDuressNightModeOff, _Mapping]] = ..., space_group_duress_disarmed: _Optional[_Union[SpaceGroupDuressDisarmed, _Mapping]] = ..., space_panic_button_pressed: _Optional[_Union[SpacePanicButtonPressed, _Mapping]] = ..., timezone_changed: _Optional[_Union[TimezoneChanged, _Mapping]] = ..., added: _Optional[_Union[Added, _Mapping]] = ..., removed: _Optional[_Union[Removed, _Mapping]] = ..., created: _Optional[_Union[Created, _Mapping]] = ..., deleted: _Optional[_Union[Deleted, _Mapping]] = ..., notified_about_removing: _Optional[_Union[NotifiedAboutRemoving, _Mapping]] = ..., exit_delay_complete: _Optional[_Union[ExitDelayComplete, _Mapping]] = ..., space_group_auto_armed: _Optional[_Union[SpaceGroupAutoArmed, _Mapping]] = ..., space_group_auto_armed_with_malfunctions: _Optional[_Union[SpaceGroupAutoArmedWithMalfunctions, _Mapping]] = ..., space_group_auto_disarmed: _Optional[_Union[SpaceGroupAutoDisarmed, _Mapping]] = ..., space_auto_armed: _Optional[_Union[SpaceAutoArmed, _Mapping]] = ..., space_auto_armed_with_malfunctions: _Optional[_Union[SpaceAutoArmedWithMalfunctions, _Mapping]] = ..., space_auto_disarmed: _Optional[_Union[SpaceAutoDisarmed, _Mapping]] = ..., join_space_request_received: _Optional[_Union[JoinSpaceRequestReceived, _Mapping]] = ..., join_space_request_declined: _Optional[_Union[JoinSpaceRequestDeclined, _Mapping]] = ..., unknown_event: _Optional[_Union[UnknownEvent, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        space_armed: SpaceArmed | _Mapping | None = ...,
+        space_disarmed: SpaceDisarmed | _Mapping | None = ...,
+        space_night_mode_on: SpaceNightModeOn | _Mapping | None = ...,
+        space_night_mode_off: SpaceNightModeOff | _Mapping | None = ...,
+        space_group_armed: SpaceGroupArmed | _Mapping | None = ...,
+        space_group_disarmed: SpaceGroupDisarmed | _Mapping | None = ...,
+        permanent_permissions_request_received: PermanentPermissionsRequestReceived
+        | _Mapping
+        | None = ...,
+        temporary_permissions_request_received: TemporaryPermissionsRequestReceived
+        | _Mapping
+        | None = ...,
+        requested_permanent_permissions_approved: RequestedPermanentPermissionsApproved
+        | _Mapping
+        | None = ...,
+        requested_temporary_permissions_approved: RequestedTemporaryPermissionsApproved
+        | _Mapping
+        | None = ...,
+        requested_full_permissions_rejected: RequestedFullPermissionsRejected
+        | _Mapping
+        | None = ...,
+        space_group_armed_with_malfunctions: SpaceGroupArmedWithMalfunctions
+        | _Mapping
+        | None = ...,
+        space_armed_with_malfunctions: SpaceArmedWithMalfunctions
+        | _Mapping
+        | None = ...,
+        space_night_mode_on_with_malfunctions: SpaceNightModeOnWithMalfunctions
+        | _Mapping
+        | None = ...,
+        space_duress_disarmed: SpaceDuressDisarmed | _Mapping | None = ...,
+        space_duress_night_mode_off: SpaceDuressNightModeOff | _Mapping | None = ...,
+        space_group_duress_disarmed: SpaceGroupDuressDisarmed | _Mapping | None = ...,
+        space_panic_button_pressed: SpacePanicButtonPressed | _Mapping | None = ...,
+        timezone_changed: TimezoneChanged | _Mapping | None = ...,
+        added: Added | _Mapping | None = ...,
+        removed: Removed | _Mapping | None = ...,
+        created: Created | _Mapping | None = ...,
+        deleted: Deleted | _Mapping | None = ...,
+        notified_about_removing: NotifiedAboutRemoving | _Mapping | None = ...,
+        exit_delay_complete: ExitDelayComplete | _Mapping | None = ...,
+        space_group_auto_armed: SpaceGroupAutoArmed | _Mapping | None = ...,
+        space_group_auto_armed_with_malfunctions: SpaceGroupAutoArmedWithMalfunctions
+        | _Mapping
+        | None = ...,
+        space_group_auto_disarmed: SpaceGroupAutoDisarmed | _Mapping | None = ...,
+        space_auto_armed: SpaceAutoArmed | _Mapping | None = ...,
+        space_auto_armed_with_malfunctions: SpaceAutoArmedWithMalfunctions
+        | _Mapping
+        | None = ...,
+        space_auto_disarmed: SpaceAutoDisarmed | _Mapping | None = ...,
+        join_space_request_received: JoinSpaceRequestReceived | _Mapping | None = ...,
+        join_space_request_declined: JoinSpaceRequestDeclined | _Mapping | None = ...,
+        unknown_event: UnknownEvent | _Mapping | None = ...,
+    ) -> None: ...

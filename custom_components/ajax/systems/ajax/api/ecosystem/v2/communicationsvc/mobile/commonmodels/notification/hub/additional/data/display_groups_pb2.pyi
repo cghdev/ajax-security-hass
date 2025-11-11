@@ -1,8 +1,10 @@
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -14,7 +16,12 @@ class DisplayGroups(_message.Message):
         GROUP_NAME_FIELD_NUMBER: _ClassVar[int]
         group_hex_id: str
         group_name: str
-        def __init__(self, group_hex_id: _Optional[str] = ..., group_name: _Optional[str] = ...) -> None: ...
+        def __init__(
+            self, group_hex_id: str | None = ..., group_name: str | None = ...
+        ) -> None: ...
+
     GROUPS_FIELD_NUMBER: _ClassVar[int]
     groups: _containers.RepeatedCompositeFieldContainer[DisplayGroups.Group]
-    def __init__(self, groups: _Optional[_Iterable[_Union[DisplayGroups.Group, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self, groups: _Iterable[DisplayGroups.Group | _Mapping] | None = ...
+    ) -> None: ...

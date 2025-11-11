@@ -1,7 +1,8 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -13,6 +14,7 @@ class OnvifUser(_message.Message):
         ONVIF_USER_ROLE_ADMIN: _ClassVar[OnvifUser.OnvifUserRole]
         ONVIF_USER_ROLE_OPERATOR: _ClassVar[OnvifUser.OnvifUserRole]
         ONVIF_USER_ROLE_USER: _ClassVar[OnvifUser.OnvifUserRole]
+
     ONVIF_USER_ROLE_UNSPECIFIED: OnvifUser.OnvifUserRole
     ONVIF_USER_ROLE_ADMIN: OnvifUser.OnvifUserRole
     ONVIF_USER_ROLE_OPERATOR: OnvifUser.OnvifUserRole
@@ -21,4 +23,6 @@ class OnvifUser(_message.Message):
     ROLE_FIELD_NUMBER: _ClassVar[int]
     name: str
     role: OnvifUser.OnvifUserRole
-    def __init__(self, name: _Optional[str] = ..., role: _Optional[_Union[OnvifUser.OnvifUserRole, str]] = ...) -> None: ...
+    def __init__(
+        self, name: str | None = ..., role: OnvifUser.OnvifUserRole | str | None = ...
+    ) -> None: ...

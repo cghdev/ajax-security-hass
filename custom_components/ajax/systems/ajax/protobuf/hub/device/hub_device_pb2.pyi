@@ -1,18 +1,91 @@
-from google.protobuf import wrappers_pb2 as _wrappers_pb2
-from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
-from systems.ajax.protobuf.hub import name_pb2 as _name_pb2
-from systems.ajax.protobuf.common import decimal_pb2 as _decimal_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.protobuf.common import decimal_pb2 as _decimal_pb2
+from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
+from systems.ajax.protobuf.hub import name_pb2 as _name_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class HubDevice(_message.Message):
-    __slots__ = ("id", "name", "noise_level", "connection_status", "state", "state_with_groups", "debug_log_state", "panic_siren_on_panic_button", "limits", "groups_enabled", "firmware", "ethernet", "arm_prevention_mode", "tampered", "panic_siren_on_any_tamper", "battery", "hardware_versions", "warnings", "fire_alarm", "wifi", "gsm", "cms", "color", "image_id", "image_num", "image_urls", "active_channels", "ping_period_seconds", "offline_alarm_seconds", "led_brightness_level", "subtype", "jeweller", "externally_powered", "connection_test_in_progress", "malfunctions", "blocked_by_service_provider", "connection_lost_as_malfunction", "alarm_as_malfunction_when_arming", "auto_bypass_timer_minutes", "auto_bypass_counter", "hub_address", "time_zone", "alarm_verification", "restore_required", "alarm_happened", "arm_preventions_to_check", "report_alarm_restore", "report_panic_alarm_restore", "tamper_alarm_confirmation", "confirmed_alarm_on_delayed_devices", "alarm_confirmation_hu_devices_pd6662", "verification_timeout_hu", "interconnection", "postAlarmIndicationRule", "lost_fibra_counter", "chimes_status", "channel_connectivity_notification_active", "channel_offline_alarm_delay_seconds", "photo_on_demand_mode", "default_camera_permission", "default_photo_on_demand_permission", "default_user_camera_permission", "default_user_photo_on_demand_permission", "max_power_test_state", "bus_status", "scan_status", "privacy_officer_options", "geofence", "two_stage_arming_progress_status", "two_stage_arming")
+    __slots__ = (
+        "active_channels",
+        "alarm_as_malfunction_when_arming",
+        "alarm_confirmation_hu_devices_pd6662",
+        "alarm_happened",
+        "alarm_verification",
+        "arm_prevention_mode",
+        "arm_preventions_to_check",
+        "auto_bypass_counter",
+        "auto_bypass_timer_minutes",
+        "battery",
+        "blocked_by_service_provider",
+        "bus_status",
+        "channel_connectivity_notification_active",
+        "channel_offline_alarm_delay_seconds",
+        "chimes_status",
+        "cms",
+        "color",
+        "confirmed_alarm_on_delayed_devices",
+        "connection_lost_as_malfunction",
+        "connection_status",
+        "connection_test_in_progress",
+        "debug_log_state",
+        "default_camera_permission",
+        "default_photo_on_demand_permission",
+        "default_user_camera_permission",
+        "default_user_photo_on_demand_permission",
+        "ethernet",
+        "externally_powered",
+        "fire_alarm",
+        "firmware",
+        "geofence",
+        "groups_enabled",
+        "gsm",
+        "hardware_versions",
+        "hub_address",
+        "id",
+        "image_id",
+        "image_num",
+        "image_urls",
+        "interconnection",
+        "jeweller",
+        "led_brightness_level",
+        "limits",
+        "lost_fibra_counter",
+        "malfunctions",
+        "max_power_test_state",
+        "name",
+        "noise_level",
+        "offline_alarm_seconds",
+        "panic_siren_on_any_tamper",
+        "panic_siren_on_panic_button",
+        "photo_on_demand_mode",
+        "ping_period_seconds",
+        "postAlarmIndicationRule",
+        "privacy_officer_options",
+        "report_alarm_restore",
+        "report_panic_alarm_restore",
+        "restore_required",
+        "scan_status",
+        "state",
+        "state_with_groups",
+        "subtype",
+        "tamper_alarm_confirmation",
+        "tampered",
+        "time_zone",
+        "two_stage_arming",
+        "two_stage_arming_progress_status",
+        "verification_timeout_hu",
+        "warnings",
+        "wifi",
+    )
     class DebugLogState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_DEBUG_LOG_STATE_INFO: _ClassVar[HubDevice.DebugLogState]
@@ -20,6 +93,7 @@ class HubDevice(_message.Message):
         ETHERNET_ONLY: _ClassVar[HubDevice.DebugLogState]
         WIFI_ONLY: _ClassVar[HubDevice.DebugLogState]
         ETHERNET_OR_WIFI: _ClassVar[HubDevice.DebugLogState]
+
     NO_DEBUG_LOG_STATE_INFO: HubDevice.DebugLogState
     NO_LOGS: HubDevice.DebugLogState
     ETHERNET_ONLY: HubDevice.DebugLogState
@@ -31,6 +105,7 @@ class HubDevice(_message.Message):
         DISARMED: _ClassVar[HubDevice.State]
         ARMED: _ClassVar[HubDevice.State]
         NIGHT_MODE: _ClassVar[HubDevice.State]
+
     NO_STATE_INFO: HubDevice.State
     DISARMED: HubDevice.State
     ARMED: HubDevice.State
@@ -44,6 +119,7 @@ class HubDevice(_message.Message):
         DISARMED_NIGHT_MODE_OFF: _ClassVar[HubDevice.StateWithGroups]
         PARTIALLY_ARMED_NIGHT_MODE_ON: _ClassVar[HubDevice.StateWithGroups]
         PARTIALLY_ARMED_NIGHT_MODE_OFF: _ClassVar[HubDevice.StateWithGroups]
+
     NO_STATE_WITH_GROUPS_INFO: HubDevice.StateWithGroups
     ARMED_NIGHT_MODE_ON: HubDevice.StateWithGroups
     ARMED_NIGHT_MODE_OFF: HubDevice.StateWithGroups
@@ -57,6 +133,7 @@ class HubDevice(_message.Message):
         IGNORE_WARNINGS: _ClassVar[HubDevice.ArmPreventionMode]
         ALERT_USER: _ClassVar[HubDevice.ArmPreventionMode]
         PREVENT_ARMING: _ClassVar[HubDevice.ArmPreventionMode]
+
     NO_ARM_PREVENTION_MODE_INFO: HubDevice.ArmPreventionMode
     IGNORE_WARNINGS: HubDevice.ArmPreventionMode
     ALERT_USER: HubDevice.ArmPreventionMode
@@ -68,6 +145,7 @@ class HubDevice(_message.Message):
         BLACK: _ClassVar[HubDevice.Color]
         WHITE_LABEL_WHITE: _ClassVar[HubDevice.Color]
         WHITE_LABEL_BLACK: _ClassVar[HubDevice.Color]
+
     NO_COLOR_INFO: HubDevice.Color
     WHITE: HubDevice.Color
     BLACK: HubDevice.Color
@@ -80,6 +158,7 @@ class HubDevice(_message.Message):
         CHARGED: _ClassVar[HubDevice.BatteryState]
         MALFUNCTION: _ClassVar[HubDevice.BatteryState]
         CHARGING: _ClassVar[HubDevice.BatteryState]
+
     NO_BATTERY_STATE_INFO: HubDevice.BatteryState
     DISCHARGED: HubDevice.BatteryState
     CHARGED: HubDevice.BatteryState
@@ -91,6 +170,7 @@ class HubDevice(_message.Message):
         ETHERNET: _ClassVar[HubDevice.ActiveChannel]
         WIFI: _ClassVar[HubDevice.ActiveChannel]
         GSM: _ClassVar[HubDevice.ActiveChannel]
+
     NO_ACTIVE_CHANNEL_INFO: HubDevice.ActiveChannel
     ETHERNET: HubDevice.ActiveChannel
     WIFI: HubDevice.ActiveChannel
@@ -113,6 +193,7 @@ class HubDevice(_message.Message):
         BATTERY_CHARGE_ERROR: _ClassVar[HubDevice.Malfunction]
         SOFTWARE_MALFUNCTION: _ClassVar[HubDevice.Malfunction]
         FLASH_MALFUNCTION: _ClassVar[HubDevice.Malfunction]
+
     NO_MALFUNCTION_INFO: HubDevice.Malfunction
     CABLE_BREAK_ISSUE: HubDevice.Malfunction
     VOLTAGE_INSTABILITY: HubDevice.Malfunction
@@ -141,6 +222,7 @@ class HubDevice(_message.Message):
         HUB_3: _ClassVar[HubDevice.Subtype]
         HUB_FIBRA: _ClassVar[HubDevice.Subtype]
         HUB_2_4G: _ClassVar[HubDevice.Subtype]
+
     NO_SUBTYPE_INFO: HubDevice.Subtype
     HUB: HubDevice.Subtype
     HUB_PLUS: HubDevice.Subtype
@@ -159,6 +241,7 @@ class HubDevice(_message.Message):
         SECOND_STAGE_TIMER_IN_PROGRESS: _ClassVar[HubDevice.TwoStageArmingStatus]
         ARMING_INCOMPLETE: _ClassVar[HubDevice.TwoStageArmingStatus]
         FINAL_DOOR_BOUNCE_TIMER_IN_PROGRESS: _ClassVar[HubDevice.TwoStageArmingStatus]
+
     NO_TWO_STORAGE_ARMING_STATUS: HubDevice.TwoStageArmingStatus
     NONE: HubDevice.TwoStageArmingStatus
     APP_EXIT_TIMER_IN_PROGRESS: HubDevice.TwoStageArmingStatus
@@ -171,6 +254,7 @@ class HubDevice(_message.Message):
         UNCONFIRMED_ALARM: _ClassVar[HubDevice.PostAlarmIndicationRule]
         CONFIRMED_ALARM: _ClassVar[HubDevice.PostAlarmIndicationRule]
         TEMPER_ALARM: _ClassVar[HubDevice.PostAlarmIndicationRule]
+
     NO_ALARM_INDICATION_RULE: HubDevice.PostAlarmIndicationRule
     UNCONFIRMED_ALARM: HubDevice.PostAlarmIndicationRule
     CONFIRMED_ALARM: HubDevice.PostAlarmIndicationRule
@@ -180,6 +264,7 @@ class HubDevice(_message.Message):
         NO_REPORT_ALARM_RESTORE_INFO: _ClassVar[HubDevice.ReportAlarmRestore]
         ON_RECOVERY: _ClassVar[HubDevice.ReportAlarmRestore]
         ON_DISARM: _ClassVar[HubDevice.ReportAlarmRestore]
+
     NO_REPORT_ALARM_RESTORE_INFO: HubDevice.ReportAlarmRestore
     ON_RECOVERY: HubDevice.ReportAlarmRestore
     ON_DISARM: HubDevice.ReportAlarmRestore
@@ -188,6 +273,7 @@ class HubDevice(_message.Message):
         NO_REPORT_PANIC_ALARM_RESTORE_INFO: _ClassVar[HubDevice.ReportPanicAlarmRestore]
         OFF: _ClassVar[HubDevice.ReportPanicAlarmRestore]
         ON: _ClassVar[HubDevice.ReportPanicAlarmRestore]
+
     NO_REPORT_PANIC_ALARM_RESTORE_INFO: HubDevice.ReportPanicAlarmRestore
     OFF: HubDevice.ReportPanicAlarmRestore
     ON: HubDevice.ReportPanicAlarmRestore
@@ -199,6 +285,7 @@ class HubDevice(_message.Message):
         UNCONFIRMED_ALARMS: _ClassVar[HubDevice.AlarmType]
         UNCONFIRMED_HU_ALARMS: _ClassVar[HubDevice.AlarmType]
         TAMPER_ACTIVATION: _ClassVar[HubDevice.AlarmType]
+
     NO_ALARM_TYPE_INFO: HubDevice.AlarmType
     CONFIRMED_ALARMS: HubDevice.AlarmType
     CONFIRMED_HU_ALARMS: HubDevice.AlarmType
@@ -212,6 +299,7 @@ class HubDevice(_message.Message):
         DELAYED: _ClassVar[HubDevice.InterconnectState]
         MUTED_BY_USER: _ClassVar[HubDevice.InterconnectState]
         STARTED: _ClassVar[HubDevice.InterconnectState]
+
     NO_INTERCONNECT_STATE: HubDevice.InterconnectState
     DISABLED: HubDevice.InterconnectState
     DELAYED: HubDevice.InterconnectState
@@ -226,6 +314,7 @@ class HubDevice(_message.Message):
         HIGH_NOISE_LEVEL: _ClassVar[HubDevice.ArmPreventionCondition]
         NO_SERVER_CONNECTION: _ClassVar[HubDevice.ArmPreventionCondition]
         NO_CMS_CONNECTION: _ClassVar[HubDevice.ArmPreventionCondition]
+
     NO_ARM_PREVENTION_CONDITION: HubDevice.ArmPreventionCondition
     LOW_BATTERY_CHARGE: HubDevice.ArmPreventionCondition
     NO_EXTERNAL_POWER: HubDevice.ArmPreventionCondition
@@ -237,6 +326,7 @@ class HubDevice(_message.Message):
         __slots__ = ()
         NO_INTERCONNECT_MODE_INFO: _ClassVar[HubDevice.InterconnectMode]
         MULTI_APARTMENT: _ClassVar[HubDevice.InterconnectMode]
+
     NO_INTERCONNECT_MODE_INFO: HubDevice.InterconnectMode
     MULTI_APARTMENT: HubDevice.InterconnectMode
     class ChimesStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -245,6 +335,7 @@ class HubDevice(_message.Message):
         CHIMES_ENABLED: _ClassVar[HubDevice.ChimesStatus]
         SIRENS_READY: _ClassVar[HubDevice.ChimesStatus]
         TRIGGERS_READY: _ClassVar[HubDevice.ChimesStatus]
+
     NO_CHIMES_STATUS_INFO: HubDevice.ChimesStatus
     CHIMES_ENABLED: HubDevice.ChimesStatus
     SIRENS_READY: HubDevice.ChimesStatus
@@ -254,42 +345,81 @@ class HubDevice(_message.Message):
         NO_DEFAULT_CAMERA_PERMISSION_INFO: _ClassVar[HubDevice.DefaultCameraPermission]
         CAMERA_PERMISSION_DISABLED: _ClassVar[HubDevice.DefaultCameraPermission]
         CAMERA_PERMISSION_ENABLED: _ClassVar[HubDevice.DefaultCameraPermission]
+
     NO_DEFAULT_CAMERA_PERMISSION_INFO: HubDevice.DefaultCameraPermission
     CAMERA_PERMISSION_DISABLED: HubDevice.DefaultCameraPermission
     CAMERA_PERMISSION_ENABLED: HubDevice.DefaultCameraPermission
-    class DefaultPhotoOnDemandPermission(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    class DefaultPhotoOnDemandPermission(
+        int, metaclass=_enum_type_wrapper.EnumTypeWrapper
+    ):
         __slots__ = ()
-        NO_DEFAULT_PHOTO_ON_DEMAND_PERMISSION_INFO: _ClassVar[HubDevice.DefaultPhotoOnDemandPermission]
-        PHOTO_ON_DEMAND_PERMISSION_DISABLED: _ClassVar[HubDevice.DefaultPhotoOnDemandPermission]
-        PHOTO_ON_DEMAND_PERMISSION_ENABLED: _ClassVar[HubDevice.DefaultPhotoOnDemandPermission]
-        PHOTO_ON_DEMAND_PERMISSION_ENABLED_ON_ARM: _ClassVar[HubDevice.DefaultPhotoOnDemandPermission]
+        NO_DEFAULT_PHOTO_ON_DEMAND_PERMISSION_INFO: _ClassVar[
+            HubDevice.DefaultPhotoOnDemandPermission
+        ]
+        PHOTO_ON_DEMAND_PERMISSION_DISABLED: _ClassVar[
+            HubDevice.DefaultPhotoOnDemandPermission
+        ]
+        PHOTO_ON_DEMAND_PERMISSION_ENABLED: _ClassVar[
+            HubDevice.DefaultPhotoOnDemandPermission
+        ]
+        PHOTO_ON_DEMAND_PERMISSION_ENABLED_ON_ARM: _ClassVar[
+            HubDevice.DefaultPhotoOnDemandPermission
+        ]
+
     NO_DEFAULT_PHOTO_ON_DEMAND_PERMISSION_INFO: HubDevice.DefaultPhotoOnDemandPermission
     PHOTO_ON_DEMAND_PERMISSION_DISABLED: HubDevice.DefaultPhotoOnDemandPermission
     PHOTO_ON_DEMAND_PERMISSION_ENABLED: HubDevice.DefaultPhotoOnDemandPermission
     PHOTO_ON_DEMAND_PERMISSION_ENABLED_ON_ARM: HubDevice.DefaultPhotoOnDemandPermission
-    class DefaultUserCameraPermission(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    class DefaultUserCameraPermission(
+        int, metaclass=_enum_type_wrapper.EnumTypeWrapper
+    ):
         __slots__ = ()
-        NO_DEFAULT_USER_CAMERA_PERMISSION_INFO: _ClassVar[HubDevice.DefaultUserCameraPermission]
-        USER_CAMERA_PERMISSION_DISABLED: _ClassVar[HubDevice.DefaultUserCameraPermission]
+        NO_DEFAULT_USER_CAMERA_PERMISSION_INFO: _ClassVar[
+            HubDevice.DefaultUserCameraPermission
+        ]
+        USER_CAMERA_PERMISSION_DISABLED: _ClassVar[
+            HubDevice.DefaultUserCameraPermission
+        ]
         USER_CAMERA_PERMISSION_ENABLED: _ClassVar[HubDevice.DefaultUserCameraPermission]
+
     NO_DEFAULT_USER_CAMERA_PERMISSION_INFO: HubDevice.DefaultUserCameraPermission
     USER_CAMERA_PERMISSION_DISABLED: HubDevice.DefaultUserCameraPermission
     USER_CAMERA_PERMISSION_ENABLED: HubDevice.DefaultUserCameraPermission
-    class DefaultUserPhotoOnDemandPermission(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    class DefaultUserPhotoOnDemandPermission(
+        int, metaclass=_enum_type_wrapper.EnumTypeWrapper
+    ):
         __slots__ = ()
-        NO_DEFAULT_USER_PHOTO_ON_DEMAND_PERMISSION_INFO: _ClassVar[HubDevice.DefaultUserPhotoOnDemandPermission]
-        USER_PHOTO_ON_DEMAND_PERMISSION_DISABLED: _ClassVar[HubDevice.DefaultUserPhotoOnDemandPermission]
-        USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED: _ClassVar[HubDevice.DefaultUserPhotoOnDemandPermission]
-        USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED_ON_ARM: _ClassVar[HubDevice.DefaultUserPhotoOnDemandPermission]
-    NO_DEFAULT_USER_PHOTO_ON_DEMAND_PERMISSION_INFO: HubDevice.DefaultUserPhotoOnDemandPermission
-    USER_PHOTO_ON_DEMAND_PERMISSION_DISABLED: HubDevice.DefaultUserPhotoOnDemandPermission
-    USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED: HubDevice.DefaultUserPhotoOnDemandPermission
-    USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED_ON_ARM: HubDevice.DefaultUserPhotoOnDemandPermission
+        NO_DEFAULT_USER_PHOTO_ON_DEMAND_PERMISSION_INFO: _ClassVar[
+            HubDevice.DefaultUserPhotoOnDemandPermission
+        ]
+        USER_PHOTO_ON_DEMAND_PERMISSION_DISABLED: _ClassVar[
+            HubDevice.DefaultUserPhotoOnDemandPermission
+        ]
+        USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED: _ClassVar[
+            HubDevice.DefaultUserPhotoOnDemandPermission
+        ]
+        USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED_ON_ARM: _ClassVar[
+            HubDevice.DefaultUserPhotoOnDemandPermission
+        ]
+
+    NO_DEFAULT_USER_PHOTO_ON_DEMAND_PERMISSION_INFO: (
+        HubDevice.DefaultUserPhotoOnDemandPermission
+    )
+    USER_PHOTO_ON_DEMAND_PERMISSION_DISABLED: (
+        HubDevice.DefaultUserPhotoOnDemandPermission
+    )
+    USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED: (
+        HubDevice.DefaultUserPhotoOnDemandPermission
+    )
+    USER_PHOTO_ON_DEMAND_PERMISSION_ENABLED_ON_ARM: (
+        HubDevice.DefaultUserPhotoOnDemandPermission
+    )
     class PhotoOnDemandMode(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_PHOTO_ON_DEMAND_MODE_INFO: _ClassVar[HubDevice.PhotoOnDemandMode]
         PHOTO_ON_DEMAND_USER: _ClassVar[HubDevice.PhotoOnDemandMode]
         PHOTO_ON_DEMAND_SCENARIO: _ClassVar[HubDevice.PhotoOnDemandMode]
+
     NO_PHOTO_ON_DEMAND_MODE_INFO: HubDevice.PhotoOnDemandMode
     PHOTO_ON_DEMAND_USER: HubDevice.PhotoOnDemandMode
     PHOTO_ON_DEMAND_SCENARIO: HubDevice.PhotoOnDemandMode
@@ -297,7 +427,10 @@ class HubDevice(_message.Message):
         __slots__ = ()
         NO_PRIVACY_OFFICER_OPTION_INFO: _ClassVar[HubDevice.PrivacyOfficerOption]
         ACCESS_TO_SLOW_POD_ALLOWED: _ClassVar[HubDevice.PrivacyOfficerOption]
-        ACCESS_TO_CAMERA_PRIVACY_SETTINGS_ALLOWED: _ClassVar[HubDevice.PrivacyOfficerOption]
+        ACCESS_TO_CAMERA_PRIVACY_SETTINGS_ALLOWED: _ClassVar[
+            HubDevice.PrivacyOfficerOption
+        ]
+
     NO_PRIVACY_OFFICER_OPTION_INFO: HubDevice.PrivacyOfficerOption
     ACCESS_TO_SLOW_POD_ALLOWED: HubDevice.PrivacyOfficerOption
     ACCESS_TO_CAMERA_PRIVACY_SETTINGS_ALLOWED: HubDevice.PrivacyOfficerOption
@@ -308,6 +441,7 @@ class HubDevice(_message.Message):
         TEST_IN_PROGRESS: _ClassVar[HubDevice.MaxPowerTestState]
         TEST_FINISHED_SUCCESSFULLY: _ClassVar[HubDevice.MaxPowerTestState]
         TEST_FINISHED_WITH_SC: _ClassVar[HubDevice.MaxPowerTestState]
+
     NO_MAX_POWER_TEST_STATE_INFO: HubDevice.MaxPowerTestState
     TEST_NOT_STARTED: HubDevice.MaxPowerTestState
     TEST_IN_PROGRESS: HubDevice.MaxPowerTestState
@@ -318,6 +452,7 @@ class HubDevice(_message.Message):
         NO_BUS_STATE: _ClassVar[HubDevice.BusState]
         POWERED_ON: _ClassVar[HubDevice.BusState]
         SHORT_CIRCUIT_PRESENT: _ClassVar[HubDevice.BusState]
+
     NO_BUS_STATE: HubDevice.BusState
     POWERED_ON: HubDevice.BusState
     SHORT_CIRCUIT_PRESENT: HubDevice.BusState
@@ -327,12 +462,18 @@ class HubDevice(_message.Message):
         SCAN_NOT_STARTED: _ClassVar[HubDevice.ScanStatus]
         SCAN_STARTED: _ClassVar[HubDevice.ScanStatus]
         DEVICES_FOUND: _ClassVar[HubDevice.ScanStatus]
+
     NO_SCAN_STATUS_INFO: HubDevice.ScanStatus
     SCAN_NOT_STARTED: HubDevice.ScanStatus
     SCAN_STARTED: HubDevice.ScanStatus
     DEVICES_FOUND: HubDevice.ScanStatus
     class NoiseLevel(_message.Message):
-        __slots__ = ("high", "avg_value_channel1", "avg_value_channel2", "avg_value_data_channel")
+        __slots__ = (
+            "avg_value_channel1",
+            "avg_value_channel2",
+            "avg_value_data_channel",
+            "high",
+        )
         HIGH_FIELD_NUMBER: _ClassVar[int]
         AVG_VALUE_CHANNEL1_FIELD_NUMBER: _ClassVar[int]
         AVG_VALUE_CHANNEL2_FIELD_NUMBER: _ClassVar[int]
@@ -341,9 +482,16 @@ class HubDevice(_message.Message):
         avg_value_channel1: _wrappers_pb2.Int32Value
         avg_value_channel2: _wrappers_pb2.Int32Value
         avg_value_data_channel: _wrappers_pb2.Int32Value
-        def __init__(self, high: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., avg_value_channel1: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., avg_value_channel2: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., avg_value_data_channel: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            high: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+            avg_value_channel1: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            avg_value_channel2: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            avg_value_data_channel: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+        ) -> None: ...
+
     class Limits(_message.Message):
-        __slots__ = ("users", "sensors", "rooms", "cameras", "groups")
+        __slots__ = ("cameras", "groups", "rooms", "sensors", "users")
         USERS_FIELD_NUMBER: _ClassVar[int]
         SENSORS_FIELD_NUMBER: _ClassVar[int]
         ROOMS_FIELD_NUMBER: _ClassVar[int]
@@ -354,9 +502,23 @@ class HubDevice(_message.Message):
         rooms: _wrappers_pb2.Int32Value
         cameras: _wrappers_pb2.Int32Value
         groups: _wrappers_pb2.Int32Value
-        def __init__(self, users: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., sensors: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., rooms: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., cameras: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., groups: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            users: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            sensors: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            rooms: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            cameras: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            groups: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+        ) -> None: ...
+
     class Firmware(_message.Message):
-        __slots__ = ("version", "new_version_available", "auto_update_enabled", "latest_available_version", "rr")
+        __slots__ = (
+            "auto_update_enabled",
+            "latest_available_version",
+            "new_version_available",
+            "rr",
+            "version",
+        )
         VERSION_FIELD_NUMBER: _ClassVar[int]
         NEW_VERSION_AVAILABLE_FIELD_NUMBER: _ClassVar[int]
         AUTO_UPDATE_ENABLED_FIELD_NUMBER: _ClassVar[int]
@@ -367,9 +529,17 @@ class HubDevice(_message.Message):
         auto_update_enabled: bool
         latest_available_version: str
         rr: str
-        def __init__(self, version: _Optional[str] = ..., new_version_available: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., auto_update_enabled: bool = ..., latest_available_version: _Optional[str] = ..., rr: _Optional[str] = ...) -> None: ...
+        def __init__(
+            self,
+            version: str | None = ...,
+            new_version_available: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+            auto_update_enabled: bool = ...,
+            latest_available_version: str | None = ...,
+            rr: str | None = ...,
+        ) -> None: ...
+
     class Ethernet(_message.Message):
-        __slots__ = ("dhcp", "ip", "mask", "gate", "dns", "enabled")
+        __slots__ = ("dhcp", "dns", "enabled", "gate", "ip", "mask")
         DHCP_FIELD_NUMBER: _ClassVar[int]
         IP_FIELD_NUMBER: _ClassVar[int]
         MASK_FIELD_NUMBER: _ClassVar[int]
@@ -382,16 +552,30 @@ class HubDevice(_message.Message):
         gate: str
         dns: str
         enabled: bool
-        def __init__(self, dhcp: bool = ..., ip: _Optional[str] = ..., mask: _Optional[str] = ..., gate: _Optional[str] = ..., dns: _Optional[str] = ..., enabled: bool = ...) -> None: ...
+        def __init__(
+            self,
+            dhcp: bool = ...,
+            ip: str | None = ...,
+            mask: str | None = ...,
+            gate: str | None = ...,
+            dns: str | None = ...,
+            enabled: bool = ...,
+        ) -> None: ...
+
     class Battery(_message.Message):
         __slots__ = ("charge_level_percentage", "state")
         CHARGE_LEVEL_PERCENTAGE_FIELD_NUMBER: _ClassVar[int]
         STATE_FIELD_NUMBER: _ClassVar[int]
         charge_level_percentage: _wrappers_pb2.Int32Value
         state: HubDevice.BatteryState
-        def __init__(self, charge_level_percentage: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., state: _Optional[_Union[HubDevice.BatteryState, str]] = ...) -> None: ...
+        def __init__(
+            self,
+            charge_level_percentage: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            state: HubDevice.BatteryState | str | None = ...,
+        ) -> None: ...
+
     class HardwareVersions(_message.Message):
-        __slots__ = ("modem", "wifi", "ethernet", "flash", "cpu", "pcb", "rfm", "zwave")
+        __slots__ = ("cpu", "ethernet", "flash", "modem", "pcb", "rfm", "wifi", "zwave")
         MODEM_FIELD_NUMBER: _ClassVar[int]
         WIFI_FIELD_NUMBER: _ClassVar[int]
         ETHERNET_FIELD_NUMBER: _ClassVar[int]
@@ -408,23 +592,54 @@ class HubDevice(_message.Message):
         pcb: int
         rfm: int
         zwave: int
-        def __init__(self, modem: _Optional[int] = ..., wifi: _Optional[int] = ..., ethernet: _Optional[int] = ..., flash: _Optional[int] = ..., cpu: _Optional[int] = ..., pcb: _Optional[int] = ..., rfm: _Optional[int] = ..., zwave: _Optional[int] = ...) -> None: ...
+        def __init__(
+            self,
+            modem: int | None = ...,
+            wifi: int | None = ...,
+            ethernet: int | None = ...,
+            flash: int | None = ...,
+            cpu: int | None = ...,
+            pcb: int | None = ...,
+            rfm: int | None = ...,
+            zwave: int | None = ...,
+        ) -> None: ...
+
     class Warnings(_message.Message):
-        __slots__ = ("hub", "all_devices")
+        __slots__ = ("all_devices", "hub")
         HUB_FIELD_NUMBER: _ClassVar[int]
         ALL_DEVICES_FIELD_NUMBER: _ClassVar[int]
         hub: _wrappers_pb2.Int32Value
         all_devices: _wrappers_pb2.Int32Value
-        def __init__(self, hub: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., all_devices: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            hub: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+            all_devices: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+        ) -> None: ...
+
     class FireAlarm(_message.Message):
-        __slots__ = ("trigger_on_all_sensors", "double_impulses")
+        __slots__ = ("double_impulses", "trigger_on_all_sensors")
         TRIGGER_ON_ALL_SENSORS_FIELD_NUMBER: _ClassVar[int]
         DOUBLE_IMPULSES_FIELD_NUMBER: _ClassVar[int]
         trigger_on_all_sensors: bool
         double_impulses: bool
-        def __init__(self, trigger_on_all_sensors: bool = ..., double_impulses: bool = ...) -> None: ...
+        def __init__(
+            self, trigger_on_all_sensors: bool = ..., double_impulses: bool = ...
+        ) -> None: ...
+
     class Wifi(_message.Message):
-        __slots__ = ("security_protocol", "signal_level", "ssid", "password", "channel", "ip", "mask", "gate", "dns", "dhcp", "enabled")
+        __slots__ = (
+            "channel",
+            "dhcp",
+            "dns",
+            "enabled",
+            "gate",
+            "ip",
+            "mask",
+            "password",
+            "security_protocol",
+            "signal_level",
+            "ssid",
+        )
         class SecurityProtocol(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = ()
             NO_SECURITY_PROTOCOL_INFO: _ClassVar[HubDevice.Wifi.SecurityProtocol]
@@ -433,6 +648,7 @@ class HubDevice(_message.Message):
             WPA: _ClassVar[HubDevice.Wifi.SecurityProtocol]
             WPA2: _ClassVar[HubDevice.Wifi.SecurityProtocol]
             WPA_WPA2: _ClassVar[HubDevice.Wifi.SecurityProtocol]
+
         NO_SECURITY_PROTOCOL_INFO: HubDevice.Wifi.SecurityProtocol
         NONE: HubDevice.Wifi.SecurityProtocol
         WEP: HubDevice.Wifi.SecurityProtocol
@@ -446,6 +662,7 @@ class HubDevice(_message.Message):
             WEAK: _ClassVar[HubDevice.Wifi.SignalLevel]
             NORMAL: _ClassVar[HubDevice.Wifi.SignalLevel]
             STRONG: _ClassVar[HubDevice.Wifi.SignalLevel]
+
         NO_SIGNAL_LEVEL_INFO: HubDevice.Wifi.SignalLevel
         NO_SIGNAL: HubDevice.Wifi.SignalLevel
         WEAK: HubDevice.Wifi.SignalLevel
@@ -473,9 +690,34 @@ class HubDevice(_message.Message):
         dns: str
         dhcp: bool
         enabled: bool
-        def __init__(self, security_protocol: _Optional[_Union[HubDevice.Wifi.SecurityProtocol, str]] = ..., signal_level: _Optional[_Union[HubDevice.Wifi.SignalLevel, str]] = ..., ssid: _Optional[str] = ..., password: _Optional[str] = ..., channel: _Optional[int] = ..., ip: _Optional[str] = ..., mask: _Optional[str] = ..., gate: _Optional[str] = ..., dns: _Optional[str] = ..., dhcp: bool = ..., enabled: bool = ...) -> None: ...
+        def __init__(
+            self,
+            security_protocol: HubDevice.Wifi.SecurityProtocol | str | None = ...,
+            signal_level: HubDevice.Wifi.SignalLevel | str | None = ...,
+            ssid: str | None = ...,
+            password: str | None = ...,
+            channel: int | None = ...,
+            ip: str | None = ...,
+            mask: str | None = ...,
+            gate: str | None = ...,
+            dns: str | None = ...,
+            dhcp: bool = ...,
+            enabled: bool = ...,
+        ) -> None: ...
+
     class Gsm(_message.Message):
-        __slots__ = ("disable_icmp_before_connecting", "gprs_enabled", "virtual_operator_allowed", "roaming_enabled", "sim_card_state", "network_status", "signal_level", "active_sim_card", "sim_card1", "sim_card2")
+        __slots__ = (
+            "active_sim_card",
+            "disable_icmp_before_connecting",
+            "gprs_enabled",
+            "network_status",
+            "roaming_enabled",
+            "signal_level",
+            "sim_card1",
+            "sim_card2",
+            "sim_card_state",
+            "virtual_operator_allowed",
+        )
         class SimCardState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = ()
             NO_SIM_CARD_STATE_INFO: _ClassVar[HubDevice.Gsm.SimCardState]
@@ -484,6 +726,7 @@ class HubDevice(_message.Message):
             MALFUNCTION: _ClassVar[HubDevice.Gsm.SimCardState]
             LOCKED: _ClassVar[HubDevice.Gsm.SimCardState]
             UNKNOWN: _ClassVar[HubDevice.Gsm.SimCardState]
+
         NO_SIM_CARD_STATE_INFO: HubDevice.Gsm.SimCardState
         OK: HubDevice.Gsm.SimCardState
         MISSING: HubDevice.Gsm.SimCardState
@@ -497,6 +740,7 @@ class HubDevice(_message.Message):
             WEAK: _ClassVar[HubDevice.Gsm.SignalLevel]
             NORMAL: _ClassVar[HubDevice.Gsm.SignalLevel]
             STRONG: _ClassVar[HubDevice.Gsm.SignalLevel]
+
         NO_SIGNAL_LEVEL_INFO: HubDevice.Gsm.SignalLevel
         NO_SIGNAL: HubDevice.Gsm.SignalLevel
         WEAK: HubDevice.Gsm.SignalLevel
@@ -509,13 +753,23 @@ class HubDevice(_message.Message):
             _2G: _ClassVar[HubDevice.Gsm.NetworkStatus]
             _3G: _ClassVar[HubDevice.Gsm.NetworkStatus]
             _4G: _ClassVar[HubDevice.Gsm.NetworkStatus]
+
         NO_NETWORK_STATUS_INFO: HubDevice.Gsm.NetworkStatus
         GSM: HubDevice.Gsm.NetworkStatus
         _2G: HubDevice.Gsm.NetworkStatus
         _3G: HubDevice.Gsm.NetworkStatus
         _4G: HubDevice.Gsm.NetworkStatus
         class SimCard1(_message.Message):
-            __slots__ = ("number", "apn", "username", "password", "balance_number", "traffic_tx_kb", "traffic_rx_kb", "last_traffic_reset_timestamp")
+            __slots__ = (
+                "apn",
+                "balance_number",
+                "last_traffic_reset_timestamp",
+                "number",
+                "password",
+                "traffic_rx_kb",
+                "traffic_tx_kb",
+                "username",
+            )
             NUMBER_FIELD_NUMBER: _ClassVar[int]
             APN_FIELD_NUMBER: _ClassVar[int]
             USERNAME_FIELD_NUMBER: _ClassVar[int]
@@ -532,9 +786,31 @@ class HubDevice(_message.Message):
             traffic_tx_kb: _wrappers_pb2.Int32Value
             traffic_rx_kb: _wrappers_pb2.Int32Value
             last_traffic_reset_timestamp: _wrappers_pb2.Int32Value
-            def __init__(self, number: _Optional[str] = ..., apn: _Optional[str] = ..., username: _Optional[str] = ..., password: _Optional[str] = ..., balance_number: _Optional[str] = ..., traffic_tx_kb: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., traffic_rx_kb: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., last_traffic_reset_timestamp: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+            def __init__(
+                self,
+                number: str | None = ...,
+                apn: str | None = ...,
+                username: str | None = ...,
+                password: str | None = ...,
+                balance_number: str | None = ...,
+                traffic_tx_kb: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+                traffic_rx_kb: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+                last_traffic_reset_timestamp: _wrappers_pb2.Int32Value
+                | _Mapping
+                | None = ...,
+            ) -> None: ...
+
         class SimCard2(_message.Message):
-            __slots__ = ("number", "apn", "username", "password", "balance_number", "traffic_tx_kb", "traffic_rx_kb", "last_traffic_reset_timestamp")
+            __slots__ = (
+                "apn",
+                "balance_number",
+                "last_traffic_reset_timestamp",
+                "number",
+                "password",
+                "traffic_rx_kb",
+                "traffic_tx_kb",
+                "username",
+            )
             NUMBER_FIELD_NUMBER: _ClassVar[int]
             APN_FIELD_NUMBER: _ClassVar[int]
             USERNAME_FIELD_NUMBER: _ClassVar[int]
@@ -551,7 +827,20 @@ class HubDevice(_message.Message):
             traffic_tx_kb: _wrappers_pb2.Int32Value
             traffic_rx_kb: _wrappers_pb2.Int32Value
             last_traffic_reset_timestamp: _wrappers_pb2.Int32Value
-            def __init__(self, number: _Optional[str] = ..., apn: _Optional[str] = ..., username: _Optional[str] = ..., password: _Optional[str] = ..., balance_number: _Optional[str] = ..., traffic_tx_kb: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., traffic_rx_kb: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., last_traffic_reset_timestamp: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ...) -> None: ...
+            def __init__(
+                self,
+                number: str | None = ...,
+                apn: str | None = ...,
+                username: str | None = ...,
+                password: str | None = ...,
+                balance_number: str | None = ...,
+                traffic_tx_kb: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+                traffic_rx_kb: _wrappers_pb2.Int32Value | _Mapping | None = ...,
+                last_traffic_reset_timestamp: _wrappers_pb2.Int32Value
+                | _Mapping
+                | None = ...,
+            ) -> None: ...
+
         DISABLE_ICMP_BEFORE_CONNECTING_FIELD_NUMBER: _ClassVar[int]
         GPRS_ENABLED_FIELD_NUMBER: _ClassVar[int]
         VIRTUAL_OPERATOR_ALLOWED_FIELD_NUMBER: _ClassVar[int]
@@ -572,15 +861,45 @@ class HubDevice(_message.Message):
         active_sim_card: int
         sim_card1: HubDevice.Gsm.SimCard1
         sim_card2: HubDevice.Gsm.SimCard2
-        def __init__(self, disable_icmp_before_connecting: bool = ..., gprs_enabled: bool = ..., virtual_operator_allowed: bool = ..., roaming_enabled: bool = ..., sim_card_state: _Optional[_Union[HubDevice.Gsm.SimCardState, str]] = ..., network_status: _Optional[_Union[HubDevice.Gsm.NetworkStatus, str]] = ..., signal_level: _Optional[_Union[HubDevice.Gsm.SignalLevel, str]] = ..., active_sim_card: _Optional[int] = ..., sim_card1: _Optional[_Union[HubDevice.Gsm.SimCard1, _Mapping]] = ..., sim_card2: _Optional[_Union[HubDevice.Gsm.SimCard2, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            disable_icmp_before_connecting: bool = ...,
+            gprs_enabled: bool = ...,
+            virtual_operator_allowed: bool = ...,
+            roaming_enabled: bool = ...,
+            sim_card_state: HubDevice.Gsm.SimCardState | str | None = ...,
+            network_status: HubDevice.Gsm.NetworkStatus | str | None = ...,
+            signal_level: HubDevice.Gsm.SignalLevel | str | None = ...,
+            active_sim_card: int | None = ...,
+            sim_card1: HubDevice.Gsm.SimCard1 | _Mapping | None = ...,
+            sim_card2: HubDevice.Gsm.SimCard2 | _Mapping | None = ...,
+        ) -> None: ...
+
     class Cms(_message.Message):
-        __slots__ = ("address", "port", "address_reserve", "port_reserve", "active_channels", "ping_period_seconds", "gprs_enabled", "ethernet_enabled", "wifi_enabled", "protocol", "connection_mode", "sia_account_number", "sia_encryption_key", "sia_encryption_type", "send_panic_button_location")
+        __slots__ = (
+            "active_channels",
+            "address",
+            "address_reserve",
+            "connection_mode",
+            "ethernet_enabled",
+            "gprs_enabled",
+            "ping_period_seconds",
+            "port",
+            "port_reserve",
+            "protocol",
+            "send_panic_button_location",
+            "sia_account_number",
+            "sia_encryption_key",
+            "sia_encryption_type",
+            "wifi_enabled",
+        )
         class ActiveChannel(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = ()
             NO_ACTIVE_CHANNEL_INFO: _ClassVar[HubDevice.Cms.ActiveChannel]
             ETHERNET: _ClassVar[HubDevice.Cms.ActiveChannel]
             WIFI: _ClassVar[HubDevice.Cms.ActiveChannel]
             GSM: _ClassVar[HubDevice.Cms.ActiveChannel]
+
         NO_ACTIVE_CHANNEL_INFO: HubDevice.Cms.ActiveChannel
         ETHERNET: HubDevice.Cms.ActiveChannel
         WIFI: HubDevice.Cms.ActiveChannel
@@ -590,6 +909,7 @@ class HubDevice(_message.Message):
             NO_CMS_PROTOCOL_INFO: _ClassVar[HubDevice.Cms.Protocol]
             CID: _ClassVar[HubDevice.Cms.Protocol]
             SIA: _ClassVar[HubDevice.Cms.Protocol]
+
         NO_CMS_PROTOCOL_INFO: HubDevice.Cms.Protocol
         CID: HubDevice.Cms.Protocol
         SIA: HubDevice.Cms.Protocol
@@ -598,6 +918,7 @@ class HubDevice(_message.Message):
             NO_CMS_CONNECTION_MODE_INFO: _ClassVar[HubDevice.Cms.ConnectionMode]
             ALWAYS_UP: _ClassVar[HubDevice.Cms.ConnectionMode]
             ON_DEMAND: _ClassVar[HubDevice.Cms.ConnectionMode]
+
         NO_CMS_CONNECTION_MODE_INFO: HubDevice.Cms.ConnectionMode
         ALWAYS_UP: HubDevice.Cms.ConnectionMode
         ON_DEMAND: HubDevice.Cms.ConnectionMode
@@ -607,6 +928,7 @@ class HubDevice(_message.Message):
             OFF: _ClassVar[HubDevice.Cms.SiaEncryptionType]
             AES128: _ClassVar[HubDevice.Cms.SiaEncryptionType]
             AES256: _ClassVar[HubDevice.Cms.SiaEncryptionType]
+
         NO_SIA_ENCRYPTION_TYPE_INFO: HubDevice.Cms.SiaEncryptionType
         OFF: HubDevice.Cms.SiaEncryptionType
         AES128: HubDevice.Cms.SiaEncryptionType
@@ -630,7 +952,9 @@ class HubDevice(_message.Message):
         port: int
         address_reserve: str
         port_reserve: int
-        active_channels: _containers.RepeatedScalarFieldContainer[HubDevice.Cms.ActiveChannel]
+        active_channels: _containers.RepeatedScalarFieldContainer[
+            HubDevice.Cms.ActiveChannel
+        ]
         ping_period_seconds: int
         gprs_enabled: bool
         ethernet_enabled: bool
@@ -641,16 +965,47 @@ class HubDevice(_message.Message):
         sia_encryption_key: str
         sia_encryption_type: HubDevice.Cms.SiaEncryptionType
         send_panic_button_location: bool
-        def __init__(self, address: _Optional[str] = ..., port: _Optional[int] = ..., address_reserve: _Optional[str] = ..., port_reserve: _Optional[int] = ..., active_channels: _Optional[_Iterable[_Union[HubDevice.Cms.ActiveChannel, str]]] = ..., ping_period_seconds: _Optional[int] = ..., gprs_enabled: bool = ..., ethernet_enabled: bool = ..., wifi_enabled: bool = ..., protocol: _Optional[_Union[HubDevice.Cms.Protocol, str]] = ..., connection_mode: _Optional[_Union[HubDevice.Cms.ConnectionMode, str]] = ..., sia_account_number: _Optional[str] = ..., sia_encryption_key: _Optional[str] = ..., sia_encryption_type: _Optional[_Union[HubDevice.Cms.SiaEncryptionType, str]] = ..., send_panic_button_location: bool = ...) -> None: ...
+        def __init__(
+            self,
+            address: str | None = ...,
+            port: int | None = ...,
+            address_reserve: str | None = ...,
+            port_reserve: int | None = ...,
+            active_channels: _Iterable[HubDevice.Cms.ActiveChannel | str] | None = ...,
+            ping_period_seconds: int | None = ...,
+            gprs_enabled: bool = ...,
+            ethernet_enabled: bool = ...,
+            wifi_enabled: bool = ...,
+            protocol: HubDevice.Cms.Protocol | str | None = ...,
+            connection_mode: HubDevice.Cms.ConnectionMode | str | None = ...,
+            sia_account_number: str | None = ...,
+            sia_encryption_key: str | None = ...,
+            sia_encryption_type: HubDevice.Cms.SiaEncryptionType | str | None = ...,
+            send_panic_button_location: bool = ...,
+        ) -> None: ...
+
     class Jeweller(_message.Message):
-        __slots__ = ("lost_heartbeats_threshold", "detector_ping_interval_seconds")
+        __slots__ = ("detector_ping_interval_seconds", "lost_heartbeats_threshold")
         LOST_HEARTBEATS_THRESHOLD_FIELD_NUMBER: _ClassVar[int]
         DETECTOR_PING_INTERVAL_SECONDS_FIELD_NUMBER: _ClassVar[int]
         lost_heartbeats_threshold: int
         detector_ping_interval_seconds: int
-        def __init__(self, lost_heartbeats_threshold: _Optional[int] = ..., detector_ping_interval_seconds: _Optional[int] = ...) -> None: ...
+        def __init__(
+            self,
+            lost_heartbeats_threshold: int | None = ...,
+            detector_ping_interval_seconds: int | None = ...,
+        ) -> None: ...
+
     class Address(_message.Message):
-        __slots__ = ("country_code", "loc_state", "locality", "address", "comment", "latitude", "longitude")
+        __slots__ = (
+            "address",
+            "comment",
+            "country_code",
+            "latitude",
+            "loc_state",
+            "locality",
+            "longitude",
+        )
         COUNTRY_CODE_FIELD_NUMBER: _ClassVar[int]
         LOC_STATE_FIELD_NUMBER: _ClassVar[int]
         LOCALITY_FIELD_NUMBER: _ClassVar[int]
@@ -665,16 +1020,36 @@ class HubDevice(_message.Message):
         comment: str
         latitude: _decimal_pb2.Decimal
         longitude: _decimal_pb2.Decimal
-        def __init__(self, country_code: _Optional[str] = ..., loc_state: _Optional[str] = ..., locality: _Optional[str] = ..., address: _Optional[str] = ..., comment: _Optional[str] = ..., latitude: _Optional[_Union[_decimal_pb2.Decimal, _Mapping]] = ..., longitude: _Optional[_Union[_decimal_pb2.Decimal, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            country_code: str | None = ...,
+            loc_state: str | None = ...,
+            locality: str | None = ...,
+            address: str | None = ...,
+            comment: str | None = ...,
+            latitude: _decimal_pb2.Decimal | _Mapping | None = ...,
+            longitude: _decimal_pb2.Decimal | _Mapping | None = ...,
+        ) -> None: ...
+
     class AlarmVerification(_message.Message):
         __slots__ = ("verification_enabled", "verification_timeout")
         VERIFICATION_ENABLED_FIELD_NUMBER: _ClassVar[int]
         VERIFICATION_TIMEOUT_FIELD_NUMBER: _ClassVar[int]
         verification_enabled: bool
         verification_timeout: int
-        def __init__(self, verification_enabled: bool = ..., verification_timeout: _Optional[int] = ...) -> None: ...
+        def __init__(
+            self,
+            verification_enabled: bool = ...,
+            verification_timeout: int | None = ...,
+        ) -> None: ...
+
     class Interconnection(_message.Message):
-        __slots__ = ("interconnect_delay_timeout", "interconnect_delay_expiration_unix_time", "interconnect_state", "interconnect_modes")
+        __slots__ = (
+            "interconnect_delay_expiration_unix_time",
+            "interconnect_delay_timeout",
+            "interconnect_modes",
+            "interconnect_state",
+        )
         INTERCONNECT_DELAY_TIMEOUT_FIELD_NUMBER: _ClassVar[int]
         INTERCONNECT_DELAY_EXPIRATION_UNIX_TIME_FIELD_NUMBER: _ClassVar[int]
         INTERCONNECT_STATE_FIELD_NUMBER: _ClassVar[int]
@@ -682,24 +1057,51 @@ class HubDevice(_message.Message):
         interconnect_delay_timeout: int
         interconnect_delay_expiration_unix_time: int
         interconnect_state: HubDevice.InterconnectState
-        interconnect_modes: _containers.RepeatedScalarFieldContainer[HubDevice.InterconnectMode]
-        def __init__(self, interconnect_delay_timeout: _Optional[int] = ..., interconnect_delay_expiration_unix_time: _Optional[int] = ..., interconnect_state: _Optional[_Union[HubDevice.InterconnectState, str]] = ..., interconnect_modes: _Optional[_Iterable[_Union[HubDevice.InterconnectMode, str]]] = ...) -> None: ...
+        interconnect_modes: _containers.RepeatedScalarFieldContainer[
+            HubDevice.InterconnectMode
+        ]
+        def __init__(
+            self,
+            interconnect_delay_timeout: int | None = ...,
+            interconnect_delay_expiration_unix_time: int | None = ...,
+            interconnect_state: HubDevice.InterconnectState | str | None = ...,
+            interconnect_modes: _Iterable[HubDevice.InterconnectMode | str]
+            | None = ...,
+        ) -> None: ...
+
     class GeoFence(_message.Message):
-        __slots__ = ("radius_meters", "coordinates")
+        __slots__ = ("coordinates", "radius_meters")
         class GeoFenceCoordinates(_message.Message):
             __slots__ = ("latitude", "longitude")
             LATITUDE_FIELD_NUMBER: _ClassVar[int]
             LONGITUDE_FIELD_NUMBER: _ClassVar[int]
             latitude: _decimal_pb2.Decimal
             longitude: _decimal_pb2.Decimal
-            def __init__(self, latitude: _Optional[_Union[_decimal_pb2.Decimal, _Mapping]] = ..., longitude: _Optional[_Union[_decimal_pb2.Decimal, _Mapping]] = ...) -> None: ...
+            def __init__(
+                self,
+                latitude: _decimal_pb2.Decimal | _Mapping | None = ...,
+                longitude: _decimal_pb2.Decimal | _Mapping | None = ...,
+            ) -> None: ...
+
         RADIUS_METERS_FIELD_NUMBER: _ClassVar[int]
         COORDINATES_FIELD_NUMBER: _ClassVar[int]
         radius_meters: int
         coordinates: HubDevice.GeoFence.GeoFenceCoordinates
-        def __init__(self, radius_meters: _Optional[int] = ..., coordinates: _Optional[_Union[HubDevice.GeoFence.GeoFenceCoordinates, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            radius_meters: int | None = ...,
+            coordinates: HubDevice.GeoFence.GeoFenceCoordinates | _Mapping | None = ...,
+        ) -> None: ...
+
     class TwoStageArming(_message.Message):
-        __slots__ = ("two_stage_arming_state", "application_triggered_arming", "device_triggered_arming", "exit_timer_expiration_unix_time", "remote_notification_delay", "disarming_by_keypad")
+        __slots__ = (
+            "application_triggered_arming",
+            "device_triggered_arming",
+            "disarming_by_keypad",
+            "exit_timer_expiration_unix_time",
+            "remote_notification_delay",
+            "two_stage_arming_state",
+        )
         TWO_STAGE_ARMING_STATE_FIELD_NUMBER: _ClassVar[int]
         APPLICATION_TRIGGERED_ARMING_FIELD_NUMBER: _ClassVar[int]
         DEVICE_TRIGGERED_ARMING_FIELD_NUMBER: _ClassVar[int]
@@ -712,19 +1114,38 @@ class HubDevice(_message.Message):
         exit_timer_expiration_unix_time: int
         remote_notification_delay: int
         disarming_by_keypad: bool
-        def __init__(self, two_stage_arming_state: bool = ..., application_triggered_arming: _Optional[_Union[HubDevice.ApplicationTriggeredArming, _Mapping]] = ..., device_triggered_arming: _Optional[_Union[HubDevice.DeviceTriggeredArming, _Mapping]] = ..., exit_timer_expiration_unix_time: _Optional[int] = ..., remote_notification_delay: _Optional[int] = ..., disarming_by_keypad: bool = ...) -> None: ...
+        def __init__(
+            self,
+            two_stage_arming_state: bool = ...,
+            application_triggered_arming: HubDevice.ApplicationTriggeredArming
+            | _Mapping
+            | None = ...,
+            device_triggered_arming: HubDevice.DeviceTriggeredArming
+            | _Mapping
+            | None = ...,
+            exit_timer_expiration_unix_time: int | None = ...,
+            remote_notification_delay: int | None = ...,
+            disarming_by_keypad: bool = ...,
+        ) -> None: ...
+
     class ApplicationTriggeredArming(_message.Message):
         __slots__ = ("app_exit_timer",)
         APP_EXIT_TIMER_FIELD_NUMBER: _ClassVar[int]
         app_exit_timer: int
-        def __init__(self, app_exit_timer: _Optional[int] = ...) -> None: ...
+        def __init__(self, app_exit_timer: int | None = ...) -> None: ...
+
     class DeviceTriggeredArming(_message.Message):
-        __slots__ = ("second_stage_exit_timer", "final_door_bounce_timer")
+        __slots__ = ("final_door_bounce_timer", "second_stage_exit_timer")
         SECOND_STAGE_EXIT_TIMER_FIELD_NUMBER: _ClassVar[int]
         FINAL_DOOR_BOUNCE_TIMER_FIELD_NUMBER: _ClassVar[int]
         second_stage_exit_timer: int
         final_door_bounce_timer: int
-        def __init__(self, second_stage_exit_timer: _Optional[int] = ..., final_door_bounce_timer: _Optional[int] = ...) -> None: ...
+        def __init__(
+            self,
+            second_stage_exit_timer: int | None = ...,
+            final_door_bounce_timer: int | None = ...,
+        ) -> None: ...
+
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     NOISE_LEVEL_FIELD_NUMBER: _ClassVar[int]
@@ -840,7 +1261,9 @@ class HubDevice(_message.Message):
     alarm_verification: HubDevice.AlarmVerification
     restore_required: _containers.RepeatedScalarFieldContainer[HubDevice.AlarmType]
     alarm_happened: _containers.RepeatedScalarFieldContainer[HubDevice.AlarmType]
-    arm_preventions_to_check: _containers.RepeatedScalarFieldContainer[HubDevice.ArmPreventionCondition]
+    arm_preventions_to_check: _containers.RepeatedScalarFieldContainer[
+        HubDevice.ArmPreventionCondition
+    ]
     report_alarm_restore: HubDevice.ReportAlarmRestore
     report_panic_alarm_restore: HubDevice.ReportPanicAlarmRestore
     tamper_alarm_confirmation: int
@@ -848,21 +1271,119 @@ class HubDevice(_message.Message):
     alarm_confirmation_hu_devices_pd6662: int
     verification_timeout_hu: int
     interconnection: HubDevice.Interconnection
-    postAlarmIndicationRule: _containers.RepeatedScalarFieldContainer[HubDevice.PostAlarmIndicationRule]
+    postAlarmIndicationRule: _containers.RepeatedScalarFieldContainer[
+        HubDevice.PostAlarmIndicationRule
+    ]
     lost_fibra_counter: int
     chimes_status: _containers.RepeatedScalarFieldContainer[HubDevice.ChimesStatus]
-    channel_connectivity_notification_active: _containers.RepeatedScalarFieldContainer[HubDevice.ActiveChannel]
+    channel_connectivity_notification_active: _containers.RepeatedScalarFieldContainer[
+        HubDevice.ActiveChannel
+    ]
     channel_offline_alarm_delay_seconds: int
-    photo_on_demand_mode: _containers.RepeatedScalarFieldContainer[HubDevice.PhotoOnDemandMode]
+    photo_on_demand_mode: _containers.RepeatedScalarFieldContainer[
+        HubDevice.PhotoOnDemandMode
+    ]
     default_camera_permission: HubDevice.DefaultCameraPermission
     default_photo_on_demand_permission: HubDevice.DefaultPhotoOnDemandPermission
     default_user_camera_permission: HubDevice.DefaultUserCameraPermission
-    default_user_photo_on_demand_permission: HubDevice.DefaultUserPhotoOnDemandPermission
+    default_user_photo_on_demand_permission: (
+        HubDevice.DefaultUserPhotoOnDemandPermission
+    )
     max_power_test_state: HubDevice.MaxPowerTestState
     bus_status: _containers.RepeatedScalarFieldContainer[HubDevice.BusState]
     scan_status: HubDevice.ScanStatus
-    privacy_officer_options: _containers.RepeatedScalarFieldContainer[HubDevice.PrivacyOfficerOption]
+    privacy_officer_options: _containers.RepeatedScalarFieldContainer[
+        HubDevice.PrivacyOfficerOption
+    ]
     geofence: HubDevice.GeoFence
     two_stage_arming_progress_status: HubDevice.TwoStageArmingStatus
     two_stage_arming: HubDevice.TwoStageArming
-    def __init__(self, id: _Optional[str] = ..., name: _Optional[_Union[_name_pb2.Name, _Mapping]] = ..., noise_level: _Optional[_Union[HubDevice.NoiseLevel, _Mapping]] = ..., connection_status: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., state: _Optional[_Union[HubDevice.State, str]] = ..., state_with_groups: _Optional[_Union[HubDevice.StateWithGroups, str]] = ..., debug_log_state: _Optional[_Union[HubDevice.DebugLogState, str]] = ..., panic_siren_on_panic_button: bool = ..., limits: _Optional[_Union[HubDevice.Limits, _Mapping]] = ..., groups_enabled: bool = ..., firmware: _Optional[_Union[HubDevice.Firmware, _Mapping]] = ..., ethernet: _Optional[_Union[HubDevice.Ethernet, _Mapping]] = ..., arm_prevention_mode: _Optional[_Union[HubDevice.ArmPreventionMode, str]] = ..., tampered: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., panic_siren_on_any_tamper: bool = ..., battery: _Optional[_Union[HubDevice.Battery, _Mapping]] = ..., hardware_versions: _Optional[_Union[HubDevice.HardwareVersions, _Mapping]] = ..., warnings: _Optional[_Union[HubDevice.Warnings, _Mapping]] = ..., fire_alarm: _Optional[_Union[HubDevice.FireAlarm, _Mapping]] = ..., wifi: _Optional[_Union[HubDevice.Wifi, _Mapping]] = ..., gsm: _Optional[_Union[HubDevice.Gsm, _Mapping]] = ..., cms: _Optional[_Union[HubDevice.Cms, _Mapping]] = ..., color: _Optional[_Union[HubDevice.Color, str]] = ..., image_id: _Optional[str] = ..., image_num: _Optional[int] = ..., image_urls: _Optional[_Union[_image_urls_pb2.ImageUrls, _Mapping]] = ..., active_channels: _Optional[_Iterable[_Union[HubDevice.ActiveChannel, str]]] = ..., ping_period_seconds: _Optional[int] = ..., offline_alarm_seconds: _Optional[int] = ..., led_brightness_level: _Optional[int] = ..., subtype: _Optional[_Union[HubDevice.Subtype, str]] = ..., jeweller: _Optional[_Union[HubDevice.Jeweller, _Mapping]] = ..., externally_powered: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., connection_test_in_progress: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., malfunctions: _Optional[_Iterable[_Union[HubDevice.Malfunction, str]]] = ..., blocked_by_service_provider: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., connection_lost_as_malfunction: bool = ..., alarm_as_malfunction_when_arming: bool = ..., auto_bypass_timer_minutes: _Optional[int] = ..., auto_bypass_counter: _Optional[int] = ..., hub_address: _Optional[_Union[HubDevice.Address, _Mapping]] = ..., time_zone: _Optional[str] = ..., alarm_verification: _Optional[_Union[HubDevice.AlarmVerification, _Mapping]] = ..., restore_required: _Optional[_Iterable[_Union[HubDevice.AlarmType, str]]] = ..., alarm_happened: _Optional[_Iterable[_Union[HubDevice.AlarmType, str]]] = ..., arm_preventions_to_check: _Optional[_Iterable[_Union[HubDevice.ArmPreventionCondition, str]]] = ..., report_alarm_restore: _Optional[_Union[HubDevice.ReportAlarmRestore, str]] = ..., report_panic_alarm_restore: _Optional[_Union[HubDevice.ReportPanicAlarmRestore, str]] = ..., tamper_alarm_confirmation: _Optional[int] = ..., confirmed_alarm_on_delayed_devices: _Optional[int] = ..., alarm_confirmation_hu_devices_pd6662: _Optional[int] = ..., verification_timeout_hu: _Optional[int] = ..., interconnection: _Optional[_Union[HubDevice.Interconnection, _Mapping]] = ..., postAlarmIndicationRule: _Optional[_Iterable[_Union[HubDevice.PostAlarmIndicationRule, str]]] = ..., lost_fibra_counter: _Optional[int] = ..., chimes_status: _Optional[_Iterable[_Union[HubDevice.ChimesStatus, str]]] = ..., channel_connectivity_notification_active: _Optional[_Iterable[_Union[HubDevice.ActiveChannel, str]]] = ..., channel_offline_alarm_delay_seconds: _Optional[int] = ..., photo_on_demand_mode: _Optional[_Iterable[_Union[HubDevice.PhotoOnDemandMode, str]]] = ..., default_camera_permission: _Optional[_Union[HubDevice.DefaultCameraPermission, str]] = ..., default_photo_on_demand_permission: _Optional[_Union[HubDevice.DefaultPhotoOnDemandPermission, str]] = ..., default_user_camera_permission: _Optional[_Union[HubDevice.DefaultUserCameraPermission, str]] = ..., default_user_photo_on_demand_permission: _Optional[_Union[HubDevice.DefaultUserPhotoOnDemandPermission, str]] = ..., max_power_test_state: _Optional[_Union[HubDevice.MaxPowerTestState, str]] = ..., bus_status: _Optional[_Iterable[_Union[HubDevice.BusState, str]]] = ..., scan_status: _Optional[_Union[HubDevice.ScanStatus, str]] = ..., privacy_officer_options: _Optional[_Iterable[_Union[HubDevice.PrivacyOfficerOption, str]]] = ..., geofence: _Optional[_Union[HubDevice.GeoFence, _Mapping]] = ..., two_stage_arming_progress_status: _Optional[_Union[HubDevice.TwoStageArmingStatus, str]] = ..., two_stage_arming: _Optional[_Union[HubDevice.TwoStageArming, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        id: str | None = ...,
+        name: _name_pb2.Name | _Mapping | None = ...,
+        noise_level: HubDevice.NoiseLevel | _Mapping | None = ...,
+        connection_status: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+        state: HubDevice.State | str | None = ...,
+        state_with_groups: HubDevice.StateWithGroups | str | None = ...,
+        debug_log_state: HubDevice.DebugLogState | str | None = ...,
+        panic_siren_on_panic_button: bool = ...,
+        limits: HubDevice.Limits | _Mapping | None = ...,
+        groups_enabled: bool = ...,
+        firmware: HubDevice.Firmware | _Mapping | None = ...,
+        ethernet: HubDevice.Ethernet | _Mapping | None = ...,
+        arm_prevention_mode: HubDevice.ArmPreventionMode | str | None = ...,
+        tampered: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+        panic_siren_on_any_tamper: bool = ...,
+        battery: HubDevice.Battery | _Mapping | None = ...,
+        hardware_versions: HubDevice.HardwareVersions | _Mapping | None = ...,
+        warnings: HubDevice.Warnings | _Mapping | None = ...,
+        fire_alarm: HubDevice.FireAlarm | _Mapping | None = ...,
+        wifi: HubDevice.Wifi | _Mapping | None = ...,
+        gsm: HubDevice.Gsm | _Mapping | None = ...,
+        cms: HubDevice.Cms | _Mapping | None = ...,
+        color: HubDevice.Color | str | None = ...,
+        image_id: str | None = ...,
+        image_num: int | None = ...,
+        image_urls: _image_urls_pb2.ImageUrls | _Mapping | None = ...,
+        active_channels: _Iterable[HubDevice.ActiveChannel | str] | None = ...,
+        ping_period_seconds: int | None = ...,
+        offline_alarm_seconds: int | None = ...,
+        led_brightness_level: int | None = ...,
+        subtype: HubDevice.Subtype | str | None = ...,
+        jeweller: HubDevice.Jeweller | _Mapping | None = ...,
+        externally_powered: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+        connection_test_in_progress: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+        malfunctions: _Iterable[HubDevice.Malfunction | str] | None = ...,
+        blocked_by_service_provider: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+        connection_lost_as_malfunction: bool = ...,
+        alarm_as_malfunction_when_arming: bool = ...,
+        auto_bypass_timer_minutes: int | None = ...,
+        auto_bypass_counter: int | None = ...,
+        hub_address: HubDevice.Address | _Mapping | None = ...,
+        time_zone: str | None = ...,
+        alarm_verification: HubDevice.AlarmVerification | _Mapping | None = ...,
+        restore_required: _Iterable[HubDevice.AlarmType | str] | None = ...,
+        alarm_happened: _Iterable[HubDevice.AlarmType | str] | None = ...,
+        arm_preventions_to_check: _Iterable[HubDevice.ArmPreventionCondition | str]
+        | None = ...,
+        report_alarm_restore: HubDevice.ReportAlarmRestore | str | None = ...,
+        report_panic_alarm_restore: HubDevice.ReportPanicAlarmRestore
+        | str
+        | None = ...,
+        tamper_alarm_confirmation: int | None = ...,
+        confirmed_alarm_on_delayed_devices: int | None = ...,
+        alarm_confirmation_hu_devices_pd6662: int | None = ...,
+        verification_timeout_hu: int | None = ...,
+        interconnection: HubDevice.Interconnection | _Mapping | None = ...,
+        postAlarmIndicationRule: _Iterable[HubDevice.PostAlarmIndicationRule | str]
+        | None = ...,
+        lost_fibra_counter: int | None = ...,
+        chimes_status: _Iterable[HubDevice.ChimesStatus | str] | None = ...,
+        channel_connectivity_notification_active: _Iterable[
+            HubDevice.ActiveChannel | str
+        ]
+        | None = ...,
+        channel_offline_alarm_delay_seconds: int | None = ...,
+        photo_on_demand_mode: _Iterable[HubDevice.PhotoOnDemandMode | str] | None = ...,
+        default_camera_permission: HubDevice.DefaultCameraPermission | str | None = ...,
+        default_photo_on_demand_permission: HubDevice.DefaultPhotoOnDemandPermission
+        | str
+        | None = ...,
+        default_user_camera_permission: HubDevice.DefaultUserCameraPermission
+        | str
+        | None = ...,
+        default_user_photo_on_demand_permission: HubDevice.DefaultUserPhotoOnDemandPermission
+        | str
+        | None = ...,
+        max_power_test_state: HubDevice.MaxPowerTestState | str | None = ...,
+        bus_status: _Iterable[HubDevice.BusState | str] | None = ...,
+        scan_status: HubDevice.ScanStatus | str | None = ...,
+        privacy_officer_options: _Iterable[HubDevice.PrivacyOfficerOption | str]
+        | None = ...,
+        geofence: HubDevice.GeoFence | _Mapping | None = ...,
+        two_stage_arming_progress_status: HubDevice.TwoStageArmingStatus
+        | str
+        | None = ...,
+        two_stage_arming: HubDevice.TwoStageArming | _Mapping | None = ...,
+    ) -> None: ...

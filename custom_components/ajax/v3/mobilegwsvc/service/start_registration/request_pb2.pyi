@@ -1,14 +1,30 @@
-from v3.mobilegwsvc.commonmodels.type import user_role_pb2 as _user_role_pb2
-from v3.mobilegwsvc.commonmodels.type import phone_validation_type_pb2 as _phone_validation_type_pb2
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from v3.mobilegwsvc.commonmodels.type import (
+    phone_validation_type_pb2 as _phone_validation_type_pb2,
+)
+from v3.mobilegwsvc.commonmodels.type import user_role_pb2 as _user_role_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class StartRegistrationRequest(_message.Message):
-    __slots__ = ("user_role", "email", "phone_number", "first_name", "last_name", "password", "phone_validation_type", "locale", "news_subscription", "recaptcha_token", "recaptcha_site_key", "company_website", "company_name")
+    __slots__ = (
+        "company_name",
+        "company_website",
+        "email",
+        "first_name",
+        "last_name",
+        "locale",
+        "news_subscription",
+        "password",
+        "phone_number",
+        "phone_validation_type",
+        "recaptcha_site_key",
+        "recaptcha_token",
+        "user_role",
+    )
     USER_ROLE_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
     PHONE_NUMBER_FIELD_NUMBER: _ClassVar[int]
@@ -35,4 +51,21 @@ class StartRegistrationRequest(_message.Message):
     recaptcha_site_key: str
     company_website: str
     company_name: str
-    def __init__(self, user_role: _Optional[_Union[_user_role_pb2.UserRole, str]] = ..., email: _Optional[str] = ..., phone_number: _Optional[str] = ..., first_name: _Optional[str] = ..., last_name: _Optional[str] = ..., password: _Optional[str] = ..., phone_validation_type: _Optional[_Union[_phone_validation_type_pb2.PhoneValidationType, str]] = ..., locale: _Optional[str] = ..., news_subscription: bool = ..., recaptcha_token: _Optional[str] = ..., recaptcha_site_key: _Optional[str] = ..., company_website: _Optional[str] = ..., company_name: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        user_role: _user_role_pb2.UserRole | str | None = ...,
+        email: str | None = ...,
+        phone_number: str | None = ...,
+        first_name: str | None = ...,
+        last_name: str | None = ...,
+        password: str | None = ...,
+        phone_validation_type: _phone_validation_type_pb2.PhoneValidationType
+        | str
+        | None = ...,
+        locale: str | None = ...,
+        news_subscription: bool = ...,
+        recaptcha_token: str | None = ...,
+        recaptcha_site_key: str | None = ...,
+        company_website: str | None = ...,
+        company_name: str | None = ...,
+    ) -> None: ...

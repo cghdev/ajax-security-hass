@@ -1,15 +1,16 @@
-from google.protobuf import empty_pb2 as _empty_pb2
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import empty_pb2 as _empty_pb2
+from google.protobuf import message as _message
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class FirmwareUpdate(_message.Message):
-    __slots__ = ("target_id", "status")
+    __slots__ = ("status", "target_id")
     class Status(_message.Message):
-        __slots__ = ("not_started", "downloading", "success", "failure", "installing")
+        __slots__ = ("downloading", "failure", "installing", "not_started", "success")
         NOT_STARTED_FIELD_NUMBER: _ClassVar[int]
         DOWNLOADING_FIELD_NUMBER: _ClassVar[int]
         SUCCESS_FIELD_NUMBER: _ClassVar[int]
@@ -20,9 +21,21 @@ class FirmwareUpdate(_message.Message):
         success: _empty_pb2.Empty
         failure: _empty_pb2.Empty
         installing: _empty_pb2.Empty
-        def __init__(self, not_started: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., downloading: _Optional[int] = ..., success: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., failure: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., installing: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            not_started: _empty_pb2.Empty | _Mapping | None = ...,
+            downloading: int | None = ...,
+            success: _empty_pb2.Empty | _Mapping | None = ...,
+            failure: _empty_pb2.Empty | _Mapping | None = ...,
+            installing: _empty_pb2.Empty | _Mapping | None = ...,
+        ) -> None: ...
+
     TARGET_ID_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     target_id: str
     status: FirmwareUpdate.Status
-    def __init__(self, target_id: _Optional[str] = ..., status: _Optional[_Union[FirmwareUpdate.Status, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        target_id: str | None = ...,
+        status: FirmwareUpdate.Status | _Mapping | None = ...,
+    ) -> None: ...

@@ -1,13 +1,21 @@
-from systems.ajax.logging.proto import log_marker_pb2 as _log_marker_pb2
-from v3.mobilegwsvc.commonmodels.video.videoedge.channel import video_monitoring_state_pb2 as _video_monitoring_state_pb2
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from v3.mobilegwsvc.commonmodels.video.videoedge.channel import (
+    video_monitoring_state_pb2 as _video_monitoring_state_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class SetVideoEdgeChannelMonitoringSettingsRequest(_message.Message):
-    __slots__ = ("space_id", "video_edge_id", "channel_id", "zone_number", "monitoring_state")
+    __slots__ = (
+        "channel_id",
+        "monitoring_state",
+        "space_id",
+        "video_edge_id",
+        "zone_number",
+    )
     SPACE_ID_FIELD_NUMBER: _ClassVar[int]
     VIDEO_EDGE_ID_FIELD_NUMBER: _ClassVar[int]
     CHANNEL_ID_FIELD_NUMBER: _ClassVar[int]
@@ -18,4 +26,13 @@ class SetVideoEdgeChannelMonitoringSettingsRequest(_message.Message):
     channel_id: str
     zone_number: str
     monitoring_state: _video_monitoring_state_pb2.VideoMonitoringState
-    def __init__(self, space_id: _Optional[str] = ..., video_edge_id: _Optional[str] = ..., channel_id: _Optional[str] = ..., zone_number: _Optional[str] = ..., monitoring_state: _Optional[_Union[_video_monitoring_state_pb2.VideoMonitoringState, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        space_id: str | None = ...,
+        video_edge_id: str | None = ...,
+        channel_id: str | None = ...,
+        zone_number: str | None = ...,
+        monitoring_state: _video_monitoring_state_pb2.VideoMonitoringState
+        | str
+        | None = ...,
+    ) -> None: ...

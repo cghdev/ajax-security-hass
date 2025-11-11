@@ -1,15 +1,26 @@
-from systems.ajax.api.mobile.v2.common.video.videoedge.about import constraints_pb2 as _constraints_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.api.mobile.v2.common.video.videoedge.about import (
+    constraints_pb2 as _constraints_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class About(_message.Message):
-    __slots__ = ("type", "color", "device_features", "constraints", "mono_channel", "fully_qualified_id")
+    __slots__ = (
+        "color",
+        "constraints",
+        "device_features",
+        "fully_qualified_id",
+        "mono_channel",
+        "type",
+    )
     class Color(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         COLOR_UNKNOWN: _ClassVar[About.Color]
@@ -17,6 +28,7 @@ class About(_message.Message):
         BLACK: _ClassVar[About.Color]
         GREY: _ClassVar[About.Color]
         GRAPHITE: _ClassVar[About.Color]
+
     COLOR_UNKNOWN: About.Color
     WHITE: About.Color
     BLACK: About.Color
@@ -48,6 +60,7 @@ class About(_message.Message):
         MINIDOME_HL: _ClassVar[About.Type]
         MINIDOME_HL_VF: _ClassVar[About.Type]
         S_MINIDOME_HL_VF: _ClassVar[About.Type]
+
     TYPE_UNKNOWN: About.Type
     NVR: About.Type
     TURRET: About.Type
@@ -78,6 +91,7 @@ class About(_message.Message):
         BLUETOOTH: _ClassVar[About.DeviceFeature]
         JEWELLER: _ClassVar[About.DeviceFeature]
         WIFI: _ClassVar[About.DeviceFeature]
+
     FEATURE_UNKNOWN: About.DeviceFeature
     BLUETOOTH: About.DeviceFeature
     JEWELLER: About.DeviceFeature
@@ -94,4 +108,12 @@ class About(_message.Message):
     constraints: _constraints_pb2.Constraints
     mono_channel: bool
     fully_qualified_id: str
-    def __init__(self, type: _Optional[_Union[About.Type, str]] = ..., color: _Optional[_Union[About.Color, str]] = ..., device_features: _Optional[_Iterable[_Union[About.DeviceFeature, str]]] = ..., constraints: _Optional[_Union[_constraints_pb2.Constraints, _Mapping]] = ..., mono_channel: bool = ..., fully_qualified_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        type: About.Type | str | None = ...,
+        color: About.Color | str | None = ...,
+        device_features: _Iterable[About.DeviceFeature | str] | None = ...,
+        constraints: _constraints_pb2.Constraints | _Mapping | None = ...,
+        mono_channel: bool = ...,
+        fully_qualified_id: str | None = ...,
+    ) -> None: ...

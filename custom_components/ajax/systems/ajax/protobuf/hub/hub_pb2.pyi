@@ -1,24 +1,35 @@
-from google.protobuf import wrappers_pb2 as _wrappers_pb2
-from systems.ajax.protobuf.hub.device import device_pb2 as _device_pb2
-from systems.ajax.protobuf.hub.device import hub_device_pb2 as _hub_device_pb2
-from systems.ajax.protobuf.hub import room_pb2 as _room_pb2
-from systems.ajax.protobuf.hub import group_pb2 as _group_pb2
-from systems.ajax.protobuf.hub import user_pb2 as _user_pb2
-from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
-from systems.ajax.protobuf.hub import camera_pb2 as _camera_pb2
-from systems.ajax.protobuf.hub import scenario_pb2 as _scenario_pb2
-from systems.ajax.protobuf.hub import company_binding_pb2 as _company_binding_pb2
-from systems.ajax.protobuf.hub import config_migration_state_pb2 as _config_migration_state_pb2
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from systems.ajax.protobuf.hub import camera_pb2 as _camera_pb2
+from systems.ajax.protobuf.hub import company_binding_pb2 as _company_binding_pb2
+from systems.ajax.protobuf.hub import (
+    config_migration_state_pb2 as _config_migration_state_pb2,
+)
+from systems.ajax.protobuf.hub import group_pb2 as _group_pb2
+from systems.ajax.protobuf.hub import room_pb2 as _room_pb2
+from systems.ajax.protobuf.hub import scenario_pb2 as _scenario_pb2
+from systems.ajax.protobuf.hub import user_pb2 as _user_pb2
+from systems.ajax.protobuf.hub.device import device_pb2 as _device_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Hub(_message.Message):
-    __slots__ = ("devices", "rooms", "groups", "users", "cameras", "scenarios", "company_bindings", "config_migration_state", "settings_id")
+    __slots__ = (
+        "cameras",
+        "company_bindings",
+        "config_migration_state",
+        "devices",
+        "groups",
+        "rooms",
+        "scenarios",
+        "settings_id",
+        "users",
+    )
     DEVICES_FIELD_NUMBER: _ClassVar[int]
     ROOMS_FIELD_NUMBER: _ClassVar[int]
     GROUPS_FIELD_NUMBER: _ClassVar[int]
@@ -34,7 +45,23 @@ class Hub(_message.Message):
     users: _containers.RepeatedCompositeFieldContainer[_user_pb2.User]
     cameras: _containers.RepeatedCompositeFieldContainer[_camera_pb2.Camera]
     scenarios: _containers.RepeatedCompositeFieldContainer[_scenario_pb2.Scenario]
-    company_bindings: _containers.RepeatedCompositeFieldContainer[_company_binding_pb2.CompanyBinding]
+    company_bindings: _containers.RepeatedCompositeFieldContainer[
+        _company_binding_pb2.CompanyBinding
+    ]
     config_migration_state: _config_migration_state_pb2.ConfigMigrationState
     settings_id: str
-    def __init__(self, devices: _Optional[_Iterable[_Union[_device_pb2.Device, _Mapping]]] = ..., rooms: _Optional[_Iterable[_Union[_room_pb2.Room, _Mapping]]] = ..., groups: _Optional[_Iterable[_Union[_group_pb2.Group, _Mapping]]] = ..., users: _Optional[_Iterable[_Union[_user_pb2.User, _Mapping]]] = ..., cameras: _Optional[_Iterable[_Union[_camera_pb2.Camera, _Mapping]]] = ..., scenarios: _Optional[_Iterable[_Union[_scenario_pb2.Scenario, _Mapping]]] = ..., company_bindings: _Optional[_Iterable[_Union[_company_binding_pb2.CompanyBinding, _Mapping]]] = ..., config_migration_state: _Optional[_Union[_config_migration_state_pb2.ConfigMigrationState, _Mapping]] = ..., settings_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        devices: _Iterable[_device_pb2.Device | _Mapping] | None = ...,
+        rooms: _Iterable[_room_pb2.Room | _Mapping] | None = ...,
+        groups: _Iterable[_group_pb2.Group | _Mapping] | None = ...,
+        users: _Iterable[_user_pb2.User | _Mapping] | None = ...,
+        cameras: _Iterable[_camera_pb2.Camera | _Mapping] | None = ...,
+        scenarios: _Iterable[_scenario_pb2.Scenario | _Mapping] | None = ...,
+        company_bindings: _Iterable[_company_binding_pb2.CompanyBinding | _Mapping]
+        | None = ...,
+        config_migration_state: _config_migration_state_pb2.ConfigMigrationState
+        | _Mapping
+        | None = ...,
+        settings_id: str | None = ...,
+    ) -> None: ...

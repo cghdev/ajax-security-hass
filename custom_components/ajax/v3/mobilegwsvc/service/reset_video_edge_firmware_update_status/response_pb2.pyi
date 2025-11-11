@@ -1,18 +1,28 @@
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ResetFirmwareUpdateStatusResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class Success(_message.Message):
         __slots__ = ()
         def __init__(self) -> None: ...
+
     class Failure(_message.Message):
-        __slots__ = ("bad_request", "space_not_found", "video_edge_not_found", "permission_denied", "space_armed", "firmware_update_in_progress", "video_edge_is_offline")
+        __slots__ = (
+            "bad_request",
+            "firmware_update_in_progress",
+            "permission_denied",
+            "space_armed",
+            "space_not_found",
+            "video_edge_is_offline",
+            "video_edge_not_found",
+        )
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         SPACE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
         VIDEO_EDGE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
@@ -27,9 +37,23 @@ class ResetFirmwareUpdateStatusResponse(_message.Message):
         space_armed: _response_pb2.Error
         firmware_update_in_progress: _response_pb2.Error
         video_edge_is_offline: _response_pb2.Error
-        def __init__(self, bad_request: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., space_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., space_armed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., firmware_update_in_progress: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_is_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            bad_request: _response_pb2.Error | _Mapping | None = ...,
+            space_not_found: _response_pb2.Error | _Mapping | None = ...,
+            video_edge_not_found: _response_pb2.Error | _Mapping | None = ...,
+            permission_denied: _response_pb2.Error | _Mapping | None = ...,
+            space_armed: _response_pb2.Error | _Mapping | None = ...,
+            firmware_update_in_progress: _response_pb2.Error | _Mapping | None = ...,
+            video_edge_is_offline: _response_pb2.Error | _Mapping | None = ...,
+        ) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: ResetFirmwareUpdateStatusResponse.Success
     failure: ResetFirmwareUpdateStatusResponse.Failure
-    def __init__(self, success: _Optional[_Union[ResetFirmwareUpdateStatusResponse.Success, _Mapping]] = ..., failure: _Optional[_Union[ResetFirmwareUpdateStatusResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: ResetFirmwareUpdateStatusResponse.Success | _Mapping | None = ...,
+        failure: ResetFirmwareUpdateStatusResponse.Failure | _Mapping | None = ...,
+    ) -> None: ...

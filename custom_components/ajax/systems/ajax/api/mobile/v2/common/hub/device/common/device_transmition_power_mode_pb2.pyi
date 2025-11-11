@@ -1,6 +1,7 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -11,6 +12,7 @@ class DeviceTransmitionPowerMode(int, metaclass=_enum_type_wrapper.EnumTypeWrapp
     DEVICE_TRANSMITION_POWER_MODE_FIX: _ClassVar[DeviceTransmitionPowerMode]
     DEVICE_TRANSMITION_POWER_MODE_RESERVED: _ClassVar[DeviceTransmitionPowerMode]
     DEVICE_TRANSMITION_POWER_MODE_MAX: _ClassVar[DeviceTransmitionPowerMode]
+
 DEVICE_TRANSMITION_POWER_MODE_UNSPECIFIED: DeviceTransmitionPowerMode
 DEVICE_TRANSMITION_POWER_MODE_AUTO: DeviceTransmitionPowerMode
 DEVICE_TRANSMITION_POWER_MODE_FIX: DeviceTransmitionPowerMode

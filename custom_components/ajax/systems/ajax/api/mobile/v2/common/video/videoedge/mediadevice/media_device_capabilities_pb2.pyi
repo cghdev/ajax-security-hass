@@ -1,15 +1,34 @@
-from systems.ajax.api.mobile.v2.common.video import types_pb2 as _types_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.api.mobile.v2.common.video import types_pb2 as _types_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class VideoCapabilities(_message.Message):
-    __slots__ = ("flags", "main", "sub", "blc", "white_balance", "wdr", "exposure", "ircut_filter_mode", "ptz", "transform", "privacy_mask", "exposure_metering_area", "anti_flicker", "backlight", "image_profile", "noise_reduction")
+    __slots__ = (
+        "anti_flicker",
+        "backlight",
+        "blc",
+        "exposure",
+        "exposure_metering_area",
+        "flags",
+        "image_profile",
+        "ircut_filter_mode",
+        "main",
+        "noise_reduction",
+        "privacy_mask",
+        "ptz",
+        "sub",
+        "transform",
+        "wdr",
+        "white_balance",
+    )
     class Flag(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NONE: _ClassVar[VideoCapabilities.Flag]
@@ -40,6 +59,7 @@ class VideoCapabilities(_message.Message):
         CAN_SET_NOISE_REDUCTION: _ClassVar[VideoCapabilities.Flag]
         CAN_SET_BACKLIGHT: _ClassVar[VideoCapabilities.Flag]
         CAN_SET_IMAGE_PROFILE: _ClassVar[VideoCapabilities.Flag]
+
     NONE: VideoCapabilities.Flag
     COMPRESSED_STREAM: VideoCapabilities.Flag
     HAVE_SUBSTREAM: VideoCapabilities.Flag
@@ -73,25 +93,38 @@ class VideoCapabilities(_message.Message):
         MIDPOINT_LEVEL_SUPPORTED_FIELD_NUMBER: _ClassVar[int]
         midpoint_level_supported: bool
         def __init__(self, midpoint_level_supported: bool = ...) -> None: ...
+
     class ImageProfile(_message.Message):
         __slots__ = ("types",)
         TYPES_FIELD_NUMBER: _ClassVar[int]
         types: _containers.RepeatedScalarFieldContainer[_types_pb2.ImageProfileType]
-        def __init__(self, types: _Optional[_Iterable[_Union[_types_pb2.ImageProfileType, str]]] = ...) -> None: ...
+        def __init__(
+            self, types: _Iterable[_types_pb2.ImageProfileType | str] | None = ...
+        ) -> None: ...
+
     class Backlight(_message.Message):
-        __slots__ = ("off_illumination_mode", "ir_illumination_mode", "white_illumination_mode", "smart_illumination_mode")
+        __slots__ = (
+            "ir_illumination_mode",
+            "off_illumination_mode",
+            "smart_illumination_mode",
+            "white_illumination_mode",
+        )
         class OffIlluminationMode(_message.Message):
             __slots__ = ()
             def __init__(self) -> None: ...
+
         class IrIlluminationMode(_message.Message):
             __slots__ = ()
             def __init__(self) -> None: ...
+
         class WhiteIlluminationMode(_message.Message):
             __slots__ = ()
             def __init__(self) -> None: ...
+
         class SmartIlluminationMode(_message.Message):
             __slots__ = ()
             def __init__(self) -> None: ...
+
         OFF_ILLUMINATION_MODE_FIELD_NUMBER: _ClassVar[int]
         IR_ILLUMINATION_MODE_FIELD_NUMBER: _ClassVar[int]
         WHITE_ILLUMINATION_MODE_FIELD_NUMBER: _ClassVar[int]
@@ -100,51 +133,101 @@ class VideoCapabilities(_message.Message):
         ir_illumination_mode: VideoCapabilities.Backlight.IrIlluminationMode
         white_illumination_mode: VideoCapabilities.Backlight.WhiteIlluminationMode
         smart_illumination_mode: VideoCapabilities.Backlight.SmartIlluminationMode
-        def __init__(self, off_illumination_mode: _Optional[_Union[VideoCapabilities.Backlight.OffIlluminationMode, _Mapping]] = ..., ir_illumination_mode: _Optional[_Union[VideoCapabilities.Backlight.IrIlluminationMode, _Mapping]] = ..., white_illumination_mode: _Optional[_Union[VideoCapabilities.Backlight.WhiteIlluminationMode, _Mapping]] = ..., smart_illumination_mode: _Optional[_Union[VideoCapabilities.Backlight.SmartIlluminationMode, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            off_illumination_mode: VideoCapabilities.Backlight.OffIlluminationMode
+            | _Mapping
+            | None = ...,
+            ir_illumination_mode: VideoCapabilities.Backlight.IrIlluminationMode
+            | _Mapping
+            | None = ...,
+            white_illumination_mode: VideoCapabilities.Backlight.WhiteIlluminationMode
+            | _Mapping
+            | None = ...,
+            smart_illumination_mode: VideoCapabilities.Backlight.SmartIlluminationMode
+            | _Mapping
+            | None = ...,
+        ) -> None: ...
+
     class Stream(_message.Message):
-        __slots__ = ("resolutions", "codecs", "fps_range", "gop_size_range", "bitrate_range", "quality_range")
+        __slots__ = (
+            "bitrate_range",
+            "codecs",
+            "fps_range",
+            "gop_size_range",
+            "quality_range",
+            "resolutions",
+        )
         RESOLUTIONS_FIELD_NUMBER: _ClassVar[int]
         CODECS_FIELD_NUMBER: _ClassVar[int]
         FPS_RANGE_FIELD_NUMBER: _ClassVar[int]
         GOP_SIZE_RANGE_FIELD_NUMBER: _ClassVar[int]
         BITRATE_RANGE_FIELD_NUMBER: _ClassVar[int]
         QUALITY_RANGE_FIELD_NUMBER: _ClassVar[int]
-        resolutions: _containers.RepeatedCompositeFieldContainer[_types_pb2.VideoResolution]
+        resolutions: _containers.RepeatedCompositeFieldContainer[
+            _types_pb2.VideoResolution
+        ]
         codecs: _containers.RepeatedScalarFieldContainer[_types_pb2.VideoCodec]
         fps_range: _types_pb2.UInt32Range
         gop_size_range: _types_pb2.UInt32Range
         bitrate_range: _types_pb2.UInt32Range
         quality_range: _types_pb2.UInt32Range
-        def __init__(self, resolutions: _Optional[_Iterable[_Union[_types_pb2.VideoResolution, _Mapping]]] = ..., codecs: _Optional[_Iterable[_Union[_types_pb2.VideoCodec, str]]] = ..., fps_range: _Optional[_Union[_types_pb2.UInt32Range, _Mapping]] = ..., gop_size_range: _Optional[_Union[_types_pb2.UInt32Range, _Mapping]] = ..., bitrate_range: _Optional[_Union[_types_pb2.UInt32Range, _Mapping]] = ..., quality_range: _Optional[_Union[_types_pb2.UInt32Range, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            resolutions: _Iterable[_types_pb2.VideoResolution | _Mapping] | None = ...,
+            codecs: _Iterable[_types_pb2.VideoCodec | str] | None = ...,
+            fps_range: _types_pb2.UInt32Range | _Mapping | None = ...,
+            gop_size_range: _types_pb2.UInt32Range | _Mapping | None = ...,
+            bitrate_range: _types_pb2.UInt32Range | _Mapping | None = ...,
+            quality_range: _types_pb2.UInt32Range | _Mapping | None = ...,
+        ) -> None: ...
+
     class BacklightCompensation(_message.Message):
         __slots__ = ("level_range",)
         LEVEL_RANGE_FIELD_NUMBER: _ClassVar[int]
         level_range: _types_pb2.FloatRange
-        def __init__(self, level_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, level_range: _types_pb2.FloatRange | _Mapping | None = ...
+        ) -> None: ...
+
     class WhiteBalance(_message.Message):
         __slots__ = ("auto", "manual")
         class AutoMode(_message.Message):
             __slots__ = ()
             def __init__(self) -> None: ...
+
         class ManualMode(_message.Message):
-            __slots__ = ("red_gain_range", "blue_gain_range")
+            __slots__ = ("blue_gain_range", "red_gain_range")
             RED_GAIN_RANGE_FIELD_NUMBER: _ClassVar[int]
             BLUE_GAIN_RANGE_FIELD_NUMBER: _ClassVar[int]
             red_gain_range: _types_pb2.FloatRange
             blue_gain_range: _types_pb2.FloatRange
-            def __init__(self, red_gain_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ..., blue_gain_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ...) -> None: ...
+            def __init__(
+                self,
+                red_gain_range: _types_pb2.FloatRange | _Mapping | None = ...,
+                blue_gain_range: _types_pb2.FloatRange | _Mapping | None = ...,
+            ) -> None: ...
+
         AUTO_FIELD_NUMBER: _ClassVar[int]
         MANUAL_FIELD_NUMBER: _ClassVar[int]
         auto: VideoCapabilities.WhiteBalance.AutoMode
         manual: VideoCapabilities.WhiteBalance.ManualMode
-        def __init__(self, auto: _Optional[_Union[VideoCapabilities.WhiteBalance.AutoMode, _Mapping]] = ..., manual: _Optional[_Union[VideoCapabilities.WhiteBalance.ManualMode, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            auto: VideoCapabilities.WhiteBalance.AutoMode | _Mapping | None = ...,
+            manual: VideoCapabilities.WhiteBalance.ManualMode | _Mapping | None = ...,
+        ) -> None: ...
+
     class WideDynamicRange(_message.Message):
         __slots__ = ("level_range",)
         LEVEL_RANGE_FIELD_NUMBER: _ClassVar[int]
         level_range: _types_pb2.FloatRange
-        def __init__(self, level_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, level_range: _types_pb2.FloatRange | _Mapping | None = ...
+        ) -> None: ...
+
     class Exposure(_message.Message):
-        __slots__ = ("manual", "auto", "shutter_speed")
+        __slots__ = ("auto", "manual", "shutter_speed")
         class ManualMode(_message.Message):
             __slots__ = ("exposure_time_range", "gain_range", "iris_range")
             EXPOSURE_TIME_RANGE_FIELD_NUMBER: _ClassVar[int]
@@ -153,9 +236,25 @@ class VideoCapabilities(_message.Message):
             exposure_time_range: _types_pb2.DurationRange
             gain_range: _types_pb2.FloatRange
             iris_range: _types_pb2.FloatRange
-            def __init__(self, exposure_time_range: _Optional[_Union[_types_pb2.DurationRange, _Mapping]] = ..., gain_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ..., iris_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ...) -> None: ...
+            def __init__(
+                self,
+                exposure_time_range: _types_pb2.DurationRange | _Mapping | None = ...,
+                gain_range: _types_pb2.FloatRange | _Mapping | None = ...,
+                iris_range: _types_pb2.FloatRange | _Mapping | None = ...,
+            ) -> None: ...
+
         class AutoMode(_message.Message):
-            __slots__ = ("priorities", "min_exposure_time_range", "max_exposure_time_range", "min_gain_range", "max_gain_range", "min_iris_range", "max_iris_range", "exposure_compensation_range", "presets")
+            __slots__ = (
+                "exposure_compensation_range",
+                "max_exposure_time_range",
+                "max_gain_range",
+                "max_iris_range",
+                "min_exposure_time_range",
+                "min_gain_range",
+                "min_iris_range",
+                "presets",
+                "priorities",
+            )
             PRIORITIES_FIELD_NUMBER: _ClassVar[int]
             MIN_EXPOSURE_TIME_RANGE_FIELD_NUMBER: _ClassVar[int]
             MAX_EXPOSURE_TIME_RANGE_FIELD_NUMBER: _ClassVar[int]
@@ -165,7 +264,9 @@ class VideoCapabilities(_message.Message):
             MAX_IRIS_RANGE_FIELD_NUMBER: _ClassVar[int]
             EXPOSURE_COMPENSATION_RANGE_FIELD_NUMBER: _ClassVar[int]
             PRESETS_FIELD_NUMBER: _ClassVar[int]
-            priorities: _containers.RepeatedScalarFieldContainer[_types_pb2.ExposurePriority]
+            priorities: _containers.RepeatedScalarFieldContainer[
+                _types_pb2.ExposurePriority
+            ]
             min_exposure_time_range: _types_pb2.DurationRange
             max_exposure_time_range: _types_pb2.DurationRange
             min_gain_range: _types_pb2.FloatRange
@@ -173,39 +274,84 @@ class VideoCapabilities(_message.Message):
             min_iris_range: _types_pb2.FloatRange
             max_iris_range: _types_pb2.FloatRange
             exposure_compensation_range: _types_pb2.Int32Range
-            presets: _containers.RepeatedScalarFieldContainer[_types_pb2.AutoExposurePreset]
-            def __init__(self, priorities: _Optional[_Iterable[_Union[_types_pb2.ExposurePriority, str]]] = ..., min_exposure_time_range: _Optional[_Union[_types_pb2.DurationRange, _Mapping]] = ..., max_exposure_time_range: _Optional[_Union[_types_pb2.DurationRange, _Mapping]] = ..., min_gain_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ..., max_gain_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ..., min_iris_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ..., max_iris_range: _Optional[_Union[_types_pb2.FloatRange, _Mapping]] = ..., exposure_compensation_range: _Optional[_Union[_types_pb2.Int32Range, _Mapping]] = ..., presets: _Optional[_Iterable[_Union[_types_pb2.AutoExposurePreset, str]]] = ...) -> None: ...
+            presets: _containers.RepeatedScalarFieldContainer[
+                _types_pb2.AutoExposurePreset
+            ]
+            def __init__(
+                self,
+                priorities: _Iterable[_types_pb2.ExposurePriority | str] | None = ...,
+                min_exposure_time_range: _types_pb2.DurationRange
+                | _Mapping
+                | None = ...,
+                max_exposure_time_range: _types_pb2.DurationRange
+                | _Mapping
+                | None = ...,
+                min_gain_range: _types_pb2.FloatRange | _Mapping | None = ...,
+                max_gain_range: _types_pb2.FloatRange | _Mapping | None = ...,
+                min_iris_range: _types_pb2.FloatRange | _Mapping | None = ...,
+                max_iris_range: _types_pb2.FloatRange | _Mapping | None = ...,
+                exposure_compensation_range: _types_pb2.Int32Range
+                | _Mapping
+                | None = ...,
+                presets: _Iterable[_types_pb2.AutoExposurePreset | str] | None = ...,
+            ) -> None: ...
+
         MANUAL_FIELD_NUMBER: _ClassVar[int]
         AUTO_FIELD_NUMBER: _ClassVar[int]
         SHUTTER_SPEED_FIELD_NUMBER: _ClassVar[int]
         manual: VideoCapabilities.Exposure.ManualMode
         auto: VideoCapabilities.Exposure.AutoMode
-        shutter_speed: _containers.RepeatedCompositeFieldContainer[_types_pb2.ShutterSpeed]
-        def __init__(self, manual: _Optional[_Union[VideoCapabilities.Exposure.ManualMode, _Mapping]] = ..., auto: _Optional[_Union[VideoCapabilities.Exposure.AutoMode, _Mapping]] = ..., shutter_speed: _Optional[_Iterable[_Union[_types_pb2.ShutterSpeed, _Mapping]]] = ...) -> None: ...
+        shutter_speed: _containers.RepeatedCompositeFieldContainer[
+            _types_pb2.ShutterSpeed
+        ]
+        def __init__(
+            self,
+            manual: VideoCapabilities.Exposure.ManualMode | _Mapping | None = ...,
+            auto: VideoCapabilities.Exposure.AutoMode | _Mapping | None = ...,
+            shutter_speed: _Iterable[_types_pb2.ShutterSpeed | _Mapping] | None = ...,
+        ) -> None: ...
+
     class IrCutFilterMode(_message.Message):
-        __slots__ = ("on", "off", "auto")
+        __slots__ = ("auto", "off", "on")
         class OnMode(_message.Message):
             __slots__ = ()
             def __init__(self) -> None: ...
+
         class OffMode(_message.Message):
             __slots__ = ()
             def __init__(self) -> None: ...
+
         class AutoMode(_message.Message):
-            __slots__ = ("boundary_types", "boundary_offset", "response_time_range")
+            __slots__ = ("boundary_offset", "boundary_types", "response_time_range")
             BOUNDARY_TYPES_FIELD_NUMBER: _ClassVar[int]
             BOUNDARY_OFFSET_FIELD_NUMBER: _ClassVar[int]
             RESPONSE_TIME_RANGE_FIELD_NUMBER: _ClassVar[int]
-            boundary_types: _containers.RepeatedScalarFieldContainer[_types_pb2.IrCutFilterAutoBoundaryType]
+            boundary_types: _containers.RepeatedScalarFieldContainer[
+                _types_pb2.IrCutFilterAutoBoundaryType
+            ]
             boundary_offset: bool
             response_time_range: _types_pb2.DurationRange
-            def __init__(self, boundary_types: _Optional[_Iterable[_Union[_types_pb2.IrCutFilterAutoBoundaryType, str]]] = ..., boundary_offset: bool = ..., response_time_range: _Optional[_Union[_types_pb2.DurationRange, _Mapping]] = ...) -> None: ...
+            def __init__(
+                self,
+                boundary_types: _Iterable[_types_pb2.IrCutFilterAutoBoundaryType | str]
+                | None = ...,
+                boundary_offset: bool = ...,
+                response_time_range: _types_pb2.DurationRange | _Mapping | None = ...,
+            ) -> None: ...
+
         ON_FIELD_NUMBER: _ClassVar[int]
         OFF_FIELD_NUMBER: _ClassVar[int]
         AUTO_FIELD_NUMBER: _ClassVar[int]
         on: VideoCapabilities.IrCutFilterMode.OnMode
         off: VideoCapabilities.IrCutFilterMode.OffMode
         auto: VideoCapabilities.IrCutFilterMode.AutoMode
-        def __init__(self, on: _Optional[_Union[VideoCapabilities.IrCutFilterMode.OnMode, _Mapping]] = ..., off: _Optional[_Union[VideoCapabilities.IrCutFilterMode.OffMode, _Mapping]] = ..., auto: _Optional[_Union[VideoCapabilities.IrCutFilterMode.AutoMode, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            on: VideoCapabilities.IrCutFilterMode.OnMode | _Mapping | None = ...,
+            off: VideoCapabilities.IrCutFilterMode.OffMode | _Mapping | None = ...,
+            auto: VideoCapabilities.IrCutFilterMode.AutoMode | _Mapping | None = ...,
+        ) -> None: ...
+
     class Ptz(_message.Message):
         __slots__ = ("flags", "max_presets")
         class Flag(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -215,6 +361,7 @@ class VideoCapabilities(_message.Message):
             CAN_ZOOM: _ClassVar[VideoCapabilities.Ptz.Flag]
             CAN_FOCUS: _ClassVar[VideoCapabilities.Ptz.Flag]
             HAVE_HOME_POSITION: _ClassVar[VideoCapabilities.Ptz.Flag]
+
         UNSPECIFIED: VideoCapabilities.Ptz.Flag
         CAN_PANTILT: VideoCapabilities.Ptz.Flag
         CAN_ZOOM: VideoCapabilities.Ptz.Flag
@@ -224,14 +371,20 @@ class VideoCapabilities(_message.Message):
         MAX_PRESETS_FIELD_NUMBER: _ClassVar[int]
         flags: _containers.RepeatedScalarFieldContainer[VideoCapabilities.Ptz.Flag]
         max_presets: int
-        def __init__(self, flags: _Optional[_Iterable[_Union[VideoCapabilities.Ptz.Flag, str]]] = ..., max_presets: _Optional[int] = ...) -> None: ...
+        def __init__(
+            self,
+            flags: _Iterable[VideoCapabilities.Ptz.Flag | str] | None = ...,
+            max_presets: int | None = ...,
+        ) -> None: ...
+
     class Transform(_message.Message):
-        __slots__ = ("rotations", "performer")
+        __slots__ = ("performer", "rotations")
         class Performer(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = ()
             PERFORMER_UNSPECIFIED: _ClassVar[VideoCapabilities.Transform.Performer]
             PERFORMER_DEVICE: _ClassVar[VideoCapabilities.Transform.Performer]
             PERFORMER_CLIENT: _ClassVar[VideoCapabilities.Transform.Performer]
+
         PERFORMER_UNSPECIFIED: VideoCapabilities.Transform.Performer
         PERFORMER_DEVICE: VideoCapabilities.Transform.Performer
         PERFORMER_CLIENT: VideoCapabilities.Transform.Performer
@@ -239,9 +392,21 @@ class VideoCapabilities(_message.Message):
         PERFORMER_FIELD_NUMBER: _ClassVar[int]
         rotations: _containers.RepeatedScalarFieldContainer[_types_pb2.Rotation]
         performer: VideoCapabilities.Transform.Performer
-        def __init__(self, rotations: _Optional[_Iterable[_Union[_types_pb2.Rotation, str]]] = ..., performer: _Optional[_Union[VideoCapabilities.Transform.Performer, str]] = ...) -> None: ...
+        def __init__(
+            self,
+            rotations: _Iterable[_types_pb2.Rotation | str] | None = ...,
+            performer: VideoCapabilities.Transform.Performer | str | None = ...,
+        ) -> None: ...
+
     class PrivacyMaskOptions(_message.Message):
-        __slots__ = ("max_masks", "max_points_per_mask", "types", "color_options", "rectangle_only", "single_color_only")
+        __slots__ = (
+            "color_options",
+            "max_masks",
+            "max_points_per_mask",
+            "rectangle_only",
+            "single_color_only",
+            "types",
+        )
         MAX_MASKS_FIELD_NUMBER: _ClassVar[int]
         MAX_POINTS_PER_MASK_FIELD_NUMBER: _ClassVar[int]
         TYPES_FIELD_NUMBER: _ClassVar[int]
@@ -254,17 +419,38 @@ class VideoCapabilities(_message.Message):
         color_options: _containers.RepeatedCompositeFieldContainer[_types_pb2.Color]
         rectangle_only: bool
         single_color_only: bool
-        def __init__(self, max_masks: _Optional[int] = ..., max_points_per_mask: _Optional[int] = ..., types: _Optional[_Iterable[_Union[_types_pb2.PrivacyMaskType, str]]] = ..., color_options: _Optional[_Iterable[_Union[_types_pb2.Color, _Mapping]]] = ..., rectangle_only: bool = ..., single_color_only: bool = ...) -> None: ...
+        def __init__(
+            self,
+            max_masks: int | None = ...,
+            max_points_per_mask: int | None = ...,
+            types: _Iterable[_types_pb2.PrivacyMaskType | str] | None = ...,
+            color_options: _Iterable[_types_pb2.Color | _Mapping] | None = ...,
+            rectangle_only: bool = ...,
+            single_color_only: bool = ...,
+        ) -> None: ...
+
     class ExposureMeteringArea(_message.Message):
         __slots__ = ("predefined_exposure_metering_areas",)
         PREDEFINED_EXPOSURE_METERING_AREAS_FIELD_NUMBER: _ClassVar[int]
-        predefined_exposure_metering_areas: _containers.RepeatedScalarFieldContainer[_types_pb2.PredefinedExposureMeteringArea]
-        def __init__(self, predefined_exposure_metering_areas: _Optional[_Iterable[_Union[_types_pb2.PredefinedExposureMeteringArea, str]]] = ...) -> None: ...
+        predefined_exposure_metering_areas: _containers.RepeatedScalarFieldContainer[
+            _types_pb2.PredefinedExposureMeteringArea
+        ]
+        def __init__(
+            self,
+            predefined_exposure_metering_areas: _Iterable[
+                _types_pb2.PredefinedExposureMeteringArea | str
+            ]
+            | None = ...,
+        ) -> None: ...
+
     class AntiFlicker(_message.Message):
         __slots__ = ("type",)
         TYPE_FIELD_NUMBER: _ClassVar[int]
         type: _containers.RepeatedScalarFieldContainer[_types_pb2.AntiFlickerType]
-        def __init__(self, type: _Optional[_Iterable[_Union[_types_pb2.AntiFlickerType, str]]] = ...) -> None: ...
+        def __init__(
+            self, type: _Iterable[_types_pb2.AntiFlickerType | str] | None = ...
+        ) -> None: ...
+
     FLAGS_FIELD_NUMBER: _ClassVar[int]
     MAIN_FIELD_NUMBER: _ClassVar[int]
     SUB_FIELD_NUMBER: _ClassVar[int]
@@ -297,10 +483,30 @@ class VideoCapabilities(_message.Message):
     backlight: VideoCapabilities.Backlight
     image_profile: VideoCapabilities.ImageProfile
     noise_reduction: VideoCapabilities.NoiseReduction
-    def __init__(self, flags: _Optional[_Iterable[_Union[VideoCapabilities.Flag, str]]] = ..., main: _Optional[_Union[VideoCapabilities.Stream, _Mapping]] = ..., sub: _Optional[_Union[VideoCapabilities.Stream, _Mapping]] = ..., blc: _Optional[_Union[VideoCapabilities.BacklightCompensation, _Mapping]] = ..., white_balance: _Optional[_Union[VideoCapabilities.WhiteBalance, _Mapping]] = ..., wdr: _Optional[_Union[VideoCapabilities.WideDynamicRange, _Mapping]] = ..., exposure: _Optional[_Union[VideoCapabilities.Exposure, _Mapping]] = ..., ircut_filter_mode: _Optional[_Union[VideoCapabilities.IrCutFilterMode, _Mapping]] = ..., ptz: _Optional[_Union[VideoCapabilities.Ptz, _Mapping]] = ..., transform: _Optional[_Union[VideoCapabilities.Transform, _Mapping]] = ..., privacy_mask: _Optional[_Union[VideoCapabilities.PrivacyMaskOptions, _Mapping]] = ..., exposure_metering_area: _Optional[_Union[VideoCapabilities.ExposureMeteringArea, _Mapping]] = ..., anti_flicker: _Optional[_Union[VideoCapabilities.AntiFlicker, _Mapping]] = ..., backlight: _Optional[_Union[VideoCapabilities.Backlight, _Mapping]] = ..., image_profile: _Optional[_Union[VideoCapabilities.ImageProfile, _Mapping]] = ..., noise_reduction: _Optional[_Union[VideoCapabilities.NoiseReduction, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        flags: _Iterable[VideoCapabilities.Flag | str] | None = ...,
+        main: VideoCapabilities.Stream | _Mapping | None = ...,
+        sub: VideoCapabilities.Stream | _Mapping | None = ...,
+        blc: VideoCapabilities.BacklightCompensation | _Mapping | None = ...,
+        white_balance: VideoCapabilities.WhiteBalance | _Mapping | None = ...,
+        wdr: VideoCapabilities.WideDynamicRange | _Mapping | None = ...,
+        exposure: VideoCapabilities.Exposure | _Mapping | None = ...,
+        ircut_filter_mode: VideoCapabilities.IrCutFilterMode | _Mapping | None = ...,
+        ptz: VideoCapabilities.Ptz | _Mapping | None = ...,
+        transform: VideoCapabilities.Transform | _Mapping | None = ...,
+        privacy_mask: VideoCapabilities.PrivacyMaskOptions | _Mapping | None = ...,
+        exposure_metering_area: VideoCapabilities.ExposureMeteringArea
+        | _Mapping
+        | None = ...,
+        anti_flicker: VideoCapabilities.AntiFlicker | _Mapping | None = ...,
+        backlight: VideoCapabilities.Backlight | _Mapping | None = ...,
+        image_profile: VideoCapabilities.ImageProfile | _Mapping | None = ...,
+        noise_reduction: VideoCapabilities.NoiseReduction | _Mapping | None = ...,
+    ) -> None: ...
 
 class AudioCapabilities(_message.Message):
-    __slots__ = ("flags", "encodings", "num_audio_channels")
+    __slots__ = ("encodings", "flags", "num_audio_channels")
     class Flag(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NONE: _ClassVar[AudioCapabilities.Flag]
@@ -309,6 +515,7 @@ class AudioCapabilities(_message.Message):
         CAN_SET_SAMPLE_RATE: _ClassVar[AudioCapabilities.Flag]
         CAN_SET_MIC_VOLUME: _ClassVar[AudioCapabilities.Flag]
         CAN_SET_MIC_GAIN: _ClassVar[AudioCapabilities.Flag]
+
     NONE: AudioCapabilities.Flag
     COMPRESSED_STREAM: AudioCapabilities.Flag
     CAN_SET_BITRATE: AudioCapabilities.Flag
@@ -316,21 +523,32 @@ class AudioCapabilities(_message.Message):
     CAN_SET_MIC_VOLUME: AudioCapabilities.Flag
     CAN_SET_MIC_GAIN: AudioCapabilities.Flag
     class Encoding(_message.Message):
-        __slots__ = ("codec", "bitrates", "sample_rates")
+        __slots__ = ("bitrates", "codec", "sample_rates")
         CODEC_FIELD_NUMBER: _ClassVar[int]
         BITRATES_FIELD_NUMBER: _ClassVar[int]
         SAMPLE_RATES_FIELD_NUMBER: _ClassVar[int]
         codec: _types_pb2.AudioCodec
         bitrates: _containers.RepeatedScalarFieldContainer[int]
         sample_rates: _containers.RepeatedScalarFieldContainer[int]
-        def __init__(self, codec: _Optional[_Union[_types_pb2.AudioCodec, str]] = ..., bitrates: _Optional[_Iterable[int]] = ..., sample_rates: _Optional[_Iterable[int]] = ...) -> None: ...
+        def __init__(
+            self,
+            codec: _types_pb2.AudioCodec | str | None = ...,
+            bitrates: _Iterable[int] | None = ...,
+            sample_rates: _Iterable[int] | None = ...,
+        ) -> None: ...
+
     FLAGS_FIELD_NUMBER: _ClassVar[int]
     ENCODINGS_FIELD_NUMBER: _ClassVar[int]
     NUM_AUDIO_CHANNELS_FIELD_NUMBER: _ClassVar[int]
     flags: _containers.RepeatedScalarFieldContainer[AudioCapabilities.Flag]
     encodings: _containers.RepeatedCompositeFieldContainer[AudioCapabilities.Encoding]
     num_audio_channels: int
-    def __init__(self, flags: _Optional[_Iterable[_Union[AudioCapabilities.Flag, str]]] = ..., encodings: _Optional[_Iterable[_Union[AudioCapabilities.Encoding, _Mapping]]] = ..., num_audio_channels: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self,
+        flags: _Iterable[AudioCapabilities.Flag | str] | None = ...,
+        encodings: _Iterable[AudioCapabilities.Encoding | _Mapping] | None = ...,
+        num_audio_channels: int | None = ...,
+    ) -> None: ...
 
 class AudioOutputCapabilities(_message.Message):
     __slots__ = ("flags",)
@@ -338,14 +556,17 @@ class AudioOutputCapabilities(_message.Message):
         __slots__ = ()
         NONE: _ClassVar[AudioOutputCapabilities.Flag]
         CAN_SET_VOLUME: _ClassVar[AudioOutputCapabilities.Flag]
+
     NONE: AudioOutputCapabilities.Flag
     CAN_SET_VOLUME: AudioOutputCapabilities.Flag
     FLAGS_FIELD_NUMBER: _ClassVar[int]
     flags: _containers.RepeatedScalarFieldContainer[AudioOutputCapabilities.Flag]
-    def __init__(self, flags: _Optional[_Iterable[_Union[AudioOutputCapabilities.Flag, str]]] = ...) -> None: ...
+    def __init__(
+        self, flags: _Iterable[AudioOutputCapabilities.Flag | str] | None = ...
+    ) -> None: ...
 
 class ChannelCapabilities(_message.Message):
-    __slots__ = ("channel_id", "video", "audio", "audio_output")
+    __slots__ = ("audio", "audio_output", "channel_id", "video")
     CHANNEL_ID_FIELD_NUMBER: _ClassVar[int]
     VIDEO_FIELD_NUMBER: _ClassVar[int]
     AUDIO_FIELD_NUMBER: _ClassVar[int]
@@ -354,16 +575,23 @@ class ChannelCapabilities(_message.Message):
     video: VideoCapabilities
     audio: AudioCapabilities
     audio_output: AudioOutputCapabilities
-    def __init__(self, channel_id: _Optional[str] = ..., video: _Optional[_Union[VideoCapabilities, _Mapping]] = ..., audio: _Optional[_Union[AudioCapabilities, _Mapping]] = ..., audio_output: _Optional[_Union[AudioOutputCapabilities, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        channel_id: str | None = ...,
+        video: VideoCapabilities | _Mapping | None = ...,
+        audio: AudioCapabilities | _Mapping | None = ...,
+        audio_output: AudioOutputCapabilities | _Mapping | None = ...,
+    ) -> None: ...
 
 class MediaDeviceCapabilities(_message.Message):
-    __slots__ = ("flags", "channels")
+    __slots__ = ("channels", "flags")
     class Flag(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NONE: _ClassVar[MediaDeviceCapabilities.Flag]
         HAVE_MOTION_DETECTOR: _ClassVar[MediaDeviceCapabilities.Flag]
         HAVE_SOUND_DETECTOR: _ClassVar[MediaDeviceCapabilities.Flag]
         SKIP_INITIAL_SETUP: _ClassVar[MediaDeviceCapabilities.Flag]
+
     NONE: MediaDeviceCapabilities.Flag
     HAVE_MOTION_DETECTOR: MediaDeviceCapabilities.Flag
     HAVE_SOUND_DETECTOR: MediaDeviceCapabilities.Flag
@@ -372,4 +600,8 @@ class MediaDeviceCapabilities(_message.Message):
     CHANNELS_FIELD_NUMBER: _ClassVar[int]
     flags: _containers.RepeatedScalarFieldContainer[MediaDeviceCapabilities.Flag]
     channels: _containers.RepeatedCompositeFieldContainer[ChannelCapabilities]
-    def __init__(self, flags: _Optional[_Iterable[_Union[MediaDeviceCapabilities.Flag, str]]] = ..., channels: _Optional[_Iterable[_Union[ChannelCapabilities, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        flags: _Iterable[MediaDeviceCapabilities.Flag | str] | None = ...,
+        channels: _Iterable[ChannelCapabilities | _Mapping] | None = ...,
+    ) -> None: ...

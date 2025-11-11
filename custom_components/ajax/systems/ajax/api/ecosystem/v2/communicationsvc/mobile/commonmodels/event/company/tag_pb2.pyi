@@ -1,7 +1,8 @@
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -42,7 +43,17 @@ class MonitoringCompanyRemoved(_message.Message):
     def __init__(self) -> None: ...
 
 class CompanyEventTag(_message.Message):
-    __slots__ = ("installation_company_invited", "installation_company_removed", "permanent_permissions_requested", "temporary_permissions_requested", "requested_permanent_permissions_approved", "requested_temporary_permissions_approved", "requested_permissions_rejected", "monitoring_company_invited", "monitoring_company_removed")
+    __slots__ = (
+        "installation_company_invited",
+        "installation_company_removed",
+        "monitoring_company_invited",
+        "monitoring_company_removed",
+        "permanent_permissions_requested",
+        "requested_permanent_permissions_approved",
+        "requested_permissions_rejected",
+        "requested_temporary_permissions_approved",
+        "temporary_permissions_requested",
+    )
     INSTALLATION_COMPANY_INVITED_FIELD_NUMBER: _ClassVar[int]
     INSTALLATION_COMPANY_REMOVED_FIELD_NUMBER: _ClassVar[int]
     PERMANENT_PERMISSIONS_REQUESTED_FIELD_NUMBER: _ClassVar[int]
@@ -61,4 +72,29 @@ class CompanyEventTag(_message.Message):
     requested_permissions_rejected: RequestedPermissionsRejected
     monitoring_company_invited: MonitoringCompanyInvited
     monitoring_company_removed: MonitoringCompanyRemoved
-    def __init__(self, installation_company_invited: _Optional[_Union[InstallationCompanyInvited, _Mapping]] = ..., installation_company_removed: _Optional[_Union[InstallationCompanyRemoved, _Mapping]] = ..., permanent_permissions_requested: _Optional[_Union[PermanentPermissionsRequested, _Mapping]] = ..., temporary_permissions_requested: _Optional[_Union[TemporaryPermissionsRequested, _Mapping]] = ..., requested_permanent_permissions_approved: _Optional[_Union[RequestedPermanentPermissionsApproved, _Mapping]] = ..., requested_temporary_permissions_approved: _Optional[_Union[RequestedTemporaryPermissionsApproved, _Mapping]] = ..., requested_permissions_rejected: _Optional[_Union[RequestedPermissionsRejected, _Mapping]] = ..., monitoring_company_invited: _Optional[_Union[MonitoringCompanyInvited, _Mapping]] = ..., monitoring_company_removed: _Optional[_Union[MonitoringCompanyRemoved, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        installation_company_invited: InstallationCompanyInvited
+        | _Mapping
+        | None = ...,
+        installation_company_removed: InstallationCompanyRemoved
+        | _Mapping
+        | None = ...,
+        permanent_permissions_requested: PermanentPermissionsRequested
+        | _Mapping
+        | None = ...,
+        temporary_permissions_requested: TemporaryPermissionsRequested
+        | _Mapping
+        | None = ...,
+        requested_permanent_permissions_approved: RequestedPermanentPermissionsApproved
+        | _Mapping
+        | None = ...,
+        requested_temporary_permissions_approved: RequestedTemporaryPermissionsApproved
+        | _Mapping
+        | None = ...,
+        requested_permissions_rejected: RequestedPermissionsRejected
+        | _Mapping
+        | None = ...,
+        monitoring_company_invited: MonitoringCompanyInvited | _Mapping | None = ...,
+        monitoring_company_removed: MonitoringCompanyRemoved | _Mapping | None = ...,
+    ) -> None: ...

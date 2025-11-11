@@ -1,13 +1,25 @@
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import object_type_pb2 as _object_type_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import (
+    object_type_pb2 as _object_type_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DeviceCommandEthernetSettingsRequest(_message.Message):
-    __slots__ = ("hub_id", "device_id", "device_type", "dhcp", "ip", "mask", "gate", "dns")
+    __slots__ = (
+        "device_id",
+        "device_type",
+        "dhcp",
+        "dns",
+        "gate",
+        "hub_id",
+        "ip",
+        "mask",
+    )
     HUB_ID_FIELD_NUMBER: _ClassVar[int]
     DEVICE_ID_FIELD_NUMBER: _ClassVar[int]
     DEVICE_TYPE_FIELD_NUMBER: _ClassVar[int]
@@ -24,4 +36,14 @@ class DeviceCommandEthernetSettingsRequest(_message.Message):
     mask: str
     gate: str
     dns: str
-    def __init__(self, hub_id: _Optional[str] = ..., device_id: _Optional[str] = ..., device_type: _Optional[_Union[_object_type_pb2.ObjectType, _Mapping]] = ..., dhcp: bool = ..., ip: _Optional[str] = ..., mask: _Optional[str] = ..., gate: _Optional[str] = ..., dns: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        hub_id: str | None = ...,
+        device_id: str | None = ...,
+        device_type: _object_type_pb2.ObjectType | _Mapping | None = ...,
+        dhcp: bool = ...,
+        ip: str | None = ...,
+        mask: str | None = ...,
+        gate: str | None = ...,
+        dns: str | None = ...,
+    ) -> None: ...

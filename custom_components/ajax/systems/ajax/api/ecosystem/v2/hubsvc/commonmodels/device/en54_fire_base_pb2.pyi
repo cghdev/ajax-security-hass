@@ -1,15 +1,28 @@
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import common_jeweller_part_pb2 as _common_jeweller_part_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_battery_pb2 as _device_battery_pb2
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import common_en54_part_pb2 as _common_en54_part_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    common_en54_part_pb2 as _common_en54_part_pb2,
+)
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    common_jeweller_part_pb2 as _common_jeweller_part_pb2,
+)
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
+    device_battery_pb2 as _device_battery_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class En54A(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_sounder_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_part",
+        "common_en54_sounder_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -19,11 +32,35 @@ class En54A(_message.Message):
     device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_sounder_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SounderPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54Va(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_vad_part", "common_en54_sounder_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_part",
+        "common_en54_sounder_part",
+        "common_en54_vad_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -35,11 +72,37 @@ class En54Va(_message.Message):
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
     common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_vad_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54VadPart, _Mapping]] = ..., common_en54_sounder_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SounderPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
+        | _Mapping
+        | None = ...,
+        common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54V(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_vad_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_part",
+        "common_en54_vad_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -49,11 +112,36 @@ class En54V(_message.Message):
     device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_vad_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54VadPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54HVa(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_heat_part", "common_en54_vad_part", "common_en54_sounder_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_heat_part",
+        "common_en54_part",
+        "common_en54_sounder_part",
+        "common_en54_vad_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -67,11 +155,43 @@ class En54HVa(_message.Message):
     common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
     common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
     common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_heat_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54HeatPart, _Mapping]] = ..., common_en54_vad_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54VadPart, _Mapping]] = ..., common_en54_sounder_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SounderPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
+        | _Mapping
+        | None = ...,
+        common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
+        | _Mapping
+        | None = ...,
+        common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54HsVa(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_heat_part", "common_en54_smoke_part", "common_en54_vad_part", "common_en54_sounder_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_heat_part",
+        "common_en54_part",
+        "common_en54_smoke_part",
+        "common_en54_sounder_part",
+        "common_en54_vad_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -87,11 +207,42 @@ class En54HsVa(_message.Message):
     common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
     common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
     common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_heat_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54HeatPart, _Mapping]] = ..., common_en54_smoke_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SmokePart, _Mapping]] = ..., common_en54_vad_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54VadPart, _Mapping]] = ..., common_en54_sounder_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SounderPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
+        | _Mapping
+        | None = ...,
+        common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
+        | _Mapping
+        | None = ...,
+        common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
+        | _Mapping
+        | None = ...,
+        common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54H(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_heat_part")
+    __slots__ = (
+        "common_en54_heat_part",
+        "common_en54_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -100,10 +251,27 @@ class En54H(_message.Message):
     device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_heat_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54HeatPart, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54S(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_smoke_part")
+    __slots__ = (
+        "common_en54_part",
+        "common_en54_smoke_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -112,10 +280,29 @@ class En54S(_message.Message):
     device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_smoke_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SmokePart, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54SV(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_smoke_part", "common_en54_vad_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_part",
+        "common_en54_smoke_part",
+        "common_en54_vad_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -127,11 +314,38 @@ class En54SV(_message.Message):
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
     common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_smoke_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SmokePart, _Mapping]] = ..., common_en54_vad_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54VadPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
+        | _Mapping
+        | None = ...,
+        common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54SA(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_smoke_part", "common_en54_sounder_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_part",
+        "common_en54_smoke_part",
+        "common_en54_sounder_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -143,11 +357,38 @@ class En54SA(_message.Message):
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
     common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_smoke_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SmokePart, _Mapping]] = ..., common_en54_sounder_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SounderPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_smoke_part: _common_en54_part_pb2.CommonEn54SmokePart
+        | _Mapping
+        | None = ...,
+        common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54HV(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_heat_part", "common_en54_vad_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_heat_part",
+        "common_en54_part",
+        "common_en54_vad_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -159,11 +400,38 @@ class En54HV(_message.Message):
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
     common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_heat_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54HeatPart, _Mapping]] = ..., common_en54_vad_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54VadPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
+        | _Mapping
+        | None = ...,
+        common_en54_vad_part: _common_en54_part_pb2.CommonEn54VadPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...
 
 class En54Ha(_message.Message):
-    __slots__ = ("common_jeweller_part", "device_battery", "common_en54_part", "common_en54_heat_part", "common_en54_sounder_part", "common_en54_annunciation_test_part")
+    __slots__ = (
+        "common_en54_annunciation_test_part",
+        "common_en54_heat_part",
+        "common_en54_part",
+        "common_en54_sounder_part",
+        "common_jeweller_part",
+        "device_battery",
+    )
     COMMON_JEWELLER_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_BATTERY_FIELD_NUMBER: _ClassVar[int]
     COMMON_EN54_PART_FIELD_NUMBER: _ClassVar[int]
@@ -175,5 +443,25 @@ class En54Ha(_message.Message):
     common_en54_part: _common_en54_part_pb2.CommonEn54Part
     common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
     common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
-    common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
-    def __init__(self, common_jeweller_part: _Optional[_Union[_common_jeweller_part_pb2.CommonJewellerPart, _Mapping]] = ..., device_battery: _Optional[_Union[_device_battery_pb2.DeviceBatteryWithoutCharging, _Mapping]] = ..., common_en54_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54Part, _Mapping]] = ..., common_en54_heat_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54HeatPart, _Mapping]] = ..., common_en54_sounder_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54SounderPart, _Mapping]] = ..., common_en54_annunciation_test_part: _Optional[_Union[_common_en54_part_pb2.CommonEn54AnnunciationTestPart, _Mapping]] = ...) -> None: ...
+    common_en54_annunciation_test_part: (
+        _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+    )
+    def __init__(
+        self,
+        common_jeweller_part: _common_jeweller_part_pb2.CommonJewellerPart
+        | _Mapping
+        | None = ...,
+        device_battery: _device_battery_pb2.DeviceBatteryWithoutCharging
+        | _Mapping
+        | None = ...,
+        common_en54_part: _common_en54_part_pb2.CommonEn54Part | _Mapping | None = ...,
+        common_en54_heat_part: _common_en54_part_pb2.CommonEn54HeatPart
+        | _Mapping
+        | None = ...,
+        common_en54_sounder_part: _common_en54_part_pb2.CommonEn54SounderPart
+        | _Mapping
+        | None = ...,
+        common_en54_annunciation_test_part: _common_en54_part_pb2.CommonEn54AnnunciationTestPart
+        | _Mapping
+        | None = ...,
+    ) -> None: ...

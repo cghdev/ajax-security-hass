@@ -1,12 +1,14 @@
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
 from google.protobuf import duration_pb2 as _duration_pb2
+from google.protobuf import message as _message
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from systems.ajax.api.mobile.v2.common.video import types_pb2 as _types_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.video import types_pb2 as _types_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -50,6 +52,7 @@ class PlayerState(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     PS_NONE: _ClassVar[PlayerState]
     PS_PLAYING: _ClassVar[PlayerState]
     PS_PAUSED: _ClassVar[PlayerState]
+
 STORAGE_DEVICE_WRITE_MODE_UNSPECIFIED: StorageDeviceWriteMode
 STORAGE_DEVICE_WRITE_MODE_MIRRORED: StorageDeviceWriteMode
 STORAGE_DEVICE_WRITE_MODE_ROUND_ROBIN: StorageDeviceWriteMode
@@ -78,7 +81,13 @@ PS_PLAYING: PlayerState
 PS_PAUSED: PlayerState
 
 class Archive(_message.Message):
-    __slots__ = ("ring_depth", "stats", "frame_drop_events", "max_ring_depth", "storage_device_write_mode")
+    __slots__ = (
+        "frame_drop_events",
+        "max_ring_depth",
+        "ring_depth",
+        "stats",
+        "storage_device_write_mode",
+    )
     RING_DEPTH_FIELD_NUMBER: _ClassVar[int]
     STATS_FIELD_NUMBER: _ClassVar[int]
     FRAME_DROP_EVENTS_FIELD_NUMBER: _ClassVar[int]
@@ -89,13 +98,22 @@ class Archive(_message.Message):
     frame_drop_events: FrameDropEvents
     max_ring_depth: MaxRingDepth
     storage_device_write_mode: StorageDeviceWriteMode
-    def __init__(self, ring_depth: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., stats: _Optional[_Union[Stats, _Mapping]] = ..., frame_drop_events: _Optional[_Union[FrameDropEvents, _Mapping]] = ..., max_ring_depth: _Optional[_Union[MaxRingDepth, str]] = ..., storage_device_write_mode: _Optional[_Union[StorageDeviceWriteMode, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        ring_depth: _duration_pb2.Duration | _Mapping | None = ...,
+        stats: Stats | _Mapping | None = ...,
+        frame_drop_events: FrameDropEvents | _Mapping | None = ...,
+        max_ring_depth: MaxRingDepth | str | None = ...,
+        storage_device_write_mode: StorageDeviceWriteMode | str | None = ...,
+    ) -> None: ...
 
 class Stats(_message.Message):
     __slots__ = ("archive_duration",)
     ARCHIVE_DURATION_FIELD_NUMBER: _ClassVar[int]
     archive_duration: _duration_pb2.Duration
-    def __init__(self, archive_duration: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, archive_duration: _duration_pb2.Duration | _Mapping | None = ...
+    ) -> None: ...
 
 class FrameDropEvents(_message.Message):
     __slots__ = ("count", "time_ranges")
@@ -103,23 +121,32 @@ class FrameDropEvents(_message.Message):
     TIME_RANGES_FIELD_NUMBER: _ClassVar[int]
     count: int
     time_ranges: _containers.RepeatedCompositeFieldContainer[_types_pb2.TimestampRange]
-    def __init__(self, count: _Optional[int] = ..., time_ranges: _Optional[_Iterable[_Union[_types_pb2.TimestampRange, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        count: int | None = ...,
+        time_ranges: _Iterable[_types_pb2.TimestampRange | _Mapping] | None = ...,
+    ) -> None: ...
 
 class PlayerStatus(_message.Message):
-    __slots__ = ("state", "pos")
+    __slots__ = ("pos", "state")
     STATE_FIELD_NUMBER: _ClassVar[int]
     POS_FIELD_NUMBER: _ClassVar[int]
     state: PlayerState
     pos: _timestamp_pb2.Timestamp
-    def __init__(self, state: _Optional[_Union[PlayerState, str]] = ..., pos: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        state: PlayerState | str | None = ...,
+        pos: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+    ) -> None: ...
 
 class Timeline(_message.Message):
-    __slots__ = ("update_type", "ts_range", "seconds", "tz_map")
+    __slots__ = ("seconds", "ts_range", "tz_map", "update_type")
     class UpdateType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NONE: _ClassVar[Timeline.UpdateType]
         MERGE: _ClassVar[Timeline.UpdateType]
         REPLACE: _ClassVar[Timeline.UpdateType]
+
     NONE: Timeline.UpdateType
     MERGE: Timeline.UpdateType
     REPLACE: Timeline.UpdateType
@@ -129,7 +156,12 @@ class Timeline(_message.Message):
         TZ_OFFSET_FIELD_NUMBER: _ClassVar[int]
         ts: _timestamp_pb2.Timestamp
         tz_offset: _duration_pb2.Duration
-        def __init__(self, ts: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., tz_offset: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            ts: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+            tz_offset: _duration_pb2.Duration | _Mapping | None = ...,
+        ) -> None: ...
+
     UPDATE_TYPE_FIELD_NUMBER: _ClassVar[int]
     TS_RANGE_FIELD_NUMBER: _ClassVar[int]
     SECONDS_FIELD_NUMBER: _ClassVar[int]
@@ -138,4 +170,10 @@ class Timeline(_message.Message):
     ts_range: _types_pb2.TimestampRange
     seconds: bytes
     tz_map: _containers.RepeatedCompositeFieldContainer[Timeline.TzEntry]
-    def __init__(self, update_type: _Optional[_Union[Timeline.UpdateType, str]] = ..., ts_range: _Optional[_Union[_types_pb2.TimestampRange, _Mapping]] = ..., seconds: _Optional[bytes] = ..., tz_map: _Optional[_Iterable[_Union[Timeline.TzEntry, _Mapping]]] = ...) -> None: ...
+    def __init__(
+        self,
+        update_type: Timeline.UpdateType | str | None = ...,
+        ts_range: _types_pb2.TimestampRange | _Mapping | None = ...,
+        seconds: bytes | None = ...,
+        tz_map: _Iterable[Timeline.TzEntry | _Mapping] | None = ...,
+    ) -> None: ...

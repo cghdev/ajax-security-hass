@@ -1,7 +1,8 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -11,10 +12,15 @@ class StartHubModuleFirmwareUpdateRequest(_message.Message):
         __slots__ = ()
         HUB_MODULE_UNSPECIFIED: _ClassVar[StartHubModuleFirmwareUpdateRequest.HubModule]
         HUB_MODULE_WIFI: _ClassVar[StartHubModuleFirmwareUpdateRequest.HubModule]
+
     HUB_MODULE_UNSPECIFIED: StartHubModuleFirmwareUpdateRequest.HubModule
     HUB_MODULE_WIFI: StartHubModuleFirmwareUpdateRequest.HubModule
     HUB_ID_FIELD_NUMBER: _ClassVar[int]
     HUB_MODULE_FIELD_NUMBER: _ClassVar[int]
     hub_id: str
     hub_module: StartHubModuleFirmwareUpdateRequest.HubModule
-    def __init__(self, hub_id: _Optional[str] = ..., hub_module: _Optional[_Union[StartHubModuleFirmwareUpdateRequest.HubModule, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        hub_id: str | None = ...,
+        hub_module: StartHubModuleFirmwareUpdateRequest.HubModule | str | None = ...,
+    ) -> None: ...

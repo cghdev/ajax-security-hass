@@ -1,6 +1,7 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -33,6 +34,7 @@ class HardwareMalfunction(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     HARDWARE_MALFUNCTION_UNSPECIFIED: _ClassVar[HardwareMalfunction]
     HARDWARE_MALFUNCTION_TEMPERATURE_AND_HUMIDITY_SENSOR: _ClassVar[HardwareMalfunction]
     HARDWARE_MALFUNCTION_CO2_SENSOR: _ClassVar[HardwareMalfunction]
+
 TEMPERATURE_STATUS_UNSPECIFIED: TemperatureStatus
 TEMPERATURE_STATUS_OUT_OF_LOWER_THRESHOLD: TemperatureStatus
 TEMPERATURE_STATUS_OUT_OF_HIGHER_THRESHOLD: TemperatureStatus

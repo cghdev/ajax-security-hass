@@ -1,10 +1,11 @@
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from google.protobuf import duration_pb2 as _duration_pb2
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import duration_pb2 as _duration_pb2
+from google.protobuf import message as _message
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -70,6 +71,7 @@ class CryptoCipherAlgorithm(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
     CCA_NONE: _ClassVar[CryptoCipherAlgorithm]
     CCA_AES256_GCM: _ClassVar[CryptoCipherAlgorithm]
+
 ST_UNKNOWN: StreamType
 ST_MAIN: StreamType
 ST_SUB: StreamType
@@ -113,47 +115,61 @@ class FrameTypeId(_message.Message):
     METADATA_TYPE_FIELD_NUMBER: _ClassVar[int]
     frame_type: FrameType
     metadata_type: str
-    def __init__(self, frame_type: _Optional[_Union[FrameType, str]] = ..., metadata_type: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, frame_type: FrameType | str | None = ..., metadata_type: str | None = ...
+    ) -> None: ...
 
 class VideoResolution(_message.Message):
-    __slots__ = ("width", "height")
+    __slots__ = ("height", "width")
     WIDTH_FIELD_NUMBER: _ClassVar[int]
     HEIGHT_FIELD_NUMBER: _ClassVar[int]
     width: int
     height: int
-    def __init__(self, width: _Optional[int] = ..., height: _Optional[int] = ...) -> None: ...
+    def __init__(self, width: int | None = ..., height: int | None = ...) -> None: ...
 
 class UInt32Range(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: int
     max_value: int
-    def __init__(self, min_value: _Optional[int] = ..., max_value: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, min_value: int | None = ..., max_value: int | None = ...
+    ) -> None: ...
 
 class FloatRange(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: float
     max_value: float
-    def __init__(self, min_value: _Optional[float] = ..., max_value: _Optional[float] = ...) -> None: ...
+    def __init__(
+        self, min_value: float | None = ..., max_value: float | None = ...
+    ) -> None: ...
 
 class DurationRange(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: _duration_pb2.Duration
     max_value: _duration_pb2.Duration
-    def __init__(self, min_value: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., max_value: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        min_value: _duration_pb2.Duration | _Mapping | None = ...,
+        max_value: _duration_pb2.Duration | _Mapping | None = ...,
+    ) -> None: ...
 
 class TimestampRange(_message.Message):
-    __slots__ = ("min_value", "max_value")
+    __slots__ = ("max_value", "min_value")
     MIN_VALUE_FIELD_NUMBER: _ClassVar[int]
     MAX_VALUE_FIELD_NUMBER: _ClassVar[int]
     min_value: _timestamp_pb2.Timestamp
     max_value: _timestamp_pb2.Timestamp
-    def __init__(self, min_value: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., max_value: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        min_value: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+        max_value: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+    ) -> None: ...
 
 class SparseRange(_message.Message):
     __slots__ = ("max_frames", "ts_range")
@@ -161,7 +177,11 @@ class SparseRange(_message.Message):
     TS_RANGE_FIELD_NUMBER: _ClassVar[int]
     max_frames: int
     ts_range: TimestampRange
-    def __init__(self, max_frames: _Optional[int] = ..., ts_range: _Optional[_Union[TimestampRange, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        max_frames: int | None = ...,
+        ts_range: TimestampRange | _Mapping | None = ...,
+    ) -> None: ...
 
 class Point2f(_message.Message):
     __slots__ = ("x", "y")
@@ -169,7 +189,7 @@ class Point2f(_message.Message):
     Y_FIELD_NUMBER: _ClassVar[int]
     x: float
     y: float
-    def __init__(self, x: _Optional[float] = ..., y: _Optional[float] = ...) -> None: ...
+    def __init__(self, x: float | None = ..., y: float | None = ...) -> None: ...
 
 class Point2i(_message.Message):
     __slots__ = ("x", "y")
@@ -177,23 +197,31 @@ class Point2i(_message.Message):
     Y_FIELD_NUMBER: _ClassVar[int]
     x: int
     y: int
-    def __init__(self, x: _Optional[int] = ..., y: _Optional[int] = ...) -> None: ...
+    def __init__(self, x: int | None = ..., y: int | None = ...) -> None: ...
 
 class Rect2f(_message.Message):
-    __slots__ = ("top_left", "size")
+    __slots__ = ("size", "top_left")
     TOP_LEFT_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
     top_left: Point2f
     size: Point2f
-    def __init__(self, top_left: _Optional[_Union[Point2f, _Mapping]] = ..., size: _Optional[_Union[Point2f, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        top_left: Point2f | _Mapping | None = ...,
+        size: Point2f | _Mapping | None = ...,
+    ) -> None: ...
 
 class Rect2i(_message.Message):
-    __slots__ = ("top_left", "size")
+    __slots__ = ("size", "top_left")
     TOP_LEFT_FIELD_NUMBER: _ClassVar[int]
     SIZE_FIELD_NUMBER: _ClassVar[int]
     top_left: Point2i
     size: Point2i
-    def __init__(self, top_left: _Optional[_Union[Point2i, _Mapping]] = ..., size: _Optional[_Union[Point2i, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        top_left: Point2i | _Mapping | None = ...,
+        size: Point2i | _Mapping | None = ...,
+    ) -> None: ...
 
 class Line2f(_message.Message):
     __slots__ = ("p1", "p2")
@@ -201,7 +229,9 @@ class Line2f(_message.Message):
     P2_FIELD_NUMBER: _ClassVar[int]
     p1: Point2f
     p2: Point2f
-    def __init__(self, p1: _Optional[_Union[Point2f, _Mapping]] = ..., p2: _Optional[_Union[Point2f, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, p1: Point2f | _Mapping | None = ..., p2: Point2f | _Mapping | None = ...
+    ) -> None: ...
 
 class Line2i(_message.Message):
     __slots__ = ("p1", "p2")
@@ -209,23 +239,30 @@ class Line2i(_message.Message):
     P2_FIELD_NUMBER: _ClassVar[int]
     p1: Point2i
     p2: Point2i
-    def __init__(self, p1: _Optional[_Union[Point2i, _Mapping]] = ..., p2: _Optional[_Union[Point2i, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self, p1: Point2i | _Mapping | None = ..., p2: Point2i | _Mapping | None = ...
+    ) -> None: ...
 
 class Mask(_message.Message):
-    __slots__ = ("width", "height", "data")
+    __slots__ = ("data", "height", "width")
     WIDTH_FIELD_NUMBER: _ClassVar[int]
     HEIGHT_FIELD_NUMBER: _ClassVar[int]
     DATA_FIELD_NUMBER: _ClassVar[int]
     width: int
     height: int
     data: bytes
-    def __init__(self, width: _Optional[int] = ..., height: _Optional[int] = ..., data: _Optional[bytes] = ...) -> None: ...
+    def __init__(
+        self,
+        width: int | None = ...,
+        height: int | None = ...,
+        data: bytes | None = ...,
+    ) -> None: ...
 
 class MacAddress(_message.Message):
     __slots__ = ("data",)
     DATA_FIELD_NUMBER: _ClassVar[int]
     data: bytes
-    def __init__(self, data: _Optional[bytes] = ...) -> None: ...
+    def __init__(self, data: bytes | None = ...) -> None: ...
 
 class IpEndpoint(_message.Message):
     __slots__ = ("address", "port")
@@ -233,7 +270,9 @@ class IpEndpoint(_message.Message):
     PORT_FIELD_NUMBER: _ClassVar[int]
     address: IpAddress
     port: int
-    def __init__(self, address: _Optional[_Union[IpAddress, _Mapping]] = ..., port: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, address: IpAddress | _Mapping | None = ..., port: int | None = ...
+    ) -> None: ...
 
 class IpAddress(_message.Message):
     __slots__ = ("v4", "v6")
@@ -241,13 +280,17 @@ class IpAddress(_message.Message):
     V6_FIELD_NUMBER: _ClassVar[int]
     v4: IpAddressV4
     v6: IpAddressV6
-    def __init__(self, v4: _Optional[_Union[IpAddressV4, _Mapping]] = ..., v6: _Optional[_Union[IpAddressV6, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        v4: IpAddressV4 | _Mapping | None = ...,
+        v6: IpAddressV6 | _Mapping | None = ...,
+    ) -> None: ...
 
 class IpAddressV4(_message.Message):
     __slots__ = ("data",)
     DATA_FIELD_NUMBER: _ClassVar[int]
     data: int
-    def __init__(self, data: _Optional[int] = ...) -> None: ...
+    def __init__(self, data: int | None = ...) -> None: ...
 
 class IpAddressV6(_message.Message):
     __slots__ = ("data", "scope_id")
@@ -255,30 +298,48 @@ class IpAddressV6(_message.Message):
     SCOPE_ID_FIELD_NUMBER: _ClassVar[int]
     data: bytes
     scope_id: int
-    def __init__(self, data: _Optional[bytes] = ..., scope_id: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self, data: bytes | None = ..., scope_id: int | None = ...
+    ) -> None: ...
 
 class CryptoKey(_message.Message):
     __slots__ = ("bluetooth", "wap")
     class Bluetooth(_message.Message):
-        __slots__ = ("algorithm", "nonce", "data")
+        __slots__ = ("algorithm", "data", "nonce")
         ALGORITHM_FIELD_NUMBER: _ClassVar[int]
         NONCE_FIELD_NUMBER: _ClassVar[int]
         DATA_FIELD_NUMBER: _ClassVar[int]
         algorithm: CryptoCipherAlgorithm
         nonce: str
         data: bytes
-        def __init__(self, algorithm: _Optional[_Union[CryptoCipherAlgorithm, str]] = ..., nonce: _Optional[str] = ..., data: _Optional[bytes] = ...) -> None: ...
+        def __init__(
+            self,
+            algorithm: CryptoCipherAlgorithm | str | None = ...,
+            nonce: str | None = ...,
+            data: bytes | None = ...,
+        ) -> None: ...
+
     class WAP(_message.Message):
-        __slots__ = ("algorithm", "nonce", "data")
+        __slots__ = ("algorithm", "data", "nonce")
         ALGORITHM_FIELD_NUMBER: _ClassVar[int]
         NONCE_FIELD_NUMBER: _ClassVar[int]
         DATA_FIELD_NUMBER: _ClassVar[int]
         algorithm: CryptoCipherAlgorithm
         nonce: str
         data: bytes
-        def __init__(self, algorithm: _Optional[_Union[CryptoCipherAlgorithm, str]] = ..., nonce: _Optional[str] = ..., data: _Optional[bytes] = ...) -> None: ...
+        def __init__(
+            self,
+            algorithm: CryptoCipherAlgorithm | str | None = ...,
+            nonce: str | None = ...,
+            data: bytes | None = ...,
+        ) -> None: ...
+
     BLUETOOTH_FIELD_NUMBER: _ClassVar[int]
     WAP_FIELD_NUMBER: _ClassVar[int]
     bluetooth: CryptoKey.Bluetooth
     wap: CryptoKey.WAP
-    def __init__(self, bluetooth: _Optional[_Union[CryptoKey.Bluetooth, _Mapping]] = ..., wap: _Optional[_Union[CryptoKey.WAP, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        bluetooth: CryptoKey.Bluetooth | _Mapping | None = ...,
+        wap: CryptoKey.WAP | _Mapping | None = ...,
+    ) -> None: ...

@@ -1,8 +1,9 @@
-from systems.ajax.api.mobile.v2.common import pagination_pb2 as _pagination_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common import pagination_pb2 as _pagination_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -14,4 +15,9 @@ class FindUserSpacesWithPaginationRequest(_message.Message):
     limit: int
     pagination: _pagination_pb2.Pagination
     search_phrase: str
-    def __init__(self, limit: _Optional[int] = ..., pagination: _Optional[_Union[_pagination_pb2.Pagination, _Mapping]] = ..., search_phrase: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        limit: int | None = ...,
+        pagination: _pagination_pb2.Pagination | _Mapping | None = ...,
+        search_phrase: str | None = ...,
+    ) -> None: ...

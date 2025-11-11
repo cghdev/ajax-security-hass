@@ -5,11 +5,12 @@ This coordinator manages:
 - Space, Room, Device, and Notification data
 - State synchronization between Ajax and Home Assistant
 """
+
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, timedelta
 import logging
-from datetime import timedelta
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -21,7 +22,6 @@ from .const import (
     CONF_NOTIFICATION_FILTER,
     CONF_PERSISTENT_NOTIFICATION,
     DOMAIN,
-    NOTIFICATION_FILTER_ALL,
     NOTIFICATION_FILTER_ALARMS_ONLY,
     NOTIFICATION_FILTER_NONE,
     NOTIFICATION_FILTER_SECURITY_EVENTS,
@@ -62,9 +62,15 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         """Initialize the coordinator."""
         self.api = api
         self.account: AjaxAccount | None = None
-        self._streaming_tasks: dict[str, asyncio.Task] = {}  # space_id -> space updates streaming task
-        self._notification_streaming_tasks: dict[str, asyncio.Task] = {}  # space_id -> notification streaming task
-        self._groups_loaded_events: dict[str, asyncio.Event] = {}  # space_id -> event triggered when groups are loaded
+        self._streaming_tasks: dict[
+            str, asyncio.Task
+        ] = {}  # space_id -> space updates streaming task
+        self._notification_streaming_tasks: dict[
+            str, asyncio.Task
+        ] = {}  # space_id -> notification streaming task
+        self._groups_loaded_events: dict[
+            str, asyncio.Event
+        ] = {}  # space_id -> event triggered when groups are loaded
 
         super().__init__(
             hass,
@@ -131,18 +137,24 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         if not wait_tasks:
             return
 
-        _LOGGER.debug("Waiting for groups to be loaded from stream (timeout: %ds)...", timeout)
+        _LOGGER.debug(
+            "Waiting for groups to be loaded from stream (timeout: %ds)...", timeout
+        )
 
         try:
             # Wait for all events with timeout
             await asyncio.wait_for(
-                asyncio.gather(*[task for _, task in wait_tasks], return_exceptions=True),
-                timeout=timeout
+                asyncio.gather(
+                    *[task for _, task in wait_tasks], return_exceptions=True
+                ),
+                timeout=timeout,
             )
             _LOGGER.info("Groups loaded from stream successfully")
-        except asyncio.TimeoutError:
+        except TimeoutError:
             # Timeout is expected if space has no groups or stream is slow
-            _LOGGER.debug("Timeout waiting for groups (this is normal if space has no groups)")
+            _LOGGER.debug(
+                "Timeout waiting for groups (this is normal if space has no groups)"
+            )
         except Exception as err:
             _LOGGER.warning("Error waiting for groups: %s", err)
 
@@ -153,13 +165,19 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
         for space_id in self.account.spaces.keys():
             # Start space updates stream if not already running
-            if space_id not in self._streaming_tasks or self._streaming_tasks[space_id].done():
+            if (
+                space_id not in self._streaming_tasks
+                or self._streaming_tasks[space_id].done()
+            ):
                 task = asyncio.create_task(self._async_stream_space(space_id))
                 self._streaming_tasks[space_id] = task
                 _LOGGER.info("Started space updates streaming for space %s", space_id)
 
             # Start notification updates stream if not already running
-            if space_id not in self._notification_streaming_tasks or self._notification_streaming_tasks[space_id].done():
+            if (
+                space_id not in self._notification_streaming_tasks
+                or self._notification_streaming_tasks[space_id].done()
+            ):
                 task = asyncio.create_task(self._async_stream_notifications(space_id))
                 self._notification_streaming_tasks[space_id] = task
                 _LOGGER.info("Started notification streaming for space %s", space_id)
@@ -175,7 +193,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 async for success in self.api.async_stream_space_updates(space_id):
                     # Log successful reconnection if we were previously disconnected
                     if was_disconnected:
-                        _LOGGER.info("Successfully reconnected space stream for %s", space_id)
+                        _LOGGER.info(
+                            "Successfully reconnected space stream for %s", space_id
+                        )
                         was_disconnected = False
 
                     # Reset retry count on successful message
@@ -187,7 +207,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 _LOGGER.info("Streaming cancelled for space %s", space_id)
                 raise
 
-            except AjaxConnectionError as err:
+            except AjaxConnectionError:
                 # Temporary network error - adjust log level based on retry count
                 retry_count += 1
                 was_disconnected = True
@@ -214,7 +234,10 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     wait_time = min(5 * (2 ** (retry_count - 1)), 60)
                     await asyncio.sleep(wait_time)
                 else:
-                    _LOGGER.error("Max retries reached for space streaming %s, giving up", space_id)
+                    _LOGGER.error(
+                        "Max retries reached for space streaming %s, giving up",
+                        space_id,
+                    )
                     break
 
             except Exception as err:
@@ -227,14 +250,21 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     retry_count,
                     max_retries,
                     err,
-                    exc_info=True
+                    exc_info=True,
                 )
                 if retry_count < max_retries:
                     wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    _LOGGER.info("Retrying space streaming for %s in %d seconds", space_id, wait_time)
+                    _LOGGER.info(
+                        "Retrying space streaming for %s in %d seconds",
+                        space_id,
+                        wait_time,
+                    )
                     await asyncio.sleep(wait_time)
                 else:
-                    _LOGGER.error("Max retries reached for space streaming %s, giving up", space_id)
+                    _LOGGER.error(
+                        "Max retries reached for space streaming %s, giving up",
+                        space_id,
+                    )
                     break
 
     async def _async_stream_notifications(self, space_id: str) -> None:
@@ -250,7 +280,10 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 async for event in self.api.async_stream_notification_updates(space_id):
                     # Log successful reconnection if we were previously disconnected
                     if was_disconnected:
-                        _LOGGER.info("Successfully reconnected notification stream for %s", space_id)
+                        _LOGGER.info(
+                            "Successfully reconnected notification stream for %s",
+                            space_id,
+                        )
                         was_disconnected = False
                         retry_count = 0
 
@@ -261,7 +294,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 _LOGGER.info("Notification streaming cancelled for space %s", space_id)
                 raise
 
-            except AjaxConnectionError as err:
+            except AjaxConnectionError:
                 # Temporary network error - adjust log level based on retry count
                 retry_count += 1
                 was_disconnected = True
@@ -288,7 +321,10 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     wait_time = min(5 * (2 ** (retry_count - 1)), 60)
                     await asyncio.sleep(wait_time)
                 else:
-                    _LOGGER.error("Max retries reached for notification streaming %s, giving up", space_id)
+                    _LOGGER.error(
+                        "Max retries reached for notification streaming %s, giving up",
+                        space_id,
+                    )
                     break
 
             except Exception as err:
@@ -301,18 +337,21 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     retry_count,
                     max_retries,
                     err,
-                    exc_info=True
+                    exc_info=True,
                 )
                 if retry_count < max_retries:
                     wait_time = min(5 * (2 ** (retry_count - 1)), 60)
                     await asyncio.sleep(wait_time)
                 else:
-                    _LOGGER.error("Max retries reached for notification streaming %s, giving up", space_id)
+                    _LOGGER.error(
+                        "Max retries reached for notification streaming %s, giving up",
+                        space_id,
+                    )
                     break
 
     async def _async_process_notification_event(self, space_id: str, event) -> None:
         """Process a notification event from the stream."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         try:
             space = self.account.spaces.get(space_id)
@@ -332,11 +371,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 event_type = notification_data.get("event_type", "") or ""
                 device_id = notification_data.get("device_id")
                 device_name = notification_data.get("device_name", "Device")
-                timestamp = notification_data.get("timestamp") or datetime.now(timezone.utc)
+                timestamp = notification_data.get("timestamp") or datetime.now(UTC)
 
                 # Ensure timezone is set
                 if timestamp.tzinfo is None:
-                    timestamp = timestamp.replace(tzinfo=timezone.utc)
+                    timestamp = timestamp.replace(tzinfo=UTC)
 
                 # Determine notification type
                 notif_type = self._parse_notification_type(event_type)
@@ -349,7 +388,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                         room_name = space.rooms[device.room_id].name
 
                 # Get language from Home Assistant (default to English)
-                language = self.hass.config.language if self.hass.config.language in ["en", "fr"] else "en"
+                language = (
+                    self.hass.config.language
+                    if self.hass.config.language in ["en", "fr"]
+                    else "en"
+                )
 
                 # Format message like the Ajax app (only if event_type is not empty)
                 if event_type:
@@ -361,7 +404,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     )
                 else:
                     # Fallback for notifications without event_type (e.g., arming/disarming)
-                    formatted_message = notification_data.get("message", "") or device_name
+                    formatted_message = (
+                        notification_data.get("message", "") or device_name
+                    )
 
                 # Create notification object
                 notification = AjaxNotification(
@@ -392,7 +437,13 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
                 # Fire Home Assistant event for automations
                 await self._fire_ajax_event(
-                    space, notification, event_type, device_id, device_name, room_name, timestamp
+                    space,
+                    notification,
+                    event_type,
+                    device_id,
+                    device_name,
+                    room_name,
+                    timestamp,
                 )
 
                 # Trigger update
@@ -413,9 +464,16 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 pass
 
         except Exception as err:
-            _LOGGER.error("Error processing notification event for space %s: %s", space_id, err, exc_info=True)
+            _LOGGER.error(
+                "Error processing notification event for space %s: %s",
+                space_id,
+                err,
+                exc_info=True,
+            )
 
-    async def _async_parse_groups_from_snapshot(self, space_id: str, space_protobuf) -> None:
+    async def _async_parse_groups_from_snapshot(
+        self, space_id: str, space_protobuf
+    ) -> None:
         """Parse groups from Space snapshot and update the data model.
 
         Args:
@@ -474,7 +532,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         except Exception as err:
             _LOGGER.exception("Error parsing groups from snapshot: %s", err)
 
-    async def _async_parse_rooms_from_snapshot(self, space_id: str, space_protobuf) -> None:
+    async def _async_parse_rooms_from_snapshot(
+        self, space_id: str, space_protobuf
+    ) -> None:
         """Parse rooms from Space snapshot and update the data model.
 
         Args:
@@ -527,19 +587,27 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
             elif success.HasField("update"):
                 # Single update
-                await self._async_handle_single_update(space_id, success.update, batch_mode=False)
+                await self._async_handle_single_update(
+                    space_id, success.update, batch_mode=False
+                )
 
             elif success.HasField("updates"):
                 # Multiple updates - use batch mode to avoid multiple refreshes
                 for update in success.updates.updates:
-                    await self._async_handle_single_update(space_id, update, batch_mode=True)
+                    await self._async_handle_single_update(
+                        space_id, update, batch_mode=True
+                    )
                 # Trigger single refresh at the end
                 self.async_set_updated_data(self.account)
 
         except Exception as err:
-            _LOGGER.error("Error processing stream update for space %s: %s", space_id, err)
+            _LOGGER.error(
+                "Error processing stream update for space %s: %s", space_id, err
+            )
 
-    async def _async_handle_single_update(self, space_id: str, update, batch_mode: bool = False) -> None:
+    async def _async_handle_single_update(
+        self, space_id: str, update, batch_mode: bool = False
+    ) -> None:
         """Handle a single update from the stream.
 
         Args:
@@ -568,7 +636,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                             # Update group states
                             if hasattr(group_mode, "groups") and group_mode.groups:
                                 for group_security in group_mode.groups:
-                                    group_id = group_security.group_id if hasattr(group_security, "group_id") else None
+                                    group_id = (
+                                        group_security.group_id
+                                        if hasattr(group_security, "group_id")
+                                        else None
+                                    )
                                     if not group_id or group_id not in space.groups:
                                         continue
 
@@ -577,52 +649,101 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                                     # Parse state
                                     if hasattr(group_security, "state"):
                                         state_value = group_security.state
-                                        if state_value == 1:  # GROUP_SECURITY_STATE_ARMED
+                                        if (
+                                            state_value == 1
+                                        ):  # GROUP_SECURITY_STATE_ARMED
                                             group.state = GroupState.ARMED
-                                        elif state_value == 2:  # GROUP_SECURITY_STATE_DISARMED
+                                        elif (
+                                            state_value == 2
+                                        ):  # GROUP_SECURITY_STATE_DISARMED
                                             group.state = GroupState.DISARMED
                                         else:
                                             group.state = GroupState.NONE
 
                                     # Parse night mode for this group
-                                    if hasattr(group_security, "transition") and group_security.transition:
+                                    if (
+                                        hasattr(group_security, "transition")
+                                        and group_security.transition
+                                    ):
                                         transition = group_security.transition
-                                        if hasattr(transition, "desired_state") and transition.desired_state:
+                                        if (
+                                            hasattr(transition, "desired_state")
+                                            and transition.desired_state
+                                        ):
                                             desired = transition.desired_state
                                             if hasattr(desired, "night_mode_enabled"):
-                                                group.night_mode_enabled = desired.night_mode_enabled
+                                                group.night_mode_enabled = (
+                                                    desired.night_mode_enabled
+                                                )
 
                             # Determine overall space security state based on armed groups
-                            armed_groups = [g for g in space.groups.values() if g.state == GroupState.ARMED]
+                            armed_groups = [
+                                g
+                                for g in space.groups.values()
+                                if g.state == GroupState.ARMED
+                            ]
                             _LOGGER.debug(
                                 "Night mode detection for space %s: %d/%d groups armed, groups: %s",
                                 space.name,
                                 len(armed_groups),
                                 len(space.groups),
-                                {g.name: {"state": g.state, "night_mode": g.night_mode_enabled} for g in space.groups.values()}
+                                {
+                                    g.name: {
+                                        "state": g.state,
+                                        "night_mode": g.night_mode_enabled,
+                                    }
+                                    for g in space.groups.values()
+                                },
                             )
 
                             if not armed_groups:
                                 space.security_state = SecurityState.DISARMED
-                                _LOGGER.debug("Space %s: DISARMED (no armed groups)", space.name)
+                                _LOGGER.debug(
+                                    "Space %s: DISARMED (no armed groups)", space.name
+                                )
                             elif len(armed_groups) == len(space.groups):
                                 # Check if all armed groups have night mode enabled
-                                all_night_mode = all(g.night_mode_enabled for g in armed_groups)
+                                all_night_mode = all(
+                                    g.night_mode_enabled for g in armed_groups
+                                )
                                 if all_night_mode:
                                     space.security_state = SecurityState.NIGHT_MODE
-                                    _LOGGER.info("Space %s: NIGHT_MODE (all %d groups armed with night mode)", space.name, len(armed_groups))
+                                    _LOGGER.info(
+                                        "Space %s: NIGHT_MODE (all %d groups armed with night mode)",
+                                        space.name,
+                                        len(armed_groups),
+                                    )
                                 else:
                                     space.security_state = SecurityState.ARMED
-                                    _LOGGER.debug("Space %s: ARMED (all %d groups armed, night mode: %s)", space.name, len(armed_groups), [g.night_mode_enabled for g in armed_groups])
+                                    _LOGGER.debug(
+                                        "Space %s: ARMED (all %d groups armed, night mode: %s)",
+                                        space.name,
+                                        len(armed_groups),
+                                        [g.night_mode_enabled for g in armed_groups],
+                                    )
                             else:
                                 # Partially armed - check if any armed groups have night mode
-                                any_night_mode = any(g.night_mode_enabled for g in armed_groups if g.state == GroupState.ARMED)
+                                any_night_mode = any(
+                                    g.night_mode_enabled
+                                    for g in armed_groups
+                                    if g.state == GroupState.ARMED
+                                )
                                 if any_night_mode:
                                     space.security_state = SecurityState.NIGHT_MODE
-                                    _LOGGER.info("Space %s: NIGHT_MODE (partial: %d/%d groups armed, at least one with night mode)", space.name, len(armed_groups), len(space.groups))
+                                    _LOGGER.info(
+                                        "Space %s: NIGHT_MODE (partial: %d/%d groups armed, at least one with night mode)",
+                                        space.name,
+                                        len(armed_groups),
+                                        len(space.groups),
+                                    )
                                 else:
                                     space.security_state = SecurityState.PARTIALLY_ARMED
-                                    _LOGGER.debug("Space %s: PARTIALLY_ARMED (%d/%d groups armed, no night mode)", space.name, len(armed_groups), len(space.groups))
+                                    _LOGGER.debug(
+                                        "Space %s: PARTIALLY_ARMED (%d/%d groups armed, no night mode)",
+                                        space.name,
+                                        len(armed_groups),
+                                        len(space.groups),
+                                    )
 
                             if not batch_mode:
                                 self.async_set_updated_data(self.account)
@@ -644,7 +765,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                                 elif state_int == 1:
                                     new_state = SecurityState.ARMED
                                 else:
-                                    _LOGGER.warning("Unknown security state value: %d", state_int)
+                                    _LOGGER.warning(
+                                        "Unknown security state value: %d", state_int
+                                    )
                                     new_state = None
 
                                 # Update if state changed
@@ -655,10 +778,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                                         "Security state changed for %s: %s -> %s (from regular_mode)",
                                         space.name,
                                         old_state.value,
-                                        new_state.value
+                                        new_state.value,
                                     )
                                     # Fire event for state change
-                                    self._fire_security_state_event(space, old_state, new_state)
+                                    self._fire_security_state_event(
+                                        space, old_state, new_state
+                                    )
                                     if not batch_mode:
                                         self.async_set_updated_data(self.account)
 
@@ -676,7 +801,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                                 elif state_int == 1:
                                     new_state = SecurityState.ARMED
                                 else:
-                                    _LOGGER.warning("Unknown security state value: %d", state_int)
+                                    _LOGGER.warning(
+                                        "Unknown security state value: %d", state_int
+                                    )
                                     new_state = None
 
                                 if new_state and space.security_state != new_state:
@@ -686,10 +813,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                                         "Security state changed for %s: %s -> %s (from displayed_security_state)",
                                         space.name,
                                         old_state.value,
-                                        new_state.value
+                                        new_state.value,
                                     )
                                     # Fire event for state change
-                                    self._fire_security_state_event(space, old_state, new_state)
+                                    self._fire_security_state_event(
+                                        space, old_state, new_state
+                                    )
                                     if not batch_mode:
                                         self.async_set_updated_data(self.account)
 
@@ -723,7 +852,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             from .models import AjaxGroup, GroupState
 
             group_id = group_proto.id
-            update_type = update.space_update_type if hasattr(update, "space_update_type") else 0
+            update_type = (
+                update.space_update_type if hasattr(update, "space_update_type") else 0
+            )
 
             # SPACE_UPDATE_TYPE_REMOVE = 3
             if update_type == 3:
@@ -737,9 +868,21 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
             # SPACE_UPDATE_TYPE_ADD = 1 or SPACE_UPDATE_TYPE_UPDATE = 2
             # Extract group metadata
-            group_name = group_proto.name if hasattr(group_proto, "name") else f"Group {group_id}"
-            bulk_arm = group_proto.bulk_arm_involved if hasattr(group_proto, "bulk_arm_involved") else False
-            bulk_disarm = group_proto.bulk_disarm_involved if hasattr(group_proto, "bulk_disarm_involved") else False
+            group_name = (
+                group_proto.name
+                if hasattr(group_proto, "name")
+                else f"Group {group_id}"
+            )
+            bulk_arm = (
+                group_proto.bulk_arm_involved
+                if hasattr(group_proto, "bulk_arm_involved")
+                else False
+            )
+            bulk_disarm = (
+                group_proto.bulk_disarm_involved
+                if hasattr(group_proto, "bulk_disarm_involved")
+                else False
+            )
 
             # Extract image ID
             image_id = None
@@ -775,7 +918,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
         except Exception as err:
             _LOGGER.exception("Error handling group update: %s", err)
-
 
     async def _async_init_account(self) -> None:
         """Initialize the account data."""
@@ -874,7 +1016,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                         device_id,
                     )
                 else:
-                    _LOGGER.info("Added new device: %s (%s)", device.name, device.type.value)
+                    _LOGGER.info(
+                        "Added new device: %s (%s)", device.name, device.type.value
+                    )
             else:
                 device = space.devices[device_id]
                 # Update raw_type in case it changed
@@ -911,9 +1055,13 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                             device.attributes = {}
                         device.attributes.update(hub_obj_data)
                     else:
-                        _LOGGER.warning("No HubObject data received for hub %s", device.id)
+                        _LOGGER.warning(
+                            "No HubObject data received for hub %s", device.id
+                        )
                 except Exception as err:
-                    _LOGGER.error("Failed to fetch HubObject for hub %s: %s", device.id, err)
+                    _LOGGER.error(
+                        "Failed to fetch HubObject for hub %s: %s", device.id, err
+                    )
 
             # Update room association
             if device.room_id and device.room_id in space.rooms:
@@ -921,9 +1069,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 if device_id not in room.device_ids:
                     room.device_ids.append(device_id)
 
-    async def _async_update_notifications(
-        self, space_id: str, limit: int = 50
-    ) -> None:
+    async def _async_update_notifications(self, space_id: str, limit: int = 50) -> None:
         """Update notifications for a specific space."""
         space = self.account.spaces.get(space_id)
         if not space:
@@ -931,7 +1077,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
         try:
             # Fetch notifications from API
-            notifications_data = await self.api.async_find_notifications(space_id, limit)
+            notifications_data = await self.api.async_find_notifications(
+                space_id, limit
+            )
 
             # Clear existing notifications and add new ones
             space.notifications.clear()
@@ -939,7 +1087,8 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             for notif_data in notifications_data:
                 # Parse notification data
                 from datetime import datetime
-                from .models import AjaxNotification, NotificationType
+
+                from .models import AjaxNotification
 
                 # Determine notification type based on event_type
                 event_type = notif_data.get("event_type", "")
@@ -950,8 +1099,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     id=notif_data.get("id", ""),
                     space_id=notif_data.get("space_id", space_id),
                     type=notif_type,
-                    title=event_type.replace("_", " ").title() if event_type else "Event",
-                    message=f"{notif_data.get('device_name', 'Device')}: {event_type.replace('_', ' ')}" if event_type else "",
+                    title=event_type.replace("_", " ").title()
+                    if event_type
+                    else "Event",
+                    message=f"{notif_data.get('device_name', 'Device')}: {event_type.replace('_', ' ')}"
+                    if event_type
+                    else "",
                     timestamp=notif_data.get("timestamp") or datetime.now(),
                     device_id=notif_data.get("device_id"),
                     device_name=notif_data.get("device_name"),
@@ -965,7 +1118,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     self._update_device_from_notification(space, notification)
 
             # Update unread count
-            space.unread_notifications = sum(1 for n in space.notifications if not n.read)
+            space.unread_notifications = sum(
+                1 for n in space.notifications if not n.read
+            )
 
             _LOGGER.info(
                 "Updated notifications for space %s: %d total, %d unread",
@@ -975,7 +1130,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             )
 
         except Exception as err:
-            _LOGGER.error("Error updating notifications for space %s: %s", space_id, err, exc_info=True)
+            _LOGGER.error(
+                "Error updating notifications for space %s: %s",
+                space_id,
+                err,
+                exc_info=True,
+            )
 
     def _parse_notification_type(self, event_type: str | None) -> NotificationType:
         """Parse notification type from event type string."""
@@ -986,16 +1146,34 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
         event_lower = event_type.lower()
 
-        if any(keyword in event_lower for keyword in ["alarm", "intrusion", "panic", "fire", "smoke", "leak", "gas"]):
+        if any(
+            keyword in event_lower
+            for keyword in [
+                "alarm",
+                "intrusion",
+                "panic",
+                "fire",
+                "smoke",
+                "leak",
+                "gas",
+            ]
+        ):
             return NotificationType.ALARM
-        elif any(keyword in event_lower for keyword in ["malfunction", "low", "tamper", "loss", "error", "fault"]):
+        if any(
+            keyword in event_lower
+            for keyword in ["malfunction", "low", "tamper", "loss", "error", "fault"]
+        ):
             return NotificationType.WARNING
-        elif any(keyword in event_lower for keyword in ["arm", "disarm", "motion", "door", "opened"]):
+        if any(
+            keyword in event_lower
+            for keyword in ["arm", "disarm", "motion", "door", "opened"]
+        ):
             return NotificationType.SECURITY_EVENT
-        elif any(keyword in event_lower for keyword in ["update", "added", "changed", "test"]):
+        if any(
+            keyword in event_lower for keyword in ["update", "added", "changed", "test"]
+        ):
             return NotificationType.SYSTEM_EVENT
-        else:
-            return NotificationType.INFO
+        return NotificationType.INFO
 
     async def _create_persistent_notification(
         self,
@@ -1019,18 +1197,23 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             return
 
         # Get notification filter
-        notification_filter = options.get(CONF_NOTIFICATION_FILTER, NOTIFICATION_FILTER_NONE)
+        notification_filter = options.get(
+            CONF_NOTIFICATION_FILTER, NOTIFICATION_FILTER_NONE
+        )
 
         # Check if notification passes filter
         if notification_filter == NOTIFICATION_FILTER_NONE:
             return
-        elif notification_filter == NOTIFICATION_FILTER_ALARMS_ONLY:
+        if notification_filter == NOTIFICATION_FILTER_ALARMS_ONLY:
             # Only show alarms
             if notif_type != NotificationType.ALARM:
                 return
         elif notification_filter == NOTIFICATION_FILTER_SECURITY_EVENTS:
             # Show alarms and security events (arming/disarming)
-            if notif_type not in [NotificationType.ALARM, NotificationType.SECURITY_EVENT]:
+            if notif_type not in [
+                NotificationType.ALARM,
+                NotificationType.SECURITY_EVENT,
+            ]:
                 return
         # NOTIFICATION_FILTER_ALL: show all notifications (no filter)
 
@@ -1154,7 +1337,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             old_state: Previous security state
             new_state: New security state
         """
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         # Determine event type based on new state
         if new_state == SecurityState.ARMED:
@@ -1174,13 +1357,17 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             "space_name": space.name,
             "old_state": old_state.value,
             "new_state": new_state.value,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # Add group information if in group mode
         if space.group_mode_enabled and space.groups:
-            armed_groups = [g.name for g in space.groups.values() if g.state == GroupState.ARMED]
-            disarmed_groups = [g.name for g in space.groups.values() if g.state == GroupState.DISARMED]
+            armed_groups = [
+                g.name for g in space.groups.values() if g.state == GroupState.ARMED
+            ]
+            disarmed_groups = [
+                g.name for g in space.groups.values() if g.state == GroupState.DISARMED
+            ]
             event_data["armed_groups"] = armed_groups
             event_data["disarmed_groups"] = disarmed_groups
             event_data["group_mode"] = True
@@ -1198,9 +1385,10 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             new_state.value,
         )
 
-    def _update_device_from_notification(self, space: AjaxSpace, notification: AjaxNotification) -> None:
+    def _update_device_from_notification(
+        self, space: AjaxSpace, notification: AjaxNotification
+    ) -> None:
         """Update device state based on notification event."""
-        from datetime import datetime
 
         device = space.devices.get(notification.device_id)
         if not device:
@@ -1247,11 +1435,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             state_str = state_value.upper()
             if "ARMED" in state_str and "PARTIALLY" not in state_str:
                 return SecurityState.ARMED
-            elif "DISARMED" in state_str:
+            if "DISARMED" in state_str:
                 return SecurityState.DISARMED
-            elif "NIGHT" in state_str:
+            if "NIGHT" in state_str:
                 return SecurityState.NIGHT_MODE
-            elif "PARTIALLY" in state_str:
+            if "PARTIALLY" in state_str:
                 return SecurityState.PARTIALLY_ARMED
 
         return SecurityState.NONE
@@ -1264,7 +1452,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             "motion": DeviceType.MOTION_DETECTOR,
             "pir": DeviceType.MOTION_DETECTOR,
             "motionprotect": DeviceType.MOTION_DETECTOR,
-
             # Door/Window contacts
             "door_protect": DeviceType.DOOR_CONTACT,
             "doorprotect": DeviceType.DOOR_CONTACT,
@@ -1272,29 +1459,24 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             "window": DeviceType.DOOR_CONTACT,
             "opening": DeviceType.DOOR_CONTACT,
             "magnet": DeviceType.DOOR_CONTACT,
-
             # Glass break
             "glass_protect": DeviceType.GLASS_BREAK,
             "glassprotect": DeviceType.GLASS_BREAK,
             "glass": DeviceType.GLASS_BREAK,
-
             # Smoke detectors
             "fire_protect": DeviceType.SMOKE_DETECTOR,
             "fireprotect": DeviceType.SMOKE_DETECTOR,
             "smoke": DeviceType.SMOKE_DETECTOR,
             "fire": DeviceType.SMOKE_DETECTOR,
-
             # Flood detectors
             "leak_protect": DeviceType.FLOOD_DETECTOR,
             "leakprotect": DeviceType.FLOOD_DETECTOR,
             "leak": DeviceType.FLOOD_DETECTOR,
             "water": DeviceType.FLOOD_DETECTOR,
             "flood": DeviceType.FLOOD_DETECTOR,
-
             # Temperature
             "temperature": DeviceType.TEMPERATURE_SENSOR,
             "temp": DeviceType.TEMPERATURE_SENSOR,
-
             # Controls - Keypads and Keyboards
             "keypad": DeviceType.KEYPAD,
             "keyboard": DeviceType.KEYPAD,
@@ -1328,42 +1510,34 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             "space_control": DeviceType.REMOTE_CONTROL,
             "spacecontrol": DeviceType.REMOTE_CONTROL,
             "remote": DeviceType.REMOTE_CONTROL,
-
             # Sirens
             "siren": DeviceType.SIREN,
             "alarm": DeviceType.SIREN,
-
             # Transmitter
             "transmitter": DeviceType.TRANSMITTER,
             "integration": DeviceType.TRANSMITTER,
-
             # Repeater / Range Extender
             "repeater": DeviceType.REPEATER,
             "rex": DeviceType.REPEATER,
             "range_extender": DeviceType.REPEATER,
             "extender": DeviceType.REPEATER,
-
             # Wired Input Modules
             "wire_input_mt": DeviceType.WIRE_INPUT,
             "wireinputmt": DeviceType.WIRE_INPUT,
             "wire_input_rs": DeviceType.WIRE_INPUT,
             "wireinputrs": DeviceType.WIRE_INPUT,
-
             # Line Splitter
             "line_split_fibra": DeviceType.LINE_SPLITTER,
             "linesplitfibra": DeviceType.LINE_SPLITTER,
             "line_splitter": DeviceType.LINE_SPLITTER,
             "linesplitter": DeviceType.LINE_SPLITTER,
-
             # Smart devices
             "socket": DeviceType.SOCKET,
             "relay": DeviceType.RELAY,
             "thermostat": DeviceType.THERMOSTAT,
-
             # Cameras
             "camera": DeviceType.CAMERA,
             "cam": DeviceType.CAMERA,
-
             # Hub
             "hub": DeviceType.HUB,
         }
@@ -1439,10 +1613,14 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # State will be updated via real-time stream to avoid race conditions
 
         except AjaxApiError as err:
-            _LOGGER.error("Failed to activate night mode for space %s: %s", space_id, err)
+            _LOGGER.error(
+                "Failed to activate night mode for space %s: %s", space_id, err
+            )
             raise
 
-    async def async_arm_group(self, space_id: str, group_id: str, force: bool = False) -> None:
+    async def async_arm_group(
+        self, space_id: str, group_id: str, force: bool = False
+    ) -> None:
         """Arm a specific group/zone.
 
         Args:
@@ -1450,14 +1628,18 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             group_id: The group ID to arm
             force: If True, ignore alarms and force arm even with open sensors or problems
         """
-        _LOGGER.info("Arming group %s in space %s (force=%s)", group_id, space_id, force)
+        _LOGGER.info(
+            "Arming group %s in space %s (force=%s)", group_id, space_id, force
+        )
 
         try:
             await self.api.async_arm_group(space_id, group_id, force=force)
             # State will be updated via real-time stream to avoid race conditions
 
         except AjaxApiError as err:
-            _LOGGER.error("Failed to arm group %s in space %s: %s", group_id, space_id, err)
+            _LOGGER.error(
+                "Failed to arm group %s in space %s: %s", group_id, space_id, err
+            )
             raise
 
     async def async_disarm_group(self, space_id: str, group_id: str) -> None:
@@ -1474,7 +1656,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # State will be updated via real-time stream to avoid race conditions
 
         except AjaxApiError as err:
-            _LOGGER.error("Failed to disarm group %s in space %s: %s", group_id, space_id, err)
+            _LOGGER.error(
+                "Failed to disarm group %s in space %s: %s", group_id, space_id, err
+            )
             raise
 
     async def async_press_panic_button(self, space_id: str) -> None:

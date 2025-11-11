@@ -1,13 +1,16 @@
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class FindAllSpaceMembersWithEnabledGroupPermissionsRequest(_message.Message):
-    __slots__ = ("space_id", "group_id")
+    __slots__ = ("group_id", "space_id")
     SPACE_ID_FIELD_NUMBER: _ClassVar[int]
     GROUP_ID_FIELD_NUMBER: _ClassVar[int]
     space_id: str
     group_id: str
-    def __init__(self, space_id: _Optional[str] = ..., group_id: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self, space_id: str | None = ..., group_id: str | None = ...
+    ) -> None: ...

@@ -1,6 +1,7 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -14,6 +15,7 @@ class SpaceNotificationSourceType(int, metaclass=_enum_type_wrapper.EnumTypeWrap
     STANDALONE_DEVICE: _ClassVar[SpaceNotificationSourceType]
     COMPANY: _ClassVar[SpaceNotificationSourceType]
     SPACE_SCENARIO: _ClassVar[SpaceNotificationSourceType]
+
 SPACE_SOURCE_TYPE_UNSPECIFIED: SpaceNotificationSourceType
 SPACE: SpaceNotificationSourceType
 SPACE_MEMBER: SpaceNotificationSourceType

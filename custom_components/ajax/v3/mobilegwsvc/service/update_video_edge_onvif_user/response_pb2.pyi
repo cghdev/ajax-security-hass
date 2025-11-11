@@ -1,21 +1,37 @@
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
-from v3.mobilegwsvc.commonmodels.video.videoedge.onvif import onvif_settings_pb2 as _onvif_settings_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
+from v3.mobilegwsvc.commonmodels.video.videoedge.onvif import (
+    onvif_settings_pb2 as _onvif_settings_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class UpdateVideoEdgeOnvifUserResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class Success(_message.Message):
         __slots__ = ("settings",)
         SETTINGS_FIELD_NUMBER: _ClassVar[int]
         settings: _onvif_settings_pb2.OnvifSettings
-        def __init__(self, settings: _Optional[_Union[_onvif_settings_pb2.OnvifSettings, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self, settings: _onvif_settings_pb2.OnvifSettings | _Mapping | None = ...
+        ) -> None: ...
+
     class Failure(_message.Message):
-        __slots__ = ("bad_request", "permission_denied", "space_armed", "space_not_found", "video_edge_not_found", "video_edge_is_offline", "unimplemented_video_edge_command", "onvif_user_not_found", "onvif_user_already_exists")
+        __slots__ = (
+            "bad_request",
+            "onvif_user_already_exists",
+            "onvif_user_not_found",
+            "permission_denied",
+            "space_armed",
+            "space_not_found",
+            "unimplemented_video_edge_command",
+            "video_edge_is_offline",
+            "video_edge_not_found",
+        )
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
         SPACE_ARMED_FIELD_NUMBER: _ClassVar[int]
@@ -34,9 +50,27 @@ class UpdateVideoEdgeOnvifUserResponse(_message.Message):
         unimplemented_video_edge_command: _response_pb2.Error
         onvif_user_not_found: _response_pb2.Error
         onvif_user_already_exists: _response_pb2.Error
-        def __init__(self, bad_request: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., space_armed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., space_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_is_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., unimplemented_video_edge_command: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., onvif_user_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., onvif_user_already_exists: _Optional[_Union[_response_pb2.Error, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            bad_request: _response_pb2.Error | _Mapping | None = ...,
+            permission_denied: _response_pb2.Error | _Mapping | None = ...,
+            space_armed: _response_pb2.Error | _Mapping | None = ...,
+            space_not_found: _response_pb2.Error | _Mapping | None = ...,
+            video_edge_not_found: _response_pb2.Error | _Mapping | None = ...,
+            video_edge_is_offline: _response_pb2.Error | _Mapping | None = ...,
+            unimplemented_video_edge_command: _response_pb2.Error
+            | _Mapping
+            | None = ...,
+            onvif_user_not_found: _response_pb2.Error | _Mapping | None = ...,
+            onvif_user_already_exists: _response_pb2.Error | _Mapping | None = ...,
+        ) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: UpdateVideoEdgeOnvifUserResponse.Success
     failure: UpdateVideoEdgeOnvifUserResponse.Failure
-    def __init__(self, success: _Optional[_Union[UpdateVideoEdgeOnvifUserResponse.Success, _Mapping]] = ..., failure: _Optional[_Union[UpdateVideoEdgeOnvifUserResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: UpdateVideoEdgeOnvifUserResponse.Success | _Mapping | None = ...,
+        failure: UpdateVideoEdgeOnvifUserResponse.Failure | _Mapping | None = ...,
+    ) -> None: ...

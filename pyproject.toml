@@ -1,0 +1,78 @@
+[project]
+name = "ajax-security-system"
+version = "0.4.8"
+description = "Ajax Security System integration for Home Assistant"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.ruff]
+# Target Python 3.11+ (Home Assistant 2023.8+)
+target-version = "py311"
+line-length = 88
+
+# Enable specific rule sets
+lint.select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import sorting)
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "T10", # flake8-debugger
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "PIE", # flake8-pie
+    "PT",  # flake8-pytest-style
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "PL",  # pylint
+    "RUF", # ruff-specific rules
+]
+
+# Ignore specific rules that may be too strict for this project
+lint.ignore = [
+    "E501",    # Line too long (handled by formatter)
+    "PLR0913", # Too many arguments
+    "PLR0912", # Too many branches
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value used in comparison
+    "N815",    # Mixed case variable in class scope (for gRPC compatibility)
+    "N803",    # Argument name should be lowercase (for gRPC compatibility)
+    "ARG001",  # Unused function argument (required by Home Assistant interfaces)
+    "ARG002",  # Unused method argument (required by Home Assistant interfaces)
+    "B007",    # Loop variable not used (common in dict.items() iterations)
+    "PLC0415", # Import should be at top level (sometimes needed for circular imports)
+    "PTH123",  # Use pathlib.Path.open() (not always necessary)
+]
+
+# Exclude patterns
+exclude = [
+    ".git",
+    ".github",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "*.egg-info",
+    "*_pb2.py",         # Exclude protobuf generated files
+    "*_pb2_grpc.py",    # Exclude protobuf gRPC generated files
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Allow unused imports in __init__.py
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["custom_components.ajax"]
+force-sort-within-sections = true
+split-on-trailing-comma = false
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

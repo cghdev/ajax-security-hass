@@ -1,11 +1,12 @@
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class HubCommandEthernetSettingsRequest(_message.Message):
-    __slots__ = ("hub_id", "dhcp", "ip", "mask", "gate", "dns")
+    __slots__ = ("dhcp", "dns", "gate", "hub_id", "ip", "mask")
     HUB_ID_FIELD_NUMBER: _ClassVar[int]
     DHCP_FIELD_NUMBER: _ClassVar[int]
     IP_FIELD_NUMBER: _ClassVar[int]
@@ -18,4 +19,12 @@ class HubCommandEthernetSettingsRequest(_message.Message):
     mask: str
     gate: str
     dns: str
-    def __init__(self, hub_id: _Optional[str] = ..., dhcp: bool = ..., ip: _Optional[str] = ..., mask: _Optional[str] = ..., gate: _Optional[str] = ..., dns: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        hub_id: str | None = ...,
+        dhcp: bool = ...,
+        ip: str | None = ...,
+        mask: str | None = ...,
+        gate: str | None = ...,
+        dns: str | None = ...,
+    ) -> None: ...

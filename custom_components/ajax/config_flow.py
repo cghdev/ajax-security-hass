@@ -1,11 +1,10 @@
 """Config flow for Ajax integration."""
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 import uuid
-
-import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD
@@ -13,22 +12,24 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
+import voluptuous as vol
 
-from .api import AjaxApi, AjaxApiError, AjaxAuthError, Ajax2FARequiredError
+from .api import Ajax2FARequiredError, AjaxApi, AjaxApiError, AjaxAuthError
 from .const import (
-    DOMAIN,
     CONF_DEVICE_ID,
-    CONF_PERSISTENT_NOTIFICATION,
     CONF_NOTIFICATION_FILTER,
-    NOTIFICATION_FILTER_NONE,
+    CONF_PERSISTENT_NOTIFICATION,
+    DOMAIN,
     NOTIFICATION_FILTER_ALARMS_ONLY,
-    NOTIFICATION_FILTER_SECURITY_EVENTS,
     NOTIFICATION_FILTER_ALL,
+    NOTIFICATION_FILTER_NONE,
+    NOTIFICATION_FILTER_SECURITY_EVENTS,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 CONF_TOTP = "totp_code"
+
 
 def get_user_data_schema(hass: HomeAssistant) -> vol.Schema:
     """Get the user data schema with translated notification filter options."""
@@ -37,7 +38,9 @@ def get_user_data_schema(hass: HomeAssistant) -> vol.Schema:
             vol.Required(CONF_EMAIL): str,
             vol.Required(CONF_PASSWORD): str,
             vol.Optional(CONF_PERSISTENT_NOTIFICATION, default=False): bool,
-            vol.Optional(CONF_NOTIFICATION_FILTER, default=NOTIFICATION_FILTER_NONE): vol.In(
+            vol.Optional(
+                CONF_NOTIFICATION_FILTER, default=NOTIFICATION_FILTER_NONE
+            ): vol.In(
                 {
                     NOTIFICATION_FILTER_NONE: NOTIFICATION_FILTER_NONE,
                     NOTIFICATION_FILTER_ALARMS_ONLY: NOTIFICATION_FILTER_ALARMS_ONLY,
@@ -129,16 +132,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Get list of spaces for selection
                 try:
                     from .api import AjaxApi
-                    api = AjaxApi(user_input[CONF_EMAIL], user_input[CONF_PASSWORD], info["device_id"])
+
+                    api = AjaxApi(
+                        user_input[CONF_EMAIL],
+                        user_input[CONF_PASSWORD],
+                        info["device_id"],
+                    )
                     await api.async_login()
                     self._spaces = await api.async_get_spaces()
                     await api.close()
 
                     # If only one space, skip selection step
                     if len(self._spaces) == 1:
-                        return await self.async_step_select_spaces({
-                            "spaces": [self._spaces[0]["id"]]
-                        })
+                        return await self.async_step_select_spaces(
+                            {"spaces": [self._spaces[0]["id"]]}
+                        )
 
                     # Go to space selection step
                     return await self.async_step_select_spaces()
@@ -200,9 +208,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                         # If only one space, skip selection step
                         if len(self._spaces) == 1:
-                            return await self.async_step_select_spaces({
-                                "spaces": [self._spaces[0]["id"]]
-                            })
+                            return await self.async_step_select_spaces(
+                                {"spaces": [self._spaces[0]["id"]]}
+                            )
 
                         # Go to space selection step
                         return await self.async_step_select_spaces()
@@ -224,9 +232,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Show TOTP input form
         return self.async_show_form(
             step_id="totp",
-            data_schema=vol.Schema({
-                vol.Required(CONF_TOTP): str,
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_TOTP): str,
+                }
+            ),
             errors=errors,
             description_placeholders={
                 "email": self._user_input.get(CONF_EMAIL, ""),
@@ -255,8 +265,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         "selected_spaces": selected_spaces,
                     },
                     options={
-                        CONF_PERSISTENT_NOTIFICATION: self._user_input.get(CONF_PERSISTENT_NOTIFICATION, False),
-                        CONF_NOTIFICATION_FILTER: self._user_input.get(CONF_NOTIFICATION_FILTER, NOTIFICATION_FILTER_NONE),
+                        CONF_PERSISTENT_NOTIFICATION: self._user_input.get(
+                            CONF_PERSISTENT_NOTIFICATION, False
+                        ),
+                        CONF_NOTIFICATION_FILTER: self._user_input.get(
+                            CONF_NOTIFICATION_FILTER, NOTIFICATION_FILTER_NONE
+                        ),
                     },
                 )
 
@@ -265,9 +279,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="select_spaces",
-            data_schema=vol.Schema({
-                vol.Required("spaces", default=list(space_options.keys())): cv.multi_select(space_options),
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "spaces", default=list(space_options.keys())
+                    ): cv.multi_select(space_options),
+                }
+            ),
             errors=errors,
         )
 
@@ -305,10 +323,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         # Fetch available spaces
         try:
             from .api import AjaxApi
+
             api = AjaxApi(
                 self.config_entry.data[CONF_EMAIL],
                 self.config_entry.data[CONF_PASSWORD],
-                self.config_entry.data[CONF_DEVICE_ID]
+                self.config_entry.data[CONF_DEVICE_ID],
             )
             await api.async_login()
             self._spaces = await api.async_get_spaces()
@@ -352,12 +371,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         # Add space selection if spaces are available
         if space_options:
-            options_schema = options_schema.extend({
-                vol.Optional(
-                    "spaces",
-                    default=selected_spaces or list(space_options.keys()),
-                ): cv.multi_select(space_options),
-            })
+            options_schema = options_schema.extend(
+                {
+                    vol.Optional(
+                        "spaces",
+                        default=selected_spaces or list(space_options.keys()),
+                    ): cv.multi_select(space_options),
+                }
+            )
 
         return self.async_show_form(step_id="init", data_schema=options_schema)
 

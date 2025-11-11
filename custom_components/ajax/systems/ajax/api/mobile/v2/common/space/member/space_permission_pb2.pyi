@@ -1,6 +1,7 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from google.protobuf import descriptor as _descriptor
 from typing import ClassVar as _ClassVar
+
+from google.protobuf import descriptor as _descriptor
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -24,6 +25,7 @@ class SpacePermission(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     SCENARIO_EDIT: _ClassVar[SpacePermission]
     PRIVACY_SETTINGS_ACCESS: _ClassVar[SpacePermission]
     SETTINGS_EDIT: _ClassVar[SpacePermission]
+
 SPACE_PERMISSION_NONE: SpacePermission
 DELETE_MEMBERS: SpacePermission
 INVITE_MEMBERS: SpacePermission

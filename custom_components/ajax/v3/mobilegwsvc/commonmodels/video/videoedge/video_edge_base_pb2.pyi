@@ -1,31 +1,80 @@
-from v3.mobilegwsvc.commonmodels.video.videoedge.channel import channel_base_pb2 as _channel_base_pb2
-from v3.mobilegwsvc.commonmodels.video.videoedge.mcu import mcu_base_pb2 as _mcu_base_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.about import about_pb2 as _about_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.archive import archive_pb2 as _archive_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.detector import detector_pb2 as _detector_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.diagnostics import diagnostics_settings_pb2 as _diagnostics_settings_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.firmware import firmware_pb2 as _firmware_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.leds import leds_pb2 as _leds_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import media_device_pb2 as _media_device_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.network import network_pb2 as _network_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.network import network_interface_pb2 as _network_interface_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.storage import storage_pb2 as _storage_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.storage import storage_device_pb2 as _storage_device_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.system import system_info_pb2 as _system_info_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge.onvif import onvif_info_pb2 as _onvif_info_pb2
-from systems.ajax.api.mobile.v2.common.video.videoedge import video_edge_pb2 as _video_edge_pb2
-from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
-from systems.ajax.logging.proto import log_marker_pb2 as _log_marker_pb2
-from google.protobuf.internal import containers as _containers
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from systems.ajax.api.mobile.v2.common.video.videoedge import (
+    video_edge_pb2 as _video_edge_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.about import (
+    about_pb2 as _about_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.archive import (
+    archive_pb2 as _archive_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.detector import (
+    detector_pb2 as _detector_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.diagnostics import (
+    diagnostics_settings_pb2 as _diagnostics_settings_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.firmware import (
+    firmware_pb2 as _firmware_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.leds import leds_pb2 as _leds_pb2
+from systems.ajax.api.mobile.v2.common.video.videoedge.mediadevice import (
+    media_device_pb2 as _media_device_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.network import (
+    network_interface_pb2 as _network_interface_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.network import (
+    network_pb2 as _network_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.onvif import (
+    onvif_info_pb2 as _onvif_info_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.storage import (
+    storage_device_pb2 as _storage_device_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.storage import (
+    storage_pb2 as _storage_pb2,
+)
+from systems.ajax.api.mobile.v2.common.video.videoedge.system import (
+    system_info_pb2 as _system_info_pb2,
+)
+from v3.mobilegwsvc.commonmodels.video.videoedge.channel import (
+    channel_base_pb2 as _channel_base_pb2,
+)
+from v3.mobilegwsvc.commonmodels.video.videoedge.mcu import (
+    mcu_base_pb2 as _mcu_base_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class VideoEdgeBase(_message.Message):
-    __slots__ = ("id", "name", "connection_state", "archive", "devices", "channels", "detectors", "network", "diagnostics_settings", "system_info", "network_interfaces", "storage_devices", "firmware", "about", "leds", "storage", "mcu", "onvif_info")
+    __slots__ = (
+        "about",
+        "archive",
+        "channels",
+        "connection_state",
+        "detectors",
+        "devices",
+        "diagnostics_settings",
+        "firmware",
+        "id",
+        "leds",
+        "mcu",
+        "name",
+        "network",
+        "network_interfaces",
+        "onvif_info",
+        "storage",
+        "storage_devices",
+        "system_info",
+    )
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     CONNECTION_STATE_FIELD_NUMBER: _ClassVar[int]
@@ -54,12 +103,42 @@ class VideoEdgeBase(_message.Message):
     network: _network_pb2.Network
     diagnostics_settings: _diagnostics_settings_pb2.DiagnosticsSettings
     system_info: _system_info_pb2.SystemInfo
-    network_interfaces: _containers.RepeatedCompositeFieldContainer[_network_interface_pb2.NetworkInterface]
-    storage_devices: _containers.RepeatedCompositeFieldContainer[_storage_device_pb2.StorageDevice]
+    network_interfaces: _containers.RepeatedCompositeFieldContainer[
+        _network_interface_pb2.NetworkInterface
+    ]
+    storage_devices: _containers.RepeatedCompositeFieldContainer[
+        _storage_device_pb2.StorageDevice
+    ]
     firmware: _firmware_pb2.Firmware
     about: _about_pb2.About
     leds: _leds_pb2.Leds
     storage: _storage_pb2.Storage
     mcu: _mcu_base_pb2.McuBase
     onvif_info: _onvif_info_pb2.OnvifInfo
-    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., connection_state: _Optional[_Union[_video_edge_pb2.ConnectionState, str]] = ..., archive: _Optional[_Union[_archive_pb2.Archive, _Mapping]] = ..., devices: _Optional[_Iterable[_Union[_media_device_pb2.MediaDevice, _Mapping]]] = ..., channels: _Optional[_Iterable[_Union[_channel_base_pb2.ChannelBase, _Mapping]]] = ..., detectors: _Optional[_Iterable[_Union[_detector_pb2.Detector, _Mapping]]] = ..., network: _Optional[_Union[_network_pb2.Network, _Mapping]] = ..., diagnostics_settings: _Optional[_Union[_diagnostics_settings_pb2.DiagnosticsSettings, _Mapping]] = ..., system_info: _Optional[_Union[_system_info_pb2.SystemInfo, _Mapping]] = ..., network_interfaces: _Optional[_Iterable[_Union[_network_interface_pb2.NetworkInterface, _Mapping]]] = ..., storage_devices: _Optional[_Iterable[_Union[_storage_device_pb2.StorageDevice, _Mapping]]] = ..., firmware: _Optional[_Union[_firmware_pb2.Firmware, _Mapping]] = ..., about: _Optional[_Union[_about_pb2.About, _Mapping]] = ..., leds: _Optional[_Union[_leds_pb2.Leds, _Mapping]] = ..., storage: _Optional[_Union[_storage_pb2.Storage, _Mapping]] = ..., mcu: _Optional[_Union[_mcu_base_pb2.McuBase, _Mapping]] = ..., onvif_info: _Optional[_Union[_onvif_info_pb2.OnvifInfo, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        id: str | None = ...,
+        name: str | None = ...,
+        connection_state: _video_edge_pb2.ConnectionState | str | None = ...,
+        archive: _archive_pb2.Archive | _Mapping | None = ...,
+        devices: _Iterable[_media_device_pb2.MediaDevice | _Mapping] | None = ...,
+        channels: _Iterable[_channel_base_pb2.ChannelBase | _Mapping] | None = ...,
+        detectors: _Iterable[_detector_pb2.Detector | _Mapping] | None = ...,
+        network: _network_pb2.Network | _Mapping | None = ...,
+        diagnostics_settings: _diagnostics_settings_pb2.DiagnosticsSettings
+        | _Mapping
+        | None = ...,
+        system_info: _system_info_pb2.SystemInfo | _Mapping | None = ...,
+        network_interfaces: _Iterable[
+            _network_interface_pb2.NetworkInterface | _Mapping
+        ]
+        | None = ...,
+        storage_devices: _Iterable[_storage_device_pb2.StorageDevice | _Mapping]
+        | None = ...,
+        firmware: _firmware_pb2.Firmware | _Mapping | None = ...,
+        about: _about_pb2.About | _Mapping | None = ...,
+        leds: _leds_pb2.Leds | _Mapping | None = ...,
+        storage: _storage_pb2.Storage | _Mapping | None = ...,
+        mcu: _mcu_base_pb2.McuBase | _Mapping | None = ...,
+        onvif_info: _onvif_info_pb2.OnvifInfo | _Mapping | None = ...,
+    ) -> None: ...

@@ -1,18 +1,32 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class CompanyBinding(_message.Message):
-    __slots__ = ("company_id", "hub_id", "state", "billing_enabled", "company_locked", "hub_blocked_by_company", "balance", "subscription_fee", "currency", "next_payment_date", "company_name")
+    __slots__ = (
+        "balance",
+        "billing_enabled",
+        "company_id",
+        "company_locked",
+        "company_name",
+        "currency",
+        "hub_blocked_by_company",
+        "hub_id",
+        "next_payment_date",
+        "state",
+        "subscription_fee",
+    )
     class State(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_STATE_INFO: _ClassVar[CompanyBinding.State]
         PENDING_ACCEPTANCE: _ClassVar[CompanyBinding.State]
         ACCEPTED: _ClassVar[CompanyBinding.State]
         PENDING_DELETION: _ClassVar[CompanyBinding.State]
+
     NO_STATE_INFO: CompanyBinding.State
     PENDING_ACCEPTANCE: CompanyBinding.State
     ACCEPTED: CompanyBinding.State
@@ -39,4 +53,17 @@ class CompanyBinding(_message.Message):
     currency: str
     next_payment_date: str
     company_name: str
-    def __init__(self, company_id: _Optional[str] = ..., hub_id: _Optional[str] = ..., state: _Optional[_Union[CompanyBinding.State, str]] = ..., billing_enabled: bool = ..., company_locked: bool = ..., hub_blocked_by_company: bool = ..., balance: _Optional[str] = ..., subscription_fee: _Optional[str] = ..., currency: _Optional[str] = ..., next_payment_date: _Optional[str] = ..., company_name: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        company_id: str | None = ...,
+        hub_id: str | None = ...,
+        state: CompanyBinding.State | str | None = ...,
+        billing_enabled: bool = ...,
+        company_locked: bool = ...,
+        hub_blocked_by_company: bool = ...,
+        balance: str | None = ...,
+        subscription_fee: str | None = ...,
+        currency: str | None = ...,
+        next_payment_date: str | None = ...,
+        company_name: str | None = ...,
+    ) -> None: ...

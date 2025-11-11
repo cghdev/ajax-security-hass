@@ -1,13 +1,14 @@
-from systems.ajax.api.mobile.v2.common.logo import logo_pb2 as _logo_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from systems.ajax.api.mobile.v2.common.logo import logo_pb2 as _logo_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ShortCompany(_message.Message):
-    __slots__ = ("company_hex_id", "name", "logo", "websiteUrl")
+    __slots__ = ("company_hex_id", "logo", "name", "websiteUrl")
     COMPANY_HEX_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     LOGO_FIELD_NUMBER: _ClassVar[int]
@@ -16,4 +17,10 @@ class ShortCompany(_message.Message):
     name: str
     logo: _logo_pb2.Logo
     websiteUrl: str
-    def __init__(self, company_hex_id: _Optional[str] = ..., name: _Optional[str] = ..., logo: _Optional[_Union[_logo_pb2.Logo, _Mapping]] = ..., websiteUrl: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        company_hex_id: str | None = ...,
+        name: str | None = ...,
+        logo: _logo_pb2.Logo | _Mapping | None = ...,
+        websiteUrl: str | None = ...,
+    ) -> None: ...

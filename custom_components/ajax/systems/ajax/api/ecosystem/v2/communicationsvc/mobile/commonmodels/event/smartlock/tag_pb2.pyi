@@ -1,7 +1,8 @@
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -62,7 +63,22 @@ class LockedByMatter(_message.Message):
     def __init__(self) -> None: ...
 
 class SmartLockEventTag(_message.Message):
-    __slots__ = ("added", "removed", "connection_loss", "locked_manually", "locked_by_external_user", "locked_by_space_member", "locked_by_scenario", "locking_failed", "battery_low", "doorbell_pressed", "locked_automatically", "locked_by_keypad", "keypad_temporarily_disabled", "locked_by_matter")
+    __slots__ = (
+        "added",
+        "battery_low",
+        "connection_loss",
+        "doorbell_pressed",
+        "keypad_temporarily_disabled",
+        "locked_automatically",
+        "locked_by_external_user",
+        "locked_by_keypad",
+        "locked_by_matter",
+        "locked_by_scenario",
+        "locked_by_space_member",
+        "locked_manually",
+        "locking_failed",
+        "removed",
+    )
     ADDED_FIELD_NUMBER: _ClassVar[int]
     REMOVED_FIELD_NUMBER: _ClassVar[int]
     CONNECTION_LOSS_FIELD_NUMBER: _ClassVar[int]
@@ -91,4 +107,20 @@ class SmartLockEventTag(_message.Message):
     locked_by_keypad: LockedByKeypad
     keypad_temporarily_disabled: KeypadTemporarilyDisabled
     locked_by_matter: LockedByMatter
-    def __init__(self, added: _Optional[_Union[Added, _Mapping]] = ..., removed: _Optional[_Union[Removed, _Mapping]] = ..., connection_loss: _Optional[_Union[ConnectionLoss, _Mapping]] = ..., locked_manually: _Optional[_Union[LockedManually, _Mapping]] = ..., locked_by_external_user: _Optional[_Union[LockedByExternalUser, _Mapping]] = ..., locked_by_space_member: _Optional[_Union[LockedBySpaceMember, _Mapping]] = ..., locked_by_scenario: _Optional[_Union[LockedByScenario, _Mapping]] = ..., locking_failed: _Optional[_Union[LockingFailed, _Mapping]] = ..., battery_low: _Optional[_Union[BatteryLow, _Mapping]] = ..., doorbell_pressed: _Optional[_Union[DoorbellPressed, _Mapping]] = ..., locked_automatically: _Optional[_Union[LockedAutomatically, _Mapping]] = ..., locked_by_keypad: _Optional[_Union[LockedByKeypad, _Mapping]] = ..., keypad_temporarily_disabled: _Optional[_Union[KeypadTemporarilyDisabled, _Mapping]] = ..., locked_by_matter: _Optional[_Union[LockedByMatter, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        added: Added | _Mapping | None = ...,
+        removed: Removed | _Mapping | None = ...,
+        connection_loss: ConnectionLoss | _Mapping | None = ...,
+        locked_manually: LockedManually | _Mapping | None = ...,
+        locked_by_external_user: LockedByExternalUser | _Mapping | None = ...,
+        locked_by_space_member: LockedBySpaceMember | _Mapping | None = ...,
+        locked_by_scenario: LockedByScenario | _Mapping | None = ...,
+        locking_failed: LockingFailed | _Mapping | None = ...,
+        battery_low: BatteryLow | _Mapping | None = ...,
+        doorbell_pressed: DoorbellPressed | _Mapping | None = ...,
+        locked_automatically: LockedAutomatically | _Mapping | None = ...,
+        locked_by_keypad: LockedByKeypad | _Mapping | None = ...,
+        keypad_temporarily_disabled: KeypadTemporarilyDisabled | _Mapping | None = ...,
+        locked_by_matter: LockedByMatter | _Mapping | None = ...,
+    ) -> None: ...

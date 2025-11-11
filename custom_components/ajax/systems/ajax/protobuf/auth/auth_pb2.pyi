@@ -1,7 +1,8 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -10,6 +11,7 @@ class UserRole(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     USER: _ClassVar[UserRole]
     PRO: _ClassVar[UserRole]
     COMPANY: _ClassVar[UserRole]
+
 USER: UserRole
 PRO: UserRole
 COMPANY: UserRole
@@ -22,10 +24,22 @@ class LoginRequest(_message.Message):
     login: str
     password: str
     user_role: UserRole
-    def __init__(self, login: _Optional[str] = ..., password: _Optional[str] = ..., user_role: _Optional[_Union[UserRole, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        login: str | None = ...,
+        password: str | None = ...,
+        user_role: UserRole | str | None = ...,
+    ) -> None: ...
 
 class LoginResponse(_message.Message):
-    __slots__ = ("user_id", "user_role", "email", "first_name", "last_name", "phone_number")
+    __slots__ = (
+        "email",
+        "first_name",
+        "last_name",
+        "phone_number",
+        "user_id",
+        "user_role",
+    )
     USER_ID_FIELD_NUMBER: _ClassVar[int]
     USER_ROLE_FIELD_NUMBER: _ClassVar[int]
     EMAIL_FIELD_NUMBER: _ClassVar[int]
@@ -38,4 +52,12 @@ class LoginResponse(_message.Message):
     first_name: str
     last_name: str
     phone_number: str
-    def __init__(self, user_id: _Optional[str] = ..., user_role: _Optional[_Union[UserRole, str]] = ..., email: _Optional[str] = ..., first_name: _Optional[str] = ..., last_name: _Optional[str] = ..., phone_number: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        user_id: str | None = ...,
+        user_role: UserRole | str | None = ...,
+        email: str | None = ...,
+        first_name: str | None = ...,
+        last_name: str | None = ...,
+        phone_number: str | None = ...,
+    ) -> None: ...

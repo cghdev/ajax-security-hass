@@ -1,7 +1,8 @@
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -12,6 +13,7 @@ class GroupPermissions(_message.Message):
         GROUP_PERMISSION_UNSPECIFIED: _ClassVar[GroupPermissions.GroupPermission]
         GROUP_PERMISSION_ENABLED: _ClassVar[GroupPermissions.GroupPermission]
         GROUP_PERMISSION_DISABLED: _ClassVar[GroupPermissions.GroupPermission]
+
     GROUP_PERMISSION_UNSPECIFIED: GroupPermissions.GroupPermission
     GROUP_PERMISSION_ENABLED: GroupPermissions.GroupPermission
     GROUP_PERMISSION_DISABLED: GroupPermissions.GroupPermission
@@ -19,4 +21,8 @@ class GroupPermissions(_message.Message):
     GROUP_PERMISSION_FIELD_NUMBER: _ClassVar[int]
     group_id: str
     group_permission: GroupPermissions.GroupPermission
-    def __init__(self, group_id: _Optional[str] = ..., group_permission: _Optional[_Union[GroupPermissions.GroupPermission, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        group_id: str | None = ...,
+        group_permission: GroupPermissions.GroupPermission | str | None = ...,
+    ) -> None: ...

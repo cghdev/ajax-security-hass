@@ -1,9 +1,11 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -14,6 +16,7 @@ class DetectorsPowerLinePart(_message.Message):
         DETECTORS_TYPE_UNSPECIFIED: _ClassVar[DetectorsPowerLinePart.DetectorsType]
         DETECTORS_TYPE_COMMON: _ClassVar[DetectorsPowerLinePart.DetectorsType]
         DETECTORS_TYPE_FIRE: _ClassVar[DetectorsPowerLinePart.DetectorsType]
+
     DETECTORS_TYPE_UNSPECIFIED: DetectorsPowerLinePart.DetectorsType
     DETECTORS_TYPE_COMMON: DetectorsPowerLinePart.DetectorsType
     DETECTORS_TYPE_FIRE: DetectorsPowerLinePart.DetectorsType
@@ -23,6 +26,7 @@ class DetectorsPowerLinePart(_message.Message):
         POWER_LINE_STATUS_OK: _ClassVar[DetectorsPowerLinePart.PowerLineStatus]
         POWER_LINE_STATUS_SHORTED_OUT: _ClassVar[DetectorsPowerLinePart.PowerLineStatus]
         POWER_LINE_STATUS_LOW_VOLTAGE: _ClassVar[DetectorsPowerLinePart.PowerLineStatus]
+
     POWER_LINE_STATUS_UNSPECIFIED: DetectorsPowerLinePart.PowerLineStatus
     POWER_LINE_STATUS_OK: DetectorsPowerLinePart.PowerLineStatus
     POWER_LINE_STATUS_SHORTED_OUT: DetectorsPowerLinePart.PowerLineStatus
@@ -33,7 +37,22 @@ class DetectorsPowerLinePart(_message.Message):
         POWER_LINE_STATUS_FIELD_NUMBER: _ClassVar[int]
         detectors_type: DetectorsPowerLinePart.DetectorsType
         power_line_status: DetectorsPowerLinePart.PowerLineStatus
-        def __init__(self, detectors_type: _Optional[_Union[DetectorsPowerLinePart.DetectorsType, str]] = ..., power_line_status: _Optional[_Union[DetectorsPowerLinePart.PowerLineStatus, str]] = ...) -> None: ...
+        def __init__(
+            self,
+            detectors_type: DetectorsPowerLinePart.DetectorsType | str | None = ...,
+            power_line_status: DetectorsPowerLinePart.PowerLineStatus
+            | str
+            | None = ...,
+        ) -> None: ...
+
     DETECTORS_POWER_LINES_FIELD_NUMBER: _ClassVar[int]
-    detectors_power_lines: _containers.RepeatedCompositeFieldContainer[DetectorsPowerLinePart.DetectorsPowerLine]
-    def __init__(self, detectors_power_lines: _Optional[_Iterable[_Union[DetectorsPowerLinePart.DetectorsPowerLine, _Mapping]]] = ...) -> None: ...
+    detectors_power_lines: _containers.RepeatedCompositeFieldContainer[
+        DetectorsPowerLinePart.DetectorsPowerLine
+    ]
+    def __init__(
+        self,
+        detectors_power_lines: _Iterable[
+            DetectorsPowerLinePart.DetectorsPowerLine | _Mapping
+        ]
+        | None = ...,
+    ) -> None: ...

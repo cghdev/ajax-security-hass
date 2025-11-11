@@ -1,21 +1,42 @@
-from google.protobuf import wrappers_pb2 as _wrappers_pb2
-from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
-from systems.ajax.protobuf.hub.device import common_fibra_pb2 as _common_fibra_pb2
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
+from systems.ajax.protobuf.hub.device import common_fibra_pb2 as _common_fibra_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class KeypadFibra(_message.Message):
-    __slots__ = ("common_part", "common_fibra_part", "siren_triggers", "access_profiles", "star_button_function", "password", "force_disarm_password", "block_on_multiple_password_failures", "time_to_block_on_multiple_password_failures_minutes", "blocked", "allow_fast_arming", "brightness_level", "volume_level", "associated_group_id", "password_hash", "password_hash_duress", "subtype")
+    __slots__ = (
+        "access_profiles",
+        "allow_fast_arming",
+        "associated_group_id",
+        "block_on_multiple_password_failures",
+        "blocked",
+        "brightness_level",
+        "common_fibra_part",
+        "common_part",
+        "force_disarm_password",
+        "password",
+        "password_hash",
+        "password_hash_duress",
+        "siren_triggers",
+        "star_button_function",
+        "subtype",
+        "time_to_block_on_multiple_password_failures_minutes",
+        "volume_level",
+    )
     class SirenTrigger(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_SIREN_TRIGGER_INFO: _ClassVar[KeypadFibra.SirenTrigger]
         SECURITY_BUTTON: _ClassVar[KeypadFibra.SirenTrigger]
+
     NO_SIREN_TRIGGER_INFO: KeypadFibra.SirenTrigger
     SECURITY_BUTTON: KeypadFibra.SirenTrigger
     class StarButtonFunction(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -24,6 +45,7 @@ class KeypadFibra(_message.Message):
         DISABLED: _ClassVar[KeypadFibra.StarButtonFunction]
         PANIC: _ClassVar[KeypadFibra.StarButtonFunction]
         MUTE_FIRE_ALARM: _ClassVar[KeypadFibra.StarButtonFunction]
+
     NO_STAR_BUTTON_FUNCTION_INFO: KeypadFibra.StarButtonFunction
     DISABLED: KeypadFibra.StarButtonFunction
     PANIC: KeypadFibra.StarButtonFunction
@@ -33,12 +55,14 @@ class KeypadFibra(_message.Message):
         NO_ACCESS_PROFILE_INFO: _ClassVar[KeypadFibra.AccessProfile]
         KEYBOARD_PASSWORD: _ClassVar[KeypadFibra.AccessProfile]
         USER_PASSWORD: _ClassVar[KeypadFibra.AccessProfile]
+
     NO_ACCESS_PROFILE_INFO: KeypadFibra.AccessProfile
     KEYBOARD_PASSWORD: KeypadFibra.AccessProfile
     USER_PASSWORD: KeypadFibra.AccessProfile
     class Subtype(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_SUBTYPE: _ClassVar[KeypadFibra.Subtype]
+
     NO_SUBTYPE: KeypadFibra.Subtype
     COMMON_PART_FIELD_NUMBER: _ClassVar[int]
     COMMON_FIBRA_PART_FIELD_NUMBER: _ClassVar[int]
@@ -74,4 +98,23 @@ class KeypadFibra(_message.Message):
     password_hash: str
     password_hash_duress: str
     subtype: KeypadFibra.Subtype
-    def __init__(self, common_part: _Optional[_Union[_common_device_pb2.CommonDevicePart, _Mapping]] = ..., common_fibra_part: _Optional[_Union[_common_fibra_pb2.CommonFibraPart, _Mapping]] = ..., siren_triggers: _Optional[_Iterable[_Union[KeypadFibra.SirenTrigger, str]]] = ..., access_profiles: _Optional[_Iterable[_Union[KeypadFibra.AccessProfile, str]]] = ..., star_button_function: _Optional[_Union[KeypadFibra.StarButtonFunction, str]] = ..., password: _Optional[str] = ..., force_disarm_password: _Optional[str] = ..., block_on_multiple_password_failures: bool = ..., time_to_block_on_multiple_password_failures_minutes: _Optional[int] = ..., blocked: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., allow_fast_arming: bool = ..., brightness_level: _Optional[int] = ..., volume_level: _Optional[int] = ..., associated_group_id: _Optional[str] = ..., password_hash: _Optional[str] = ..., password_hash_duress: _Optional[str] = ..., subtype: _Optional[_Union[KeypadFibra.Subtype, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        common_part: _common_device_pb2.CommonDevicePart | _Mapping | None = ...,
+        common_fibra_part: _common_fibra_pb2.CommonFibraPart | _Mapping | None = ...,
+        siren_triggers: _Iterable[KeypadFibra.SirenTrigger | str] | None = ...,
+        access_profiles: _Iterable[KeypadFibra.AccessProfile | str] | None = ...,
+        star_button_function: KeypadFibra.StarButtonFunction | str | None = ...,
+        password: str | None = ...,
+        force_disarm_password: str | None = ...,
+        block_on_multiple_password_failures: bool = ...,
+        time_to_block_on_multiple_password_failures_minutes: int | None = ...,
+        blocked: _wrappers_pb2.BoolValue | _Mapping | None = ...,
+        allow_fast_arming: bool = ...,
+        brightness_level: int | None = ...,
+        volume_level: int | None = ...,
+        associated_group_id: str | None = ...,
+        password_hash: str | None = ...,
+        password_hash_duress: str | None = ...,
+        subtype: KeypadFibra.Subtype | str | None = ...,
+    ) -> None: ...

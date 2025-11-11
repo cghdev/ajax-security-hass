@@ -1,19 +1,29 @@
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.event.video import qualifier_pb2 as _qualifier_pb2
-from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.video import source_pb2 as _source_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.event.video import (
+    qualifier_pb2 as _qualifier_pb2,
+)
+from systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification.video import (
+    source_pb2 as _source_pb2,
+)
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class VideoNotificationContent(_message.Message):
-    __slots__ = ("qualifier", "source", "event_timestamp")
+    __slots__ = ("event_timestamp", "qualifier", "source")
     QUALIFIER_FIELD_NUMBER: _ClassVar[int]
     SOURCE_FIELD_NUMBER: _ClassVar[int]
     EVENT_TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     qualifier: _qualifier_pb2.VideoEventQualifier
     source: _source_pb2.VideoNotificationSource
     event_timestamp: _timestamp_pb2.Timestamp
-    def __init__(self, qualifier: _Optional[_Union[_qualifier_pb2.VideoEventQualifier, _Mapping]] = ..., source: _Optional[_Union[_source_pb2.VideoNotificationSource, _Mapping]] = ..., event_timestamp: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        qualifier: _qualifier_pb2.VideoEventQualifier | _Mapping | None = ...,
+        source: _source_pb2.VideoNotificationSource | _Mapping | None = ...,
+        event_timestamp: _timestamp_pb2.Timestamp | _Mapping | None = ...,
+    ) -> None: ...

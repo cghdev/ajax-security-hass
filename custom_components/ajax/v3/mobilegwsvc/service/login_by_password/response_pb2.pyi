@@ -1,26 +1,41 @@
-from v3.mobilegwsvc.commonmodels.account import lite_account_pb2 as _lite_account_pb2
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
-from v1.auth import login_response_pb2 as _login_response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from v1.auth import login_response_pb2 as _login_response_pb2
+from v3.mobilegwsvc.commonmodels.account import lite_account_pb2 as _lite_account_pb2
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class LoginByPasswordResponse(_message.Message):
-    __slots__ = ("success", "failure")
+    __slots__ = ("failure", "success")
     class Success(_message.Message):
-        __slots__ = ("session_token", "lite_account", "pro_login_response")
+        __slots__ = ("lite_account", "pro_login_response", "session_token")
         SESSION_TOKEN_FIELD_NUMBER: _ClassVar[int]
         LITE_ACCOUNT_FIELD_NUMBER: _ClassVar[int]
         PRO_LOGIN_RESPONSE_FIELD_NUMBER: _ClassVar[int]
         session_token: bytes
         lite_account: _lite_account_pb2.LiteAccount
         pro_login_response: _login_response_pb2.LoginResponse
-        def __init__(self, session_token: _Optional[bytes] = ..., lite_account: _Optional[_Union[_lite_account_pb2.LiteAccount, _Mapping]] = ..., pro_login_response: _Optional[_Union[_login_response_pb2.LoginResponse, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            session_token: bytes | None = ...,
+            lite_account: _lite_account_pb2.LiteAccount | _Mapping | None = ...,
+            pro_login_response: _login_response_pb2.LoginResponse
+            | _Mapping
+            | None = ...,
+        ) -> None: ...
+
     class Failure(_message.Message):
-        __slots__ = ("bad_request", "two_fa_required", "account_not_confirmed", "account_locked", "invalid_credentials")
+        __slots__ = (
+            "account_locked",
+            "account_not_confirmed",
+            "bad_request",
+            "invalid_credentials",
+            "two_fa_required",
+        )
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         TWO_FA_REQUIRED_FIELD_NUMBER: _ClassVar[int]
         ACCOUNT_NOT_CONFIRMED_FIELD_NUMBER: _ClassVar[int]
@@ -31,14 +46,29 @@ class LoginByPasswordResponse(_message.Message):
         account_not_confirmed: _response_pb2.Error
         account_locked: _response_pb2.Error
         invalid_credentials: _response_pb2.Error
-        def __init__(self, bad_request: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., two_fa_required: _Optional[_Union[LoginByPasswordResponse.TwoFactorAuthRequiredError, _Mapping]] = ..., account_not_confirmed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., account_locked: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., invalid_credentials: _Optional[_Union[_response_pb2.Error, _Mapping]] = ...) -> None: ...
+        def __init__(
+            self,
+            bad_request: _response_pb2.Error | _Mapping | None = ...,
+            two_fa_required: LoginByPasswordResponse.TwoFactorAuthRequiredError
+            | _Mapping
+            | None = ...,
+            account_not_confirmed: _response_pb2.Error | _Mapping | None = ...,
+            account_locked: _response_pb2.Error | _Mapping | None = ...,
+            invalid_credentials: _response_pb2.Error | _Mapping | None = ...,
+        ) -> None: ...
+
     class TwoFactorAuthRequiredError(_message.Message):
         __slots__ = ("request_id",)
         REQUEST_ID_FIELD_NUMBER: _ClassVar[int]
         request_id: str
-        def __init__(self, request_id: _Optional[str] = ...) -> None: ...
+        def __init__(self, request_id: str | None = ...) -> None: ...
+
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: LoginByPasswordResponse.Success
     failure: LoginByPasswordResponse.Failure
-    def __init__(self, success: _Optional[_Union[LoginByPasswordResponse.Success, _Mapping]] = ..., failure: _Optional[_Union[LoginByPasswordResponse.Failure, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        success: LoginByPasswordResponse.Success | _Mapping | None = ...,
+        failure: LoginByPasswordResponse.Failure | _Mapping | None = ...,
+    ) -> None: ...
