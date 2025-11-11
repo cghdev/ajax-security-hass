@@ -1,43 +1,19 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf import duration_pb2 as _duration_pb2
-from google.protobuf import message as _message
 from systems.ajax.api.mobile.v2.common.image import image_pb2 as _image_pb2
-from systems.ajax.api.mobile.v2.common.space import (
-    displayed_chime_status_pb2 as _displayed_chime_status_pb2,
-)
-from systems.ajax.api.mobile.v2.common.space.security.group import (
-    followed_group_ids_pb2 as _followed_group_ids_pb2,
-)
-from systems.ajax.api.mobile.v2.common.space.security.group import (
-    group_auto_arm_pb2 as _group_auto_arm_pb2,
-)
-from systems.ajax.api.mobile.v2.common.space.security.group import (
-    group_auto_disarm_pb2 as _group_auto_disarm_pb2,
-)
-from systems.ajax.api.mobile.v2.common.space.security.group import (
-    two_stage_arming_mode_pb2 as _two_stage_arming_mode_pb2,
-)
+from systems.ajax.api.mobile.v2.common.space.security.group import followed_group_ids_pb2 as _followed_group_ids_pb2
+from systems.ajax.api.mobile.v2.common.space.security.group import group_auto_arm_pb2 as _group_auto_arm_pb2
+from systems.ajax.api.mobile.v2.common.space.security.group import group_auto_disarm_pb2 as _group_auto_disarm_pb2
+from systems.ajax.api.mobile.v2.common.space.security.group import two_stage_arming_mode_pb2 as _two_stage_arming_mode_pb2
+from systems.ajax.api.mobile.v2.common.space import displayed_chime_status_pb2 as _displayed_chime_status_pb2
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Group(_message.Message):
-    __slots__ = (
-        "auto_arm_delay",
-        "bulk_arm_involved",
-        "bulk_disarm_involved",
-        "chime_status",
-        "followed_group_ids",
-        "following_group_auto_arm",
-        "following_group_auto_disarm",
-        "id",
-        "images",
-        "name",
-        "sorting_key",
-        "two_stage_arming_mode",
-    )
+    __slots__ = ("id", "name", "images", "bulk_arm_involved", "bulk_disarm_involved", "two_stage_arming_mode", "sorting_key", "chime_status", "following_group_auto_arm", "following_group_auto_disarm", "auto_arm_delay", "followed_group_ids")
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     IMAGES_FIELD_NUMBER: _ClassVar[int]
@@ -62,28 +38,4 @@ class Group(_message.Message):
     following_group_auto_disarm: _group_auto_disarm_pb2.FollowingGroupAutoDisarm
     auto_arm_delay: _duration_pb2.Duration
     followed_group_ids: _followed_group_ids_pb2.FollowedGroupIds
-    def __init__(
-        self,
-        id: str | None = ...,
-        name: str | None = ...,
-        images: _image_pb2.Images | _Mapping | None = ...,
-        bulk_arm_involved: bool = ...,
-        bulk_disarm_involved: bool = ...,
-        two_stage_arming_mode: _two_stage_arming_mode_pb2.TwoStageArmingMode
-        | str
-        | None = ...,
-        sorting_key: str | None = ...,
-        chime_status: _displayed_chime_status_pb2.DisplayedChimeStatus
-        | str
-        | None = ...,
-        following_group_auto_arm: _group_auto_arm_pb2.FollowingGroupAutoArm
-        | str
-        | None = ...,
-        following_group_auto_disarm: _group_auto_disarm_pb2.FollowingGroupAutoDisarm
-        | str
-        | None = ...,
-        auto_arm_delay: _duration_pb2.Duration | _Mapping | None = ...,
-        followed_group_ids: _followed_group_ids_pb2.FollowedGroupIds
-        | _Mapping
-        | None = ...,
-    ) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., images: _Optional[_Union[_image_pb2.Images, _Mapping]] = ..., bulk_arm_involved: bool = ..., bulk_disarm_involved: bool = ..., two_stage_arming_mode: _Optional[_Union[_two_stage_arming_mode_pb2.TwoStageArmingMode, str]] = ..., sorting_key: _Optional[str] = ..., chime_status: _Optional[_Union[_displayed_chime_status_pb2.DisplayedChimeStatus, str]] = ..., following_group_auto_arm: _Optional[_Union[_group_auto_arm_pb2.FollowingGroupAutoArm, str]] = ..., following_group_auto_disarm: _Optional[_Union[_group_auto_disarm_pb2.FollowingGroupAutoDisarm, str]] = ..., auto_arm_delay: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ..., followed_group_ids: _Optional[_Union[_followed_group_ids_pb2.FollowedGroupIds, _Mapping]] = ...) -> None: ...

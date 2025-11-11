@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from typing import ClassVar as _ClassVar
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -16,7 +15,6 @@ class DeviceCommonCapability(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     DEVICE_COMMON_CAPABILITY_MASK_CALIBRATION: _ClassVar[DeviceCommonCapability]
     DEVICE_COMMON_CAPABILITY_SCENARIO: _ClassVar[DeviceCommonCapability]
     DEVICE_COMMON_CAPABILITY_MOTION_DETECTION_AREA: _ClassVar[DeviceCommonCapability]
-
 DEVICE_COMMON_CAPABILITY_UNSPECIFIED: DeviceCommonCapability
 DEVICE_COMMON_CAPABILITY_GRADE_3: DeviceCommonCapability
 DEVICE_COMMON_CAPABILITY_POWER_MANAGEMENT: DeviceCommonCapability

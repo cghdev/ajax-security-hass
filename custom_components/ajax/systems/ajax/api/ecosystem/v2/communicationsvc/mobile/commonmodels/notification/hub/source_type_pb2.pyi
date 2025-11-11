@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from typing import ClassVar as _ClassVar
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -198,9 +197,7 @@ class HubNotificationSourceType(int, metaclass=_enum_type_wrapper.EnumTypeWrappe
     TRANSMITTER_FIBRA_FOUR_CHANNELS_INPUT_OUTPUT: _ClassVar[HubNotificationSourceType]
     TRANSMITTER_FIBRA_FOUR_CHANNELS_ONE_RELAY: _ClassVar[HubNotificationSourceType]
     TRANSMITTER_FIBRA_FOUR_CHANNELS_TWO_RELAYS: _ClassVar[HubNotificationSourceType]
-    TRANSMITTER_FIBRA_FOUR_CHANNELS_TWO_RELAYS_TWO_LOGICAL: _ClassVar[
-        HubNotificationSourceType
-    ]
+    TRANSMITTER_FIBRA_FOUR_CHANNELS_TWO_RELAYS_TWO_LOGICAL: _ClassVar[HubNotificationSourceType]
     HUB_FIRE: _ClassVar[HubNotificationSourceType]
     EN54_FIRE_BASE: _ClassVar[HubNotificationSourceType]
     EN54_A: _ClassVar[HubNotificationSourceType]
@@ -247,7 +244,6 @@ class HubNotificationSourceType(int, metaclass=_enum_type_wrapper.EnumTypeWrappe
     MULTI_TRANSMITTER_G3: _ClassVar[HubNotificationSourceType]
     RANGE_EXTENDER_2_RB: _ClassVar[HubNotificationSourceType]
     RANGE_EXTENDER_2_S: _ClassVar[HubNotificationSourceType]
-
 HUB_SOURCE_TYPE_UNSPECIFIED: HubNotificationSourceType
 HUB: HubNotificationSourceType
 HUB_PLUS: HubNotificationSourceType

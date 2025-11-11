@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from typing import ClassVar as _ClassVar
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -32,7 +31,6 @@ class HubPermission(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     EDIT_CHIMES: _ClassVar[HubPermission]
     PRIVACY_SETTINGS_ACCESS: _ClassVar[HubPermission]
     MUTE_FIRE_PROTECT: _ClassVar[HubPermission]
-
 NO_PERMISSION_INFO: HubPermission
 DELETE_USERS: HubPermission
 INVITE_USERS: HubPermission

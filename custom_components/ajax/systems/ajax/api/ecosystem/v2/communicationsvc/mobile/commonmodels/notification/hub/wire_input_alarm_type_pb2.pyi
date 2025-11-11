@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from typing import ClassVar as _ClassVar
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -29,7 +28,6 @@ class CustomAlarmType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     CUSTOM_ALARM_TYPE_BOLT_SWITCH_CONTACT: _ClassVar[CustomAlarmType]
     CUSTOM_ALARM_TYPE_EVACUATION: _ClassVar[CustomAlarmType]
     CUSTOM_ALARM_TYPE_ROLLER_SHUTTER: _ClassVar[CustomAlarmType]
-
 CUSTOM_ALARM_TYPE_UNSPECIFIED: CustomAlarmType
 CUSTOM_ALARM_TYPE_BURGLARY_ALARM: CustomAlarmType
 CUSTOM_ALARM_TYPE_FIRE_ALARM: CustomAlarmType

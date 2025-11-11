@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from typing import ClassVar as _ClassVar
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -13,7 +12,6 @@ class VideoNotificationType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     VIDEO_NOTIFICATION_TYPE_VEHICLE: _ClassVar[VideoNotificationType]
     VIDEO_NOTIFICATION_TYPE_PIR_MOTION: _ClassVar[VideoNotificationType]
     VIDEO_NOTIFICATION_TYPE_FRAME_MOTION: _ClassVar[VideoNotificationType]
-
 VIDEO_NOTIFICATION_TYPE_UNSPECIFIED: VideoNotificationType
 VIDEO_NOTIFICATION_TYPE_HUMAN: VideoNotificationType
 VIDEO_NOTIFICATION_TYPE_PET: VideoNotificationType

@@ -1,8 +1,7 @@
-from typing import ClassVar as _ClassVar
-
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -13,7 +12,6 @@ class CloudArchive(_message.Message):
         CLOUD_ARCHIVE_STATUS_UNSPECIFIED: _ClassVar[CloudArchive.CloudArchiveStatus]
         CLOUD_ARCHIVE_STATUS_ACTIVATED: _ClassVar[CloudArchive.CloudArchiveStatus]
         CLOUD_ARCHIVE_STATUS_NOT_ACTIVATED: _ClassVar[CloudArchive.CloudArchiveStatus]
-
     CLOUD_ARCHIVE_STATUS_UNSPECIFIED: CloudArchive.CloudArchiveStatus
     CLOUD_ARCHIVE_STATUS_ACTIVATED: CloudArchive.CloudArchiveStatus
     CLOUD_ARCHIVE_STATUS_NOT_ACTIVATED: CloudArchive.CloudArchiveStatus
@@ -23,9 +21,4 @@ class CloudArchive(_message.Message):
     status: CloudArchive.CloudArchiveStatus
     storage_enabled: bool
     video_stream_settings_locked: bool
-    def __init__(
-        self,
-        status: CloudArchive.CloudArchiveStatus | str | None = ...,
-        storage_enabled: bool = ...,
-        video_stream_settings_locked: bool = ...,
-    ) -> None: ...
+    def __init__(self, status: _Optional[_Union[CloudArchive.CloudArchiveStatus, str]] = ..., storage_enabled: bool = ..., video_stream_settings_locked: bool = ...) -> None: ...

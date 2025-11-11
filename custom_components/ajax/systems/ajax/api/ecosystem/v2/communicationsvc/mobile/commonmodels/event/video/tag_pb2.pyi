@@ -1,8 +1,7 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -167,48 +166,7 @@ class SetArchiveStorageDeviceWriteModeRoundRobin(_message.Message):
     def __init__(self) -> None: ...
 
 class VideoEventTag(_message.Message):
-    __slots__ = (
-        "battery_disconnected",
-        "battery_temperature_out_of_range",
-        "car_detected",
-        "channel_added",
-        "channel_disconnected",
-        "device_backup_communication_channel_added",
-        "device_backup_communication_loss",
-        "device_hit",
-        "device_moved",
-        "direct_export_requested",
-        "external_power_loss",
-        "fan_error",
-        "fw_update_failed",
-        "fw_update_finished",
-        "fw_update_started",
-        "hard_fault",
-        "human_detected",
-        "line_crossed",
-        "motion_detected",
-        "onvif_auth_enabled",
-        "pet_detected",
-        "power_low",
-        "ring_button_pressed",
-        "server_connection_loss",
-        "set_archive_storage_device_write_mode_mirrored",
-        "set_archive_storage_device_write_mode_round_robin",
-        "storage_device_ejected",
-        "storage_error_detected",
-        "storage_powered_off_overheated",
-        "storage_write_error_detected",
-        "tamper_opened",
-        "temporary_video_access_approved_to_company",
-        "temporary_video_access_approved_to_pro",
-        "temporary_video_access_denied_for_company",
-        "temporary_video_access_denied_for_pro",
-        "temporary_video_access_request_from_company",
-        "temporary_video_access_request_from_pro",
-        "video_export_failed",
-        "video_export_prepared",
-        "video_scenario_triggered",
-    )
+    __slots__ = ("server_connection_loss", "tamper_opened", "video_scenario_triggered", "storage_error_detected", "storage_write_error_detected", "storage_powered_off_overheated", "storage_device_ejected", "video_export_prepared", "video_export_failed", "direct_export_requested", "set_archive_storage_device_write_mode_mirrored", "set_archive_storage_device_write_mode_round_robin", "fw_update_started", "fw_update_finished", "fw_update_failed", "channel_disconnected", "channel_added", "external_power_loss", "ring_button_pressed", "power_low", "battery_disconnected", "hard_fault", "battery_temperature_out_of_range", "temporary_video_access_request_from_pro", "temporary_video_access_request_from_company", "temporary_video_access_denied_for_pro", "temporary_video_access_approved_to_company", "temporary_video_access_approved_to_pro", "temporary_video_access_denied_for_company", "motion_detected", "human_detected", "pet_detected", "car_detected", "line_crossed", "device_backup_communication_channel_added", "device_backup_communication_loss", "onvif_auth_enabled", "device_moved", "device_hit", "fan_error")
     SERVER_CONNECTION_LOSS_FIELD_NUMBER: _ClassVar[int]
     TAMPER_OPENED_FIELD_NUMBER: _ClassVar[int]
     VIDEO_SCENARIO_TRIGGERED_FIELD_NUMBER: _ClassVar[int]
@@ -259,12 +217,8 @@ class VideoEventTag(_message.Message):
     video_export_prepared: VideoExportPrepared
     video_export_failed: VideoExportFailed
     direct_export_requested: DirectExportRequested
-    set_archive_storage_device_write_mode_mirrored: (
-        SetArchiveStorageDeviceWriteModeMirrored
-    )
-    set_archive_storage_device_write_mode_round_robin: (
-        SetArchiveStorageDeviceWriteModeRoundRobin
-    )
+    set_archive_storage_device_write_mode_mirrored: SetArchiveStorageDeviceWriteModeMirrored
+    set_archive_storage_device_write_mode_round_robin: SetArchiveStorageDeviceWriteModeRoundRobin
     fw_update_started: FWUpdateStarted
     fw_update_finished: FWUpdateFinished
     fw_update_failed: FWUpdateFailed
@@ -293,70 +247,4 @@ class VideoEventTag(_message.Message):
     device_moved: DeviceMoved
     device_hit: DeviceHit
     fan_error: FanError
-    def __init__(
-        self,
-        server_connection_loss: ServerConnectionLoss | _Mapping | None = ...,
-        tamper_opened: TamperOpened | _Mapping | None = ...,
-        video_scenario_triggered: VideoScenarioTriggered | _Mapping | None = ...,
-        storage_error_detected: StorageErrorDetected | _Mapping | None = ...,
-        storage_write_error_detected: StorageWriteErrorDetected | _Mapping | None = ...,
-        storage_powered_off_overheated: StoragePoweredOffOverheated
-        | _Mapping
-        | None = ...,
-        storage_device_ejected: StorageDeviceEjected | _Mapping | None = ...,
-        video_export_prepared: VideoExportPrepared | _Mapping | None = ...,
-        video_export_failed: VideoExportFailed | _Mapping | None = ...,
-        direct_export_requested: DirectExportRequested | _Mapping | None = ...,
-        set_archive_storage_device_write_mode_mirrored: SetArchiveStorageDeviceWriteModeMirrored
-        | _Mapping
-        | None = ...,
-        set_archive_storage_device_write_mode_round_robin: SetArchiveStorageDeviceWriteModeRoundRobin
-        | _Mapping
-        | None = ...,
-        fw_update_started: FWUpdateStarted | _Mapping | None = ...,
-        fw_update_finished: FWUpdateFinished | _Mapping | None = ...,
-        fw_update_failed: FWUpdateFailed | _Mapping | None = ...,
-        channel_disconnected: ChannelDisconnected | _Mapping | None = ...,
-        channel_added: ChannelAdded | _Mapping | None = ...,
-        external_power_loss: ExternalPowerLoss | _Mapping | None = ...,
-        ring_button_pressed: RingButtonPressed | _Mapping | None = ...,
-        power_low: PowerLow | _Mapping | None = ...,
-        battery_disconnected: BatteryDisconnected | _Mapping | None = ...,
-        hard_fault: HardFault | _Mapping | None = ...,
-        battery_temperature_out_of_range: BatteryTemperatureOutOfRange
-        | _Mapping
-        | None = ...,
-        temporary_video_access_request_from_pro: TemporaryVideoAccessRequestFromPro
-        | _Mapping
-        | None = ...,
-        temporary_video_access_request_from_company: TemporaryVideoAccessRequestFromCompany
-        | _Mapping
-        | None = ...,
-        temporary_video_access_denied_for_pro: TemporaryVideoAccessDeniedForPro
-        | _Mapping
-        | None = ...,
-        temporary_video_access_approved_to_company: TemporaryVideoAccessApprovedToCompany
-        | _Mapping
-        | None = ...,
-        temporary_video_access_approved_to_pro: TemporaryVideoAccessApprovedToPro
-        | _Mapping
-        | None = ...,
-        temporary_video_access_denied_for_company: TemporaryVideoAccessDeniedForCompany
-        | _Mapping
-        | None = ...,
-        motion_detected: MotionDetected | _Mapping | None = ...,
-        human_detected: HumanDetected | _Mapping | None = ...,
-        pet_detected: PetDetected | _Mapping | None = ...,
-        car_detected: CarDetected | _Mapping | None = ...,
-        line_crossed: LineCrossed | _Mapping | None = ...,
-        device_backup_communication_channel_added: DeviceBackupCommunicationChannelAdded
-        | _Mapping
-        | None = ...,
-        device_backup_communication_loss: DeviceBackupCommunicationLoss
-        | _Mapping
-        | None = ...,
-        onvif_auth_enabled: OnvifAuthEnabled | _Mapping | None = ...,
-        device_moved: DeviceMoved | _Mapping | None = ...,
-        device_hit: DeviceHit | _Mapping | None = ...,
-        fan_error: FanError | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, server_connection_loss: _Optional[_Union[ServerConnectionLoss, _Mapping]] = ..., tamper_opened: _Optional[_Union[TamperOpened, _Mapping]] = ..., video_scenario_triggered: _Optional[_Union[VideoScenarioTriggered, _Mapping]] = ..., storage_error_detected: _Optional[_Union[StorageErrorDetected, _Mapping]] = ..., storage_write_error_detected: _Optional[_Union[StorageWriteErrorDetected, _Mapping]] = ..., storage_powered_off_overheated: _Optional[_Union[StoragePoweredOffOverheated, _Mapping]] = ..., storage_device_ejected: _Optional[_Union[StorageDeviceEjected, _Mapping]] = ..., video_export_prepared: _Optional[_Union[VideoExportPrepared, _Mapping]] = ..., video_export_failed: _Optional[_Union[VideoExportFailed, _Mapping]] = ..., direct_export_requested: _Optional[_Union[DirectExportRequested, _Mapping]] = ..., set_archive_storage_device_write_mode_mirrored: _Optional[_Union[SetArchiveStorageDeviceWriteModeMirrored, _Mapping]] = ..., set_archive_storage_device_write_mode_round_robin: _Optional[_Union[SetArchiveStorageDeviceWriteModeRoundRobin, _Mapping]] = ..., fw_update_started: _Optional[_Union[FWUpdateStarted, _Mapping]] = ..., fw_update_finished: _Optional[_Union[FWUpdateFinished, _Mapping]] = ..., fw_update_failed: _Optional[_Union[FWUpdateFailed, _Mapping]] = ..., channel_disconnected: _Optional[_Union[ChannelDisconnected, _Mapping]] = ..., channel_added: _Optional[_Union[ChannelAdded, _Mapping]] = ..., external_power_loss: _Optional[_Union[ExternalPowerLoss, _Mapping]] = ..., ring_button_pressed: _Optional[_Union[RingButtonPressed, _Mapping]] = ..., power_low: _Optional[_Union[PowerLow, _Mapping]] = ..., battery_disconnected: _Optional[_Union[BatteryDisconnected, _Mapping]] = ..., hard_fault: _Optional[_Union[HardFault, _Mapping]] = ..., battery_temperature_out_of_range: _Optional[_Union[BatteryTemperatureOutOfRange, _Mapping]] = ..., temporary_video_access_request_from_pro: _Optional[_Union[TemporaryVideoAccessRequestFromPro, _Mapping]] = ..., temporary_video_access_request_from_company: _Optional[_Union[TemporaryVideoAccessRequestFromCompany, _Mapping]] = ..., temporary_video_access_denied_for_pro: _Optional[_Union[TemporaryVideoAccessDeniedForPro, _Mapping]] = ..., temporary_video_access_approved_to_company: _Optional[_Union[TemporaryVideoAccessApprovedToCompany, _Mapping]] = ..., temporary_video_access_approved_to_pro: _Optional[_Union[TemporaryVideoAccessApprovedToPro, _Mapping]] = ..., temporary_video_access_denied_for_company: _Optional[_Union[TemporaryVideoAccessDeniedForCompany, _Mapping]] = ..., motion_detected: _Optional[_Union[MotionDetected, _Mapping]] = ..., human_detected: _Optional[_Union[HumanDetected, _Mapping]] = ..., pet_detected: _Optional[_Union[PetDetected, _Mapping]] = ..., car_detected: _Optional[_Union[CarDetected, _Mapping]] = ..., line_crossed: _Optional[_Union[LineCrossed, _Mapping]] = ..., device_backup_communication_channel_added: _Optional[_Union[DeviceBackupCommunicationChannelAdded, _Mapping]] = ..., device_backup_communication_loss: _Optional[_Union[DeviceBackupCommunicationLoss, _Mapping]] = ..., onvif_auth_enabled: _Optional[_Union[OnvifAuthEnabled, _Mapping]] = ..., device_moved: _Optional[_Union[DeviceMoved, _Mapping]] = ..., device_hit: _Optional[_Union[DeviceHit, _Mapping]] = ..., fan_error: _Optional[_Union[FanError, _Mapping]] = ...) -> None: ...

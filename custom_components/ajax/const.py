@@ -1,5 +1,4 @@
 """Constants for the Ajax integration."""
-
 from enum import Enum
 
 # Integration domain
@@ -50,9 +49,7 @@ SECURITY_STATE_PARTIALLY_ARMED = "partially_armed"
 
 # gRPC service paths
 GRPC_LOGIN_SERVICE = "systems.ajax.api.ecosystem.v3.mobilegwsvc.service.login_by_password.LoginByPasswordService"
-GRPC_GET_ACCOUNT_SERVICE = (
-    "systems.ajax.api.ecosystem.v3.mobilegwsvc.service.get_account.GetAccountService"
-)
+GRPC_GET_ACCOUNT_SERVICE = "systems.ajax.api.ecosystem.v3.mobilegwsvc.service.get_account.GetAccountService"
 GRPC_SPACE_SERVICE = "systems.ajax.api.mobile.v2.space.SpaceService"
 GRPC_SECURITY_SERVICE = "systems.ajax.api.mobile.v2.space.security.SpaceSecurityService"
 
@@ -183,10 +180,8 @@ EVENT_TYPE_MAPPING = {
     "leak_detected": {"en": "Water leak detected", "fr": "Fuite d'eau détectée"},
     "flood_detected": {"en": "Flood detected", "fr": "Inondation détectée"},
     "glass_break": {"en": "Glass break detected", "fr": "Bris de vitre détecté"},
-    "glass_break_detected": {
-        "en": "Glass break detected",
-        "fr": "Bris de vitre détecté",
-    },
+    "glass_break_detected": {"en": "Glass break detected", "fr": "Bris de vitre détecté"},
+
     # Alarm events
     "alarm_triggered": {"en": "Alarm triggered", "fr": "Alarme déclenchée"},
     "intrusion_alarm": {"en": "Intrusion detected", "fr": "Intrusion détectée"},
@@ -200,19 +195,15 @@ EVENT_TYPE_MAPPING = {
     "tamper_alarm": {"en": "Tamper alarm", "fr": "Alarme sabotage"},
     "tamper": {"en": "Tamper detected", "fr": "Sabotage détecté"},
     "tampered": {"en": "Tamper detected", "fr": "Sabotage détecté"},
+
     # Arming/Disarming
     "armed": {"en": "System armed", "fr": "Système armé"},
     "disarmed": {"en": "System disarmed", "fr": "Système désarmé"},
     "night_mode_on": {"en": "Night mode activated", "fr": "Mode nuit activé"},
     "night_mode_off": {"en": "Night mode deactivated", "fr": "Mode nuit désactivé"},
-    "armed_with_malfunctions": {
-        "en": "Armed with problems",
-        "fr": "Armé avec des problèmes",
-    },
-    "night_mode_with_malfunctions": {
-        "en": "Night mode with problems",
-        "fr": "Mode nuit avec des problèmes",
-    },
+    "armed_with_malfunctions": {"en": "Armed with problems", "fr": "Armé avec des problèmes"},
+    "night_mode_with_malfunctions": {"en": "Night mode with problems", "fr": "Mode nuit avec des problèmes"},
+
     # Device status
     "device_online": {"en": "Device connected", "fr": "Appareil connecté"},
     "device_offline": {"en": "Device disconnected", "fr": "Appareil déconnecté"},
@@ -226,32 +217,26 @@ EVENT_TYPE_MAPPING = {
     "malfunction": {"en": "Problem detected", "fr": "Problème détecté"},
     "tamper_detected": {"en": "Tamper detected", "fr": "Sabotage détecté"},
     "tamper_resolved": {"en": "Tamper resolved", "fr": "Sabotage résolu"},
+
     # System events
     "hub_online": {"en": "Hub connected", "fr": "Hub connecté"},
     "hub_offline": {"en": "Hub disconnected", "fr": "Hub déconnecté"},
     "power_outage": {"en": "Power outage", "fr": "Coupure de courant"},
     "power_restored": {"en": "Power restored", "fr": "Alimentation rétablie"},
-    "external_power_on": {
-        "en": "External power connected",
-        "fr": "Alimentation externe connectée",
-    },
-    "external_power_off": {
-        "en": "External power disconnected",
-        "fr": "Alimentation externe déconnectée",
-    },
+    "external_power_on": {"en": "External power connected", "fr": "Alimentation externe connectée"},
+    "external_power_off": {"en": "External power disconnected", "fr": "Alimentation externe déconnectée"},
+
     # User actions
     "user_armed": {"en": "Armed by user", "fr": "Armé par l'utilisateur"},
     "user_disarmed": {"en": "Disarmed by user", "fr": "Désarmé par l'utilisateur"},
     "device_bypassed": {"en": "Device bypassed", "fr": "Appareil contourné"},
     "device_unbypassed": {"en": "Device active", "fr": "Appareil actif"},
     "bypassed": {"en": "Bypassed", "fr": "Contourné"},
+
     # Groups
     "group_armed": {"en": "Group armed", "fr": "Groupe armé"},
     "group_disarmed": {"en": "Group disarmed", "fr": "Groupe désarmé"},
-    "group_armed_with_malfunctions": {
-        "en": "Group armed with problems",
-        "fr": "Groupe armé avec des problèmes",
-    },
+    "group_armed_with_malfunctions": {"en": "Group armed with problems", "fr": "Groupe armé avec des problèmes"},
 }
 
 

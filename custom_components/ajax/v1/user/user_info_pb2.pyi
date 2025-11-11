@@ -1,24 +1,14 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from v1.common import image_urls_pb2 as _image_urls_pb2
+from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from v1.common import image_urls_pb2 as _image_urls_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class UserInfo(_message.Message):
-    __slots__ = (
-        "cluster_user_id",
-        "email",
-        "end_user_agreement_version",
-        "first_name",
-        "image_urls",
-        "last_name",
-        "locale",
-        "phone",
-        "privacy_policy_version",
-    )
+    __slots__ = ("first_name", "last_name", "locale", "email", "phone", "image_urls", "cluster_user_id", "end_user_agreement_version", "privacy_policy_version")
     FIRST_NAME_FIELD_NUMBER: _ClassVar[int]
     LAST_NAME_FIELD_NUMBER: _ClassVar[int]
     LOCALE_FIELD_NUMBER: _ClassVar[int]
@@ -37,15 +27,4 @@ class UserInfo(_message.Message):
     cluster_user_id: str
     end_user_agreement_version: int
     privacy_policy_version: int
-    def __init__(
-        self,
-        first_name: str | None = ...,
-        last_name: str | None = ...,
-        locale: str | None = ...,
-        email: str | None = ...,
-        phone: str | None = ...,
-        image_urls: _image_urls_pb2.ImageUrls | _Mapping | None = ...,
-        cluster_user_id: str | None = ...,
-        end_user_agreement_version: int | None = ...,
-        privacy_policy_version: int | None = ...,
-    ) -> None: ...
+    def __init__(self, first_name: _Optional[str] = ..., last_name: _Optional[str] = ..., locale: _Optional[str] = ..., email: _Optional[str] = ..., phone: _Optional[str] = ..., image_urls: _Optional[_Union[_image_urls_pb2.ImageUrls, _Mapping]] = ..., cluster_user_id: _Optional[str] = ..., end_user_agreement_version: _Optional[int] = ..., privacy_policy_version: _Optional[int] = ...) -> None: ...

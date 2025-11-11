@@ -1,25 +1,15 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from systems.ajax.protobuf.hub import name_pb2 as _name_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.protobuf.hub import name_pb2 as _name_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Camera(_message.Message):
-    __slots__ = (
-        "dvr",
-        "id",
-        "name",
-        "parent_camera_id",
-        "room_id",
-        "service_id",
-        "stream_access_denied",
-        "stream_settings",
-    )
+    __slots__ = ("id", "room_id", "service_id", "dvr", "parent_camera_id", "stream_access_denied", "name", "stream_settings")
     class ServiceType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_SERVICE_TYPE_INFO: _ClassVar[Camera.ServiceType]
@@ -30,7 +20,6 @@ class Camera(_message.Message):
         SAFIRE: _ClassVar[Camera.ServiceType]
         UNIVIEW: _ClassVar[Camera.ServiceType]
         IVIDEON: _ClassVar[Camera.ServiceType]
-
     NO_SERVICE_TYPE_INFO: Camera.ServiceType
     RTSP_STREAM: Camera.ServiceType
     XMEYE: Camera.ServiceType
@@ -40,14 +29,7 @@ class Camera(_message.Message):
     UNIVIEW: Camera.ServiceType
     IVIDEON: Camera.ServiceType
     class StreamSettings(_message.Message):
-        __slots__ = (
-            "crc",
-            "dahua_or_uniview_settings",
-            "hikvision_or_safire_settings",
-            "result",
-            "service_type",
-            "stream_data_url",
-        )
+        __slots__ = ("service_type", "result", "crc", "stream_data_url", "hikvision_or_safire_settings", "dahua_or_uniview_settings")
         SERVICE_TYPE_FIELD_NUMBER: _ClassVar[int]
         RESULT_FIELD_NUMBER: _ClassVar[int]
         CRC_FIELD_NUMBER: _ClassVar[int]
@@ -60,32 +42,9 @@ class Camera(_message.Message):
         stream_data_url: str
         hikvision_or_safire_settings: Camera.HikvisionOrSafireSettings
         dahua_or_uniview_settings: Camera.DahuaOrUniviewSettings
-        def __init__(
-            self,
-            service_type: Camera.ServiceType | str | None = ...,
-            result: bool = ...,
-            crc: int | None = ...,
-            stream_data_url: str | None = ...,
-            hikvision_or_safire_settings: Camera.HikvisionOrSafireSettings
-            | _Mapping
-            | None = ...,
-            dahua_or_uniview_settings: Camera.DahuaOrUniviewSettings
-            | _Mapping
-            | None = ...,
-        ) -> None: ...
-
+        def __init__(self, service_type: _Optional[_Union[Camera.ServiceType, str]] = ..., result: bool = ..., crc: _Optional[int] = ..., stream_data_url: _Optional[str] = ..., hikvision_or_safire_settings: _Optional[_Union[Camera.HikvisionOrSafireSettings, _Mapping]] = ..., dahua_or_uniview_settings: _Optional[_Union[Camera.DahuaOrUniviewSettings, _Mapping]] = ...) -> None: ...
     class HikvisionOrSafireSettings(_message.Message):
-        __slots__ = (
-            "area_domain",
-            "auth_domain",
-            "authid",
-            "expirydate",
-            "no",
-            "refreshtoken",
-            "serial",
-            "token",
-            "verificationcode",
-        )
+        __slots__ = ("area_domain", "auth_domain", "authid", "expirydate", "no", "refreshtoken", "serial", "token", "verificationcode")
         AREA_DOMAIN_FIELD_NUMBER: _ClassVar[int]
         AUTH_DOMAIN_FIELD_NUMBER: _ClassVar[int]
         AUTHID_FIELD_NUMBER: _ClassVar[int]
@@ -104,19 +63,7 @@ class Camera(_message.Message):
         serial: str
         token: str
         verificationcode: str
-        def __init__(
-            self,
-            area_domain: str | None = ...,
-            auth_domain: str | None = ...,
-            authid: str | None = ...,
-            expirydate: _timestamp_pb2.Timestamp | _Mapping | None = ...,
-            no: int | None = ...,
-            refreshtoken: str | None = ...,
-            serial: str | None = ...,
-            token: str | None = ...,
-            verificationcode: str | None = ...,
-        ) -> None: ...
-
+        def __init__(self, area_domain: _Optional[str] = ..., auth_domain: _Optional[str] = ..., authid: _Optional[str] = ..., expirydate: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., no: _Optional[int] = ..., refreshtoken: _Optional[str] = ..., serial: _Optional[str] = ..., token: _Optional[str] = ..., verificationcode: _Optional[str] = ...) -> None: ...
     class DahuaOrUniviewSettings(_message.Message):
         __slots__ = ("login", "password", "serial")
         LOGIN_FIELD_NUMBER: _ClassVar[int]
@@ -125,13 +72,7 @@ class Camera(_message.Message):
         login: str
         password: str
         serial: str
-        def __init__(
-            self,
-            login: str | None = ...,
-            password: str | None = ...,
-            serial: str | None = ...,
-        ) -> None: ...
-
+        def __init__(self, login: _Optional[str] = ..., password: _Optional[str] = ..., serial: _Optional[str] = ...) -> None: ...
     ID_FIELD_NUMBER: _ClassVar[int]
     ROOM_ID_FIELD_NUMBER: _ClassVar[int]
     SERVICE_ID_FIELD_NUMBER: _ClassVar[int]
@@ -148,14 +89,4 @@ class Camera(_message.Message):
     stream_access_denied: bool
     name: _name_pb2.Name
     stream_settings: Camera.StreamSettings
-    def __init__(
-        self,
-        id: str | None = ...,
-        room_id: str | None = ...,
-        service_id: str | None = ...,
-        dvr: bool = ...,
-        parent_camera_id: str | None = ...,
-        stream_access_denied: bool = ...,
-        name: _name_pb2.Name | _Mapping | None = ...,
-        stream_settings: Camera.StreamSettings | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., room_id: _Optional[str] = ..., service_id: _Optional[str] = ..., dvr: bool = ..., parent_camera_id: _Optional[str] = ..., stream_access_denied: bool = ..., name: _Optional[_Union[_name_pb2.Name, _Mapping]] = ..., stream_settings: _Optional[_Union[Camera.StreamSettings, _Mapping]] = ...) -> None: ...

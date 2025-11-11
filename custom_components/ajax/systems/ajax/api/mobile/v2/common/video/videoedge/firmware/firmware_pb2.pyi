@@ -1,12 +1,9 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from systems.ajax.api.mobile.v2.common.video.videoedge.firmware import firmware_version_pb2 as _firmware_version_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.api.mobile.v2.common.video.videoedge.firmware import (
-    firmware_version_pb2 as _firmware_version_pb2,
-)
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -32,7 +29,6 @@ class FirmwareUpdateError(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     FUR_FWSWITCH_FAILED: _ClassVar[FirmwareUpdateError]
     FUR_IMAGE_VALIDATION_FAILED: _ClassVar[FirmwareUpdateError]
     FUR_LIFETIME_VALIDATION_FAILED: _ClassVar[FirmwareUpdateError]
-
 FUS_OTHER: FirmwareUpdateState
 FUS_IDLE: FirmwareUpdateState
 FUS_DOWNLOADING: FirmwareUpdateState
@@ -52,19 +48,15 @@ FUR_IMAGE_VALIDATION_FAILED: FirmwareUpdateError
 FUR_LIFETIME_VALIDATION_FAILED: FirmwareUpdateError
 
 class Firmware(_message.Message):
-    __slots__ = ("critical_update_available", "update_status")
+    __slots__ = ("update_status", "critical_update_available")
     UPDATE_STATUS_FIELD_NUMBER: _ClassVar[int]
     CRITICAL_UPDATE_AVAILABLE_FIELD_NUMBER: _ClassVar[int]
     update_status: FirmwareUpdateStatus
     critical_update_available: bool
-    def __init__(
-        self,
-        update_status: FirmwareUpdateStatus | _Mapping | None = ...,
-        critical_update_available: bool = ...,
-    ) -> None: ...
+    def __init__(self, update_status: _Optional[_Union[FirmwareUpdateStatus, _Mapping]] = ..., critical_update_available: bool = ...) -> None: ...
 
 class FirmwareUpdateStatus(_message.Message):
-    __slots__ = ("error", "progress", "state", "version")
+    __slots__ = ("version", "state", "progress", "error")
     VERSION_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
     PROGRESS_FIELD_NUMBER: _ClassVar[int]
@@ -73,10 +65,4 @@ class FirmwareUpdateStatus(_message.Message):
     state: FirmwareUpdateState
     progress: int
     error: FirmwareUpdateError
-    def __init__(
-        self,
-        version: _firmware_version_pb2.FirmwareVersion | _Mapping | None = ...,
-        state: FirmwareUpdateState | str | None = ...,
-        progress: int | None = ...,
-        error: FirmwareUpdateError | str | None = ...,
-    ) -> None: ...
+    def __init__(self, version: _Optional[_Union[_firmware_version_pb2.FirmwareVersion, _Mapping]] = ..., state: _Optional[_Union[FirmwareUpdateState, str]] = ..., progress: _Optional[int] = ..., error: _Optional[_Union[FirmwareUpdateError, str]] = ...) -> None: ...

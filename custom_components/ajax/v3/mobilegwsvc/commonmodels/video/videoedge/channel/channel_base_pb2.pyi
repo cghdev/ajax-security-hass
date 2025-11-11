@@ -1,34 +1,17 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from systems.ajax.api.mobile.v2.common.video.videoedge.archive import archive_pb2 as _archive_pb2
+from systems.ajax.api.mobile.v2.common.video.videoedge.channel import channel_pb2 as _channel_pb2
+from systems.ajax.api.mobile.v2.common.video.videoedge.channel.cloudarchive import cloud_archive_pb2 as _cloud_archive_pb2
+from systems.ajax.logging.proto import formatting_options_pb2 as _formatting_options_pb2
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import containers as _containers
-from systems.ajax.api.mobile.v2.common.video.videoedge.archive import (
-    archive_pb2 as _archive_pb2,
-)
-from systems.ajax.api.mobile.v2.common.video.videoedge.channel import (
-    channel_pb2 as _channel_pb2,
-)
-from systems.ajax.api.mobile.v2.common.video.videoedge.channel.cloudarchive import (
-    cloud_archive_pb2 as _cloud_archive_pb2,
-)
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ChannelBase(_message.Message):
-    __slots__ = (
-        "cloud_archive",
-        "device_info",
-        "id",
-        "info",
-        "record_mode",
-        "record_policy",
-        "smart_backlight_trigger_settings",
-        "state",
-        "zombie",
-    )
+    __slots__ = ("id", "device_info", "info", "state", "record_mode", "record_policy", "zombie", "cloud_archive", "smart_backlight_trigger_settings")
     ID_FIELD_NUMBER: _ClassVar[int]
     DEVICE_INFO_FIELD_NUMBER: _ClassVar[int]
     INFO_FIELD_NUMBER: _ClassVar[int]
@@ -47,17 +30,4 @@ class ChannelBase(_message.Message):
     zombie: bool
     cloud_archive: _cloud_archive_pb2.CloudArchive
     smart_backlight_trigger_settings: _channel_pb2.SmartBacklightTriggerSettings
-    def __init__(
-        self,
-        id: str | None = ...,
-        device_info: _channel_pb2.MediaDeviceInfo | _Mapping | None = ...,
-        info: _channel_pb2.ChannelInfo | _Mapping | None = ...,
-        state: _Iterable[_channel_pb2.ChannelState | str] | None = ...,
-        record_mode: _archive_pb2.RecordMode | str | None = ...,
-        record_policy: _archive_pb2.RecordPolicy | str | None = ...,
-        zombie: bool = ...,
-        cloud_archive: _cloud_archive_pb2.CloudArchive | _Mapping | None = ...,
-        smart_backlight_trigger_settings: _channel_pb2.SmartBacklightTriggerSettings
-        | _Mapping
-        | None = ...,
-    ) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., device_info: _Optional[_Union[_channel_pb2.MediaDeviceInfo, _Mapping]] = ..., info: _Optional[_Union[_channel_pb2.ChannelInfo, _Mapping]] = ..., state: _Optional[_Iterable[_Union[_channel_pb2.ChannelState, str]]] = ..., record_mode: _Optional[_Union[_archive_pb2.RecordMode, str]] = ..., record_policy: _Optional[_Union[_archive_pb2.RecordPolicy, str]] = ..., zombie: bool = ..., cloud_archive: _Optional[_Union[_cloud_archive_pb2.CloudArchive, _Mapping]] = ..., smart_backlight_trigger_settings: _Optional[_Union[_channel_pb2.SmartBacklightTriggerSettings, _Mapping]] = ...) -> None: ...

@@ -1,8 +1,7 @@
-from typing import ClassVar as _ClassVar
-
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -17,7 +16,6 @@ class AccessCardRc(_message.Message):
         INVALID_CARD: _ClassVar[AccessCardRc.Rc]
         USER_TIMEOUT: _ClassVar[AccessCardRc.Rc]
         NO_ANSWER: _ClassVar[AccessCardRc.Rc]
-
     ADDED: AccessCardRc.Rc
     ALREADY_ADDED: AccessCardRc.Rc
     CARD_FULL: AccessCardRc.Rc
@@ -27,4 +25,4 @@ class AccessCardRc(_message.Message):
     NO_ANSWER: AccessCardRc.Rc
     RC_FIELD_NUMBER: _ClassVar[int]
     rc: AccessCardRc.Rc
-    def __init__(self, rc: AccessCardRc.Rc | str | None = ...) -> None: ...
+    def __init__(self, rc: _Optional[_Union[AccessCardRc.Rc, str]] = ...) -> None: ...

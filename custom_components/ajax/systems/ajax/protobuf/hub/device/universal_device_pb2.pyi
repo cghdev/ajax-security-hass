@@ -1,24 +1,15 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
+from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class UniversalDevice(_message.Message):
-    __slots__ = (
-        "alarms",
-        "common_part",
-        "device_debug_enabled",
-        "settings",
-        "statuses",
-        "subtype",
-    )
+    __slots__ = ("common_part", "device_debug_enabled", "settings", "statuses", "alarms", "subtype")
     class Setting(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_SETTING_INFO: _ClassVar[UniversalDevice.Setting]
@@ -54,7 +45,6 @@ class UniversalDevice(_message.Message):
         SETTING_30: _ClassVar[UniversalDevice.Setting]
         SETTING_31: _ClassVar[UniversalDevice.Setting]
         SETTING_32: _ClassVar[UniversalDevice.Setting]
-
     NO_SETTING_INFO: UniversalDevice.Setting
     SETTING_1: UniversalDevice.Setting
     SETTING_2: UniversalDevice.Setting
@@ -123,7 +113,6 @@ class UniversalDevice(_message.Message):
         STATUS_30: _ClassVar[UniversalDevice.Status]
         STATUS_31: _ClassVar[UniversalDevice.Status]
         STATUS_32: _ClassVar[UniversalDevice.Status]
-
     NO_STATUS_INFO: UniversalDevice.Status
     STATUS_1: UniversalDevice.Status
     STATUS_2: UniversalDevice.Status
@@ -192,7 +181,6 @@ class UniversalDevice(_message.Message):
         ALARM_30: _ClassVar[UniversalDevice.Alarm]
         ALARM_31: _ClassVar[UniversalDevice.Alarm]
         ALARM_32: _ClassVar[UniversalDevice.Alarm]
-
     NO_ALARM_INFO: UniversalDevice.Alarm
     ALARM_1: UniversalDevice.Alarm
     ALARM_2: UniversalDevice.Alarm
@@ -229,7 +217,6 @@ class UniversalDevice(_message.Message):
     class Subtype(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_SUBTYPE: _ClassVar[UniversalDevice.Subtype]
-
     NO_SUBTYPE: UniversalDevice.Subtype
     COMMON_PART_FIELD_NUMBER: _ClassVar[int]
     DEVICE_DEBUG_ENABLED_FIELD_NUMBER: _ClassVar[int]
@@ -243,12 +230,4 @@ class UniversalDevice(_message.Message):
     statuses: _containers.RepeatedScalarFieldContainer[UniversalDevice.Status]
     alarms: _containers.RepeatedScalarFieldContainer[UniversalDevice.Alarm]
     subtype: UniversalDevice.Subtype
-    def __init__(
-        self,
-        common_part: _common_device_pb2.CommonDevicePart | _Mapping | None = ...,
-        device_debug_enabled: bool = ...,
-        settings: _Iterable[UniversalDevice.Setting | str] | None = ...,
-        statuses: _Iterable[UniversalDevice.Status | str] | None = ...,
-        alarms: _Iterable[UniversalDevice.Alarm | str] | None = ...,
-        subtype: UniversalDevice.Subtype | str | None = ...,
-    ) -> None: ...
+    def __init__(self, common_part: _Optional[_Union[_common_device_pb2.CommonDevicePart, _Mapping]] = ..., device_debug_enabled: bool = ..., settings: _Optional[_Iterable[_Union[UniversalDevice.Setting, str]]] = ..., statuses: _Optional[_Iterable[_Union[UniversalDevice.Status, str]]] = ..., alarms: _Optional[_Iterable[_Union[UniversalDevice.Alarm, str]]] = ..., subtype: _Optional[_Union[UniversalDevice.Subtype, str]] = ...) -> None: ...

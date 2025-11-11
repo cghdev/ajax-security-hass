@@ -1,8 +1,7 @@
-from typing import ClassVar as _ClassVar
-
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -73,7 +72,6 @@ class CurtainCamOutdoorHmPhod(int, metaclass=_enum_type_wrapper.EnumTypeWrapper)
     CURTAIN_CAM_OUTDOOR_HM_PHOD_UNSPECIFIED: _ClassVar[CurtainCamOutdoorHmPhod]
     CURTAIN_CAM_OUTDOOR_HM_PHOD_ALL_MOTION_SENSORS: _ClassVar[CurtainCamOutdoorHmPhod]
     CURTAIN_CAM_OUTDOOR_HM_PHOD_MASKING_SENSOR: _ClassVar[CurtainCamOutdoorHmPhod]
-
 OUTDOOR_UNSPECIFIED: Outdoor
 OUTDOOR_MOVING_SENSOR: Outdoor
 OUTDOOR_UPPER_PIR: Outdoor
@@ -111,19 +109,7 @@ CURTAIN_CAM_OUTDOOR_HM_PHOD_ALL_MOTION_SENSORS: CurtainCamOutdoorHmPhod
 CURTAIN_CAM_OUTDOOR_HM_PHOD_MASKING_SENSOR: CurtainCamOutdoorHmPhod
 
 class DeviceSensor(_message.Message):
-    __slots__ = (
-        "button_s",
-        "curtain",
-        "curtain_cam_outdoor_hm_phod",
-        "curtain_outdoor",
-        "curtain_outdoor_mini",
-        "double_button_g3",
-        "dual_curtain",
-        "motion_cam_g3",
-        "motion_cam_s_phod_am",
-        "motion_protect_g3",
-        "outdoor",
-    )
+    __slots__ = ("outdoor", "curtain", "dual_curtain", "button_s", "curtain_outdoor", "motion_protect_g3", "motion_cam_s_phod_am", "double_button_g3", "motion_cam_g3", "curtain_outdoor_mini", "curtain_cam_outdoor_hm_phod")
     OUTDOOR_FIELD_NUMBER: _ClassVar[int]
     CURTAIN_FIELD_NUMBER: _ClassVar[int]
     DUAL_CURTAIN_FIELD_NUMBER: _ClassVar[int]
@@ -146,17 +132,4 @@ class DeviceSensor(_message.Message):
     motion_cam_g3: MotionCamG3
     curtain_outdoor_mini: CurtainOutdoorMini
     curtain_cam_outdoor_hm_phod: CurtainCamOutdoorHmPhod
-    def __init__(
-        self,
-        outdoor: Outdoor | str | None = ...,
-        curtain: Curtain | str | None = ...,
-        dual_curtain: DualCurtain | str | None = ...,
-        button_s: ButtonS | str | None = ...,
-        curtain_outdoor: CurtainOutdoor | str | None = ...,
-        motion_protect_g3: MotionProtectG3 | str | None = ...,
-        motion_cam_s_phod_am: MotionCamSPhodAm | str | None = ...,
-        double_button_g3: DoubleButtonG3 | str | None = ...,
-        motion_cam_g3: MotionCamG3 | str | None = ...,
-        curtain_outdoor_mini: CurtainOutdoorMini | str | None = ...,
-        curtain_cam_outdoor_hm_phod: CurtainCamOutdoorHmPhod | str | None = ...,
-    ) -> None: ...
+    def __init__(self, outdoor: _Optional[_Union[Outdoor, str]] = ..., curtain: _Optional[_Union[Curtain, str]] = ..., dual_curtain: _Optional[_Union[DualCurtain, str]] = ..., button_s: _Optional[_Union[ButtonS, str]] = ..., curtain_outdoor: _Optional[_Union[CurtainOutdoor, str]] = ..., motion_protect_g3: _Optional[_Union[MotionProtectG3, str]] = ..., motion_cam_s_phod_am: _Optional[_Union[MotionCamSPhodAm, str]] = ..., double_button_g3: _Optional[_Union[DoubleButtonG3, str]] = ..., motion_cam_g3: _Optional[_Union[MotionCamG3, str]] = ..., curtain_outdoor_mini: _Optional[_Union[CurtainOutdoorMini, str]] = ..., curtain_cam_outdoor_hm_phod: _Optional[_Union[CurtainCamOutdoorHmPhod, str]] = ...) -> None: ...

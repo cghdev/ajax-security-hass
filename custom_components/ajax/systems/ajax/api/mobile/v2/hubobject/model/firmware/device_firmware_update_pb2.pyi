@@ -1,25 +1,17 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import empty_pb2 as _empty_pb2
-from google.protobuf import message as _message
-from google.protobuf import wrappers_pb2 as _wrappers_pb2
 from systems.ajax.api.mobile.v2.common import resource_id_pb2 as _resource_id_pb2
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
+from google.protobuf import empty_pb2 as _empty_pb2
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DeviceFirmwareUpdate(_message.Message):
-    __slots__ = ("device_id", "is_critical", "resource_id", "status")
+    __slots__ = ("device_id", "resource_id", "status", "is_critical")
     class Status(_message.Message):
-        __slots__ = (
-            "completed",
-            "downloaded",
-            "downloading",
-            "failed",
-            "installing",
-            "not_started",
-        )
+        __slots__ = ("not_started", "downloading", "downloaded", "installing", "completed", "failed")
         NOT_STARTED_FIELD_NUMBER: _ClassVar[int]
         DOWNLOADING_FIELD_NUMBER: _ClassVar[int]
         DOWNLOADED_FIELD_NUMBER: _ClassVar[int]
@@ -32,16 +24,7 @@ class DeviceFirmwareUpdate(_message.Message):
         installing: _empty_pb2.Empty
         completed: _empty_pb2.Empty
         failed: _empty_pb2.Empty
-        def __init__(
-            self,
-            not_started: _empty_pb2.Empty | _Mapping | None = ...,
-            downloading: int | None = ...,
-            downloaded: _empty_pb2.Empty | _Mapping | None = ...,
-            installing: _empty_pb2.Empty | _Mapping | None = ...,
-            completed: _empty_pb2.Empty | _Mapping | None = ...,
-            failed: _empty_pb2.Empty | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, not_started: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., downloading: _Optional[int] = ..., downloaded: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., installing: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., completed: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ..., failed: _Optional[_Union[_empty_pb2.Empty, _Mapping]] = ...) -> None: ...
     DEVICE_ID_FIELD_NUMBER: _ClassVar[int]
     RESOURCE_ID_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
@@ -50,10 +33,4 @@ class DeviceFirmwareUpdate(_message.Message):
     resource_id: _resource_id_pb2.ResourceId
     status: DeviceFirmwareUpdate.Status
     is_critical: _wrappers_pb2.BoolValue
-    def __init__(
-        self,
-        device_id: str | None = ...,
-        resource_id: _resource_id_pb2.ResourceId | _Mapping | None = ...,
-        status: DeviceFirmwareUpdate.Status | _Mapping | None = ...,
-        is_critical: _wrappers_pb2.BoolValue | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, device_id: _Optional[str] = ..., resource_id: _Optional[_Union[_resource_id_pb2.ResourceId, _Mapping]] = ..., status: _Optional[_Union[DeviceFirmwareUpdate.Status, _Mapping]] = ..., is_critical: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ...) -> None: ...

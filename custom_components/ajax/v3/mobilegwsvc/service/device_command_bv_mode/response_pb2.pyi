@@ -1,24 +1,15 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DeviceCommandBvModeResponse(_message.Message):
-    __slots__ = ("failure", "success")
+    __slots__ = ("success", "failure")
     class Failure(_message.Message):
-        __slots__ = (
-            "alarm_reset_needed",
-            "command_not_performed",
-            "hub_busy",
-            "hub_offline",
-            "hub_wrong_state",
-            "permission_denied",
-            "unknown_command",
-        )
+        __slots__ = ("command_not_performed", "permission_denied", "hub_wrong_state", "hub_offline", "alarm_reset_needed", "unknown_command", "hub_busy")
         COMMAND_NOT_PERFORMED_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
         HUB_WRONG_STATE_FIELD_NUMBER: _ClassVar[int]
@@ -33,23 +24,9 @@ class DeviceCommandBvModeResponse(_message.Message):
         alarm_reset_needed: _response_pb2.Error
         unknown_command: _response_pb2.Error
         hub_busy: _response_pb2.HubBusyError
-        def __init__(
-            self,
-            command_not_performed: _response_pb2.Error | _Mapping | None = ...,
-            permission_denied: _response_pb2.Error | _Mapping | None = ...,
-            hub_wrong_state: _response_pb2.HubWrongStateError | _Mapping | None = ...,
-            hub_offline: _response_pb2.Error | _Mapping | None = ...,
-            alarm_reset_needed: _response_pb2.Error | _Mapping | None = ...,
-            unknown_command: _response_pb2.Error | _Mapping | None = ...,
-            hub_busy: _response_pb2.HubBusyError | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, command_not_performed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_wrong_state: _Optional[_Union[_response_pb2.HubWrongStateError, _Mapping]] = ..., hub_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., alarm_reset_needed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., unknown_command: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_busy: _Optional[_Union[_response_pb2.HubBusyError, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: DeviceCommandBvModeResponse.Failure
-    def __init__(
-        self,
-        success: _response_pb2.Success | _Mapping | None = ...,
-        failure: DeviceCommandBvModeResponse.Failure | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[DeviceCommandBvModeResponse.Failure, _Mapping]] = ...) -> None: ...

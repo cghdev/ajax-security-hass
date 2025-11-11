@@ -1,23 +1,15 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class SetVideoEdgeDetectorsEnabledResponse(_message.Message):
-    __slots__ = ("failure", "success")
+    __slots__ = ("success", "failure")
     class Failure(_message.Message):
-        __slots__ = (
-            "bad_request",
-            "permission_denied",
-            "some_detectors_failed_to_update",
-            "space_armed",
-            "video_edge_is_offline",
-            "video_edge_not_found",
-        )
+        __slots__ = ("bad_request", "video_edge_not_found", "permission_denied", "space_armed", "some_detectors_failed_to_update", "video_edge_is_offline")
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         VIDEO_EDGE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
@@ -30,24 +22,9 @@ class SetVideoEdgeDetectorsEnabledResponse(_message.Message):
         space_armed: _response_pb2.Error
         some_detectors_failed_to_update: _response_pb2.Error
         video_edge_is_offline: _response_pb2.Error
-        def __init__(
-            self,
-            bad_request: _response_pb2.Error | _Mapping | None = ...,
-            video_edge_not_found: _response_pb2.Error | _Mapping | None = ...,
-            permission_denied: _response_pb2.Error | _Mapping | None = ...,
-            space_armed: _response_pb2.Error | _Mapping | None = ...,
-            some_detectors_failed_to_update: _response_pb2.Error
-            | _Mapping
-            | None = ...,
-            video_edge_is_offline: _response_pb2.Error | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, bad_request: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., space_armed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., some_detectors_failed_to_update: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_is_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: SetVideoEdgeDetectorsEnabledResponse.Failure
-    def __init__(
-        self,
-        success: _response_pb2.Success | _Mapping | None = ...,
-        failure: SetVideoEdgeDetectorsEnabledResponse.Failure | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[SetVideoEdgeDetectorsEnabledResponse.Failure, _Mapping]] = ...) -> None: ...

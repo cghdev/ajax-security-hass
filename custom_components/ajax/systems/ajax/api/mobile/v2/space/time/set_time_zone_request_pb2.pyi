@@ -1,10 +1,9 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
 from systems.ajax.api.mobile.v2.common.time import time_zone_pb2 as _time_zone_pb2
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -14,23 +13,12 @@ class SetSpaceTimeZoneRequest(_message.Message):
     TIME_ZONE_FIELD_NUMBER: _ClassVar[int]
     space_id: str
     time_zone: _time_zone_pb2.TimeZone
-    def __init__(
-        self,
-        space_id: str | None = ...,
-        time_zone: _time_zone_pb2.TimeZone | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, space_id: _Optional[str] = ..., time_zone: _Optional[_Union[_time_zone_pb2.TimeZone, _Mapping]] = ...) -> None: ...
 
 class SetSpaceTimeZoneResponse(_message.Message):
-    __slots__ = ("failure", "success")
+    __slots__ = ("success", "failure")
     class Failure(_message.Message):
-        __slots__ = (
-            "bad_request",
-            "message",
-            "permission_denied",
-            "space_armed",
-            "space_locked",
-            "space_not_found",
-        )
+        __slots__ = ("message", "bad_request", "space_not_found", "permission_denied", "space_armed", "space_locked")
         MESSAGE_FIELD_NUMBER: _ClassVar[int]
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         SPACE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
@@ -43,22 +31,9 @@ class SetSpaceTimeZoneResponse(_message.Message):
         permission_denied: _response_pb2.DefaultError
         space_armed: _response_pb2.DefaultError
         space_locked: _response_pb2.SpaceLockedError
-        def __init__(
-            self,
-            message: str | None = ...,
-            bad_request: _response_pb2.DefaultError | _Mapping | None = ...,
-            space_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
-            permission_denied: _response_pb2.DefaultError | _Mapping | None = ...,
-            space_armed: _response_pb2.DefaultError | _Mapping | None = ...,
-            space_locked: _response_pb2.SpaceLockedError | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, message: _Optional[str] = ..., bad_request: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_armed: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_locked: _Optional[_Union[_response_pb2.SpaceLockedError, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: SetSpaceTimeZoneResponse.Failure
-    def __init__(
-        self,
-        success: _response_pb2.Success | _Mapping | None = ...,
-        failure: SetSpaceTimeZoneResponse.Failure | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[SetSpaceTimeZoneResponse.Failure, _Mapping]] = ...) -> None: ...

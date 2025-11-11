@@ -1,44 +1,20 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from google.protobuf import wrappers_pb2 as _wrappers_pb2
+from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.protobuf.hub.device import common_device_pb2 as _common_device_pb2
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class KeypadPlus(_message.Message):
-    __slots__ = (
-        "access_profiles",
-        "allow_fast_arming",
-        "arm_inversion",
-        "associated_group_id",
-        "ble_enabled",
-        "ble_sensitivity",
-        "block_on_multiple_password_failures",
-        "blocked",
-        "brightness_level",
-        "common_part",
-        "force_disarm_password",
-        "nfc_enabled",
-        "password",
-        "password_hash",
-        "password_hash_duress",
-        "siren_triggers",
-        "star_button_function",
-        "subtype",
-        "time_to_block_on_multiple_password_failures_minutes",
-        "volume_level",
-    )
+    __slots__ = ("common_part", "siren_triggers", "access_profiles", "star_button_function", "password", "force_disarm_password", "block_on_multiple_password_failures", "time_to_block_on_multiple_password_failures_minutes", "blocked", "allow_fast_arming", "brightness_level", "volume_level", "associated_group_id", "password_hash", "password_hash_duress", "arm_inversion", "nfc_enabled", "ble_enabled", "ble_sensitivity", "subtype")
     class SirenTrigger(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_SIREN_TRIGGER_INFO: _ClassVar[KeypadPlus.SirenTrigger]
         SECURITY_BUTTON: _ClassVar[KeypadPlus.SirenTrigger]
-
     NO_SIREN_TRIGGER_INFO: KeypadPlus.SirenTrigger
     SECURITY_BUTTON: KeypadPlus.SirenTrigger
     class StarButtonFunction(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
@@ -47,7 +23,6 @@ class KeypadPlus(_message.Message):
         DISABLED: _ClassVar[KeypadPlus.StarButtonFunction]
         PANIC: _ClassVar[KeypadPlus.StarButtonFunction]
         MUTE_FIRE_ALARM: _ClassVar[KeypadPlus.StarButtonFunction]
-
     NO_STAR_BUTTON_FUNCTION_INFO: KeypadPlus.StarButtonFunction
     DISABLED: KeypadPlus.StarButtonFunction
     PANIC: KeypadPlus.StarButtonFunction
@@ -57,7 +32,6 @@ class KeypadPlus(_message.Message):
         NO_ACCESS_PROFILE_INFO: _ClassVar[KeypadPlus.AccessProfile]
         KEYBOARD_PASSWORD: _ClassVar[KeypadPlus.AccessProfile]
         USER_PASSWORD: _ClassVar[KeypadPlus.AccessProfile]
-
     NO_ACCESS_PROFILE_INFO: KeypadPlus.AccessProfile
     KEYBOARD_PASSWORD: KeypadPlus.AccessProfile
     USER_PASSWORD: KeypadPlus.AccessProfile
@@ -69,7 +43,6 @@ class KeypadPlus(_message.Message):
         AVERAGE: _ClassVar[KeypadPlus.BleSensitivity]
         ABOVE_AVERAGE: _ClassVar[KeypadPlus.BleSensitivity]
         WELL_ABOVE_AVERAGE: _ClassVar[KeypadPlus.BleSensitivity]
-
     NO_BLE_SENSITIVITY: KeypadPlus.BleSensitivity
     WELL_BELLOW_AVERAGE: KeypadPlus.BleSensitivity
     BELLOW_AVERAGE: KeypadPlus.BleSensitivity
@@ -80,7 +53,6 @@ class KeypadPlus(_message.Message):
         __slots__ = ()
         NO_SUBTYPE: _ClassVar[KeypadPlus.Subtype]
         S_PLUS: _ClassVar[KeypadPlus.Subtype]
-
     NO_SUBTYPE: KeypadPlus.Subtype
     S_PLUS: KeypadPlus.Subtype
     COMMON_PART_FIELD_NUMBER: _ClassVar[int]
@@ -123,26 +95,4 @@ class KeypadPlus(_message.Message):
     ble_enabled: bool
     ble_sensitivity: KeypadPlus.BleSensitivity
     subtype: KeypadPlus.Subtype
-    def __init__(
-        self,
-        common_part: _common_device_pb2.CommonDevicePart | _Mapping | None = ...,
-        siren_triggers: _Iterable[KeypadPlus.SirenTrigger | str] | None = ...,
-        access_profiles: _Iterable[KeypadPlus.AccessProfile | str] | None = ...,
-        star_button_function: KeypadPlus.StarButtonFunction | str | None = ...,
-        password: str | None = ...,
-        force_disarm_password: str | None = ...,
-        block_on_multiple_password_failures: bool = ...,
-        time_to_block_on_multiple_password_failures_minutes: int | None = ...,
-        blocked: _wrappers_pb2.BoolValue | _Mapping | None = ...,
-        allow_fast_arming: bool = ...,
-        brightness_level: int | None = ...,
-        volume_level: int | None = ...,
-        associated_group_id: str | None = ...,
-        password_hash: str | None = ...,
-        password_hash_duress: str | None = ...,
-        arm_inversion: bool = ...,
-        nfc_enabled: bool = ...,
-        ble_enabled: bool = ...,
-        ble_sensitivity: KeypadPlus.BleSensitivity | str | None = ...,
-        subtype: KeypadPlus.Subtype | str | None = ...,
-    ) -> None: ...
+    def __init__(self, common_part: _Optional[_Union[_common_device_pb2.CommonDevicePart, _Mapping]] = ..., siren_triggers: _Optional[_Iterable[_Union[KeypadPlus.SirenTrigger, str]]] = ..., access_profiles: _Optional[_Iterable[_Union[KeypadPlus.AccessProfile, str]]] = ..., star_button_function: _Optional[_Union[KeypadPlus.StarButtonFunction, str]] = ..., password: _Optional[str] = ..., force_disarm_password: _Optional[str] = ..., block_on_multiple_password_failures: bool = ..., time_to_block_on_multiple_password_failures_minutes: _Optional[int] = ..., blocked: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., allow_fast_arming: bool = ..., brightness_level: _Optional[int] = ..., volume_level: _Optional[int] = ..., associated_group_id: _Optional[str] = ..., password_hash: _Optional[str] = ..., password_hash_duress: _Optional[str] = ..., arm_inversion: bool = ..., nfc_enabled: bool = ..., ble_enabled: bool = ..., ble_sensitivity: _Optional[_Union[KeypadPlus.BleSensitivity, str]] = ..., subtype: _Optional[_Union[KeypadPlus.Subtype, str]] = ...) -> None: ...

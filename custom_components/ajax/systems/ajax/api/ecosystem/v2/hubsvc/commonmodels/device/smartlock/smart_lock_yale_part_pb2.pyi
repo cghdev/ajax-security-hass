@@ -1,39 +1,22 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import device_chimes_pb2 as _device_chimes_pb2
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.meta import meta_pb2 as _meta_pb2
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import patch_type_pb2 as _patch_type_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import (
-    patch_type_pb2 as _patch_type_pb2,
-)
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels.device.common import (
-    device_chimes_pb2 as _device_chimes_pb2,
-)
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class SmartLockYalePart(_message.Message):
-    __slots__ = (
-        "alarm_mode",
-        "door_bell_device_chimes",
-        "fw_version",
-        "hw_version",
-        "keyboard_status",
-        "language",
-        "loudness",
-        "model_type",
-        "secure_mode",
-        "user_code_blocking",
-    )
+    __slots__ = ("model_type", "hw_version", "keyboard_status", "secure_mode", "door_bell_device_chimes", "loudness", "language", "alarm_mode", "user_code_blocking", "fw_version")
     class ModelType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         MODEL_TYPE_UNSPECIFIED: _ClassVar[SmartLockYalePart.ModelType]
         MODEL_TYPE_DOORMAN_L3S: _ClassVar[SmartLockYalePart.ModelType]
         MODEL_TYPE_DOORMAN_V2N: _ClassVar[SmartLockYalePart.ModelType]
-
     MODEL_TYPE_UNSPECIFIED: SmartLockYalePart.ModelType
     MODEL_TYPE_DOORMAN_L3S: SmartLockYalePart.ModelType
     MODEL_TYPE_DOORMAN_V2N: SmartLockYalePart.ModelType
@@ -42,7 +25,6 @@ class SmartLockYalePart(_message.Message):
         KEYBOARD_STATUS_UNSPECIFIED: _ClassVar[SmartLockYalePart.KeyboardStatus]
         KEYBOARD_STATUS_UNLOCKED: _ClassVar[SmartLockYalePart.KeyboardStatus]
         KEYBOARD_STATUS_LOCKED: _ClassVar[SmartLockYalePart.KeyboardStatus]
-
     KEYBOARD_STATUS_UNSPECIFIED: SmartLockYalePart.KeyboardStatus
     KEYBOARD_STATUS_UNLOCKED: SmartLockYalePart.KeyboardStatus
     KEYBOARD_STATUS_LOCKED: SmartLockYalePart.KeyboardStatus
@@ -51,7 +33,6 @@ class SmartLockYalePart(_message.Message):
         SECURE_MODE_UNSPECIFIED: _ClassVar[SmartLockYalePart.SecureMode]
         SECURE_MODE_DISABLED: _ClassVar[SmartLockYalePart.SecureMode]
         SECURE_MODE_ENABLED: _ClassVar[SmartLockYalePart.SecureMode]
-
     SECURE_MODE_UNSPECIFIED: SmartLockYalePart.SecureMode
     SECURE_MODE_DISABLED: SmartLockYalePart.SecureMode
     SECURE_MODE_ENABLED: SmartLockYalePart.SecureMode
@@ -61,7 +42,6 @@ class SmartLockYalePart(_message.Message):
         LOUDNESS_LOW: _ClassVar[SmartLockYalePart.Loudness]
         LOUDNESS_MEDIUM: _ClassVar[SmartLockYalePart.Loudness]
         LOUDNESS_MAX: _ClassVar[SmartLockYalePart.Loudness]
-
     LOUDNESS_UNSPECIFIED: SmartLockYalePart.Loudness
     LOUDNESS_LOW: SmartLockYalePart.Loudness
     LOUDNESS_MEDIUM: SmartLockYalePart.Loudness
@@ -98,7 +78,6 @@ class SmartLockYalePart(_message.Message):
         LANGUAGE_LATVIAN: _ClassVar[SmartLockYalePart.Language]
         LANGUAGE_KOREAN: _ClassVar[SmartLockYalePart.Language]
         LANGUAGE_JAPANESE: _ClassVar[SmartLockYalePart.Language]
-
     LANGUAGE_UNSPECIFIED: SmartLockYalePart.Language
     LANGUAGE_ARABIC: SmartLockYalePart.Language
     LANGUAGE_ENGLISH: SmartLockYalePart.Language
@@ -135,7 +114,6 @@ class SmartLockYalePart(_message.Message):
         ALARM_MODE_DISABLED: _ClassVar[SmartLockYalePart.AlarmMode]
         ALARM_MODE_HOME_MODE: _ClassVar[SmartLockYalePart.AlarmMode]
         ALARM_MODE_AWAY_MODE: _ClassVar[SmartLockYalePart.AlarmMode]
-
     ALARM_MODE_UNSPECIFIED: SmartLockYalePart.AlarmMode
     ALARM_MODE_DISABLED: SmartLockYalePart.AlarmMode
     ALARM_MODE_HOME_MODE: SmartLockYalePart.AlarmMode
@@ -145,107 +123,49 @@ class SmartLockYalePart(_message.Message):
         USER_CODE_BLOCKING_UNSPECIFIED: _ClassVar[SmartLockYalePart.UserCodeBlocking]
         USER_CODE_BLOCKING_DISABLED: _ClassVar[SmartLockYalePart.UserCodeBlocking]
         USER_CODE_BLOCKING_ENABLED: _ClassVar[SmartLockYalePart.UserCodeBlocking]
-
     USER_CODE_BLOCKING_UNSPECIFIED: SmartLockYalePart.UserCodeBlocking
     USER_CODE_BLOCKING_DISABLED: SmartLockYalePart.UserCodeBlocking
     USER_CODE_BLOCKING_ENABLED: SmartLockYalePart.UserCodeBlocking
     class DoorBellDeviceChimes(_message.Message):
-        __slots__ = ("chimes_sound", "chimes_triggers")
+        __slots__ = ("chimes_triggers", "chimes_sound")
         class DoorBellChimesTrigger(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
             __slots__ = ()
-            DOOR_BELL_CHIMES_TRIGGER_UNSPECIFIED: _ClassVar[
-                SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
-            ]
-            DOOR_BELL_CHIMES_TRIGGER_BUTTON: _ClassVar[
-                SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
-            ]
-
-        DOOR_BELL_CHIMES_TRIGGER_UNSPECIFIED: (
-            SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
-        )
-        DOOR_BELL_CHIMES_TRIGGER_BUTTON: (
-            SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
-        )
+            DOOR_BELL_CHIMES_TRIGGER_UNSPECIFIED: _ClassVar[SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger]
+            DOOR_BELL_CHIMES_TRIGGER_BUTTON: _ClassVar[SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger]
+        DOOR_BELL_CHIMES_TRIGGER_UNSPECIFIED: SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
+        DOOR_BELL_CHIMES_TRIGGER_BUTTON: SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
         CHIMES_TRIGGERS_FIELD_NUMBER: _ClassVar[int]
         CHIMES_SOUND_FIELD_NUMBER: _ClassVar[int]
-        chimes_triggers: _containers.RepeatedScalarFieldContainer[
-            SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
-        ]
+        chimes_triggers: _containers.RepeatedScalarFieldContainer[SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger]
         chimes_sound: _device_chimes_pb2.DeviceChimes.Sound
-        def __init__(
-            self,
-            chimes_triggers: _Iterable[
-                SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger | str
-            ]
-            | None = ...,
-            chimes_sound: _device_chimes_pb2.DeviceChimes.Sound | str | None = ...,
-        ) -> None: ...
-
+        def __init__(self, chimes_triggers: _Optional[_Iterable[_Union[SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger, str]]] = ..., chimes_sound: _Optional[_Union[_device_chimes_pb2.DeviceChimes.Sound, str]] = ...) -> None: ...
     class SmartLockYalePartSettings(_message.Message):
-        __slots__ = (
-            "alarm_mode",
-            "door_bell_device_chimes",
-            "language",
-            "loudness",
-            "user_code_blocking",
-        )
+        __slots__ = ("door_bell_device_chimes", "loudness", "language", "alarm_mode", "user_code_blocking")
         class DoorBellDeviceChimesSettings(_message.Message):
-            __slots__ = ("chimes_sound", "chimes_triggers")
+            __slots__ = ("chimes_triggers", "chimes_sound")
             class DoorBellChimesTriggerPatch(_message.Message):
-                __slots__ = ("chimes_trigger", "patch_type")
+                __slots__ = ("patch_type", "chimes_trigger")
                 PATCH_TYPE_FIELD_NUMBER: _ClassVar[int]
                 CHIMES_TRIGGER_FIELD_NUMBER: _ClassVar[int]
                 patch_type: _patch_type_pb2.PatchType
-                chimes_trigger: (
-                    SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
-                )
-                def __init__(
-                    self,
-                    patch_type: _patch_type_pb2.PatchType | str | None = ...,
-                    chimes_trigger: SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
-                    | str
-                    | None = ...,
-                ) -> None: ...
-
+                chimes_trigger: SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger
+                def __init__(self, patch_type: _Optional[_Union[_patch_type_pb2.PatchType, str]] = ..., chimes_trigger: _Optional[_Union[SmartLockYalePart.DoorBellDeviceChimes.DoorBellChimesTrigger, str]] = ...) -> None: ...
             CHIMES_TRIGGERS_FIELD_NUMBER: _ClassVar[int]
             CHIMES_SOUND_FIELD_NUMBER: _ClassVar[int]
-            chimes_triggers: _containers.RepeatedCompositeFieldContainer[
-                SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings.DoorBellChimesTriggerPatch
-            ]
+            chimes_triggers: _containers.RepeatedCompositeFieldContainer[SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings.DoorBellChimesTriggerPatch]
             chimes_sound: _device_chimes_pb2.DeviceChimes.Sound
-            def __init__(
-                self,
-                chimes_triggers: _Iterable[
-                    SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings.DoorBellChimesTriggerPatch
-                    | _Mapping
-                ]
-                | None = ...,
-                chimes_sound: _device_chimes_pb2.DeviceChimes.Sound | str | None = ...,
-            ) -> None: ...
-
+            def __init__(self, chimes_triggers: _Optional[_Iterable[_Union[SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings.DoorBellChimesTriggerPatch, _Mapping]]] = ..., chimes_sound: _Optional[_Union[_device_chimes_pb2.DeviceChimes.Sound, str]] = ...) -> None: ...
         DOOR_BELL_DEVICE_CHIMES_FIELD_NUMBER: _ClassVar[int]
         LOUDNESS_FIELD_NUMBER: _ClassVar[int]
         LANGUAGE_FIELD_NUMBER: _ClassVar[int]
         ALARM_MODE_FIELD_NUMBER: _ClassVar[int]
         USER_CODE_BLOCKING_FIELD_NUMBER: _ClassVar[int]
-        door_bell_device_chimes: (
-            SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings
-        )
+        door_bell_device_chimes: SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings
         loudness: SmartLockYalePart.Loudness
         language: SmartLockYalePart.Language
         alarm_mode: SmartLockYalePart.AlarmMode
         user_code_blocking: SmartLockYalePart.UserCodeBlocking
-        def __init__(
-            self,
-            door_bell_device_chimes: SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings
-            | _Mapping
-            | None = ...,
-            loudness: SmartLockYalePart.Loudness | str | None = ...,
-            language: SmartLockYalePart.Language | str | None = ...,
-            alarm_mode: SmartLockYalePart.AlarmMode | str | None = ...,
-            user_code_blocking: SmartLockYalePart.UserCodeBlocking | str | None = ...,
-        ) -> None: ...
-
+        def __init__(self, door_bell_device_chimes: _Optional[_Union[SmartLockYalePart.SmartLockYalePartSettings.DoorBellDeviceChimesSettings, _Mapping]] = ..., loudness: _Optional[_Union[SmartLockYalePart.Loudness, str]] = ..., language: _Optional[_Union[SmartLockYalePart.Language, str]] = ..., alarm_mode: _Optional[_Union[SmartLockYalePart.AlarmMode, str]] = ..., user_code_blocking: _Optional[_Union[SmartLockYalePart.UserCodeBlocking, str]] = ...) -> None: ...
     MODEL_TYPE_FIELD_NUMBER: _ClassVar[int]
     HW_VERSION_FIELD_NUMBER: _ClassVar[int]
     KEYBOARD_STATUS_FIELD_NUMBER: _ClassVar[int]
@@ -266,18 +186,4 @@ class SmartLockYalePart(_message.Message):
     alarm_mode: SmartLockYalePart.AlarmMode
     user_code_blocking: SmartLockYalePart.UserCodeBlocking
     fw_version: str
-    def __init__(
-        self,
-        model_type: SmartLockYalePart.ModelType | str | None = ...,
-        hw_version: str | None = ...,
-        keyboard_status: SmartLockYalePart.KeyboardStatus | str | None = ...,
-        secure_mode: SmartLockYalePart.SecureMode | str | None = ...,
-        door_bell_device_chimes: SmartLockYalePart.DoorBellDeviceChimes
-        | _Mapping
-        | None = ...,
-        loudness: SmartLockYalePart.Loudness | str | None = ...,
-        language: SmartLockYalePart.Language | str | None = ...,
-        alarm_mode: SmartLockYalePart.AlarmMode | str | None = ...,
-        user_code_blocking: SmartLockYalePart.UserCodeBlocking | str | None = ...,
-        fw_version: str | None = ...,
-    ) -> None: ...
+    def __init__(self, model_type: _Optional[_Union[SmartLockYalePart.ModelType, str]] = ..., hw_version: _Optional[str] = ..., keyboard_status: _Optional[_Union[SmartLockYalePart.KeyboardStatus, str]] = ..., secure_mode: _Optional[_Union[SmartLockYalePart.SecureMode, str]] = ..., door_bell_device_chimes: _Optional[_Union[SmartLockYalePart.DoorBellDeviceChimes, _Mapping]] = ..., loudness: _Optional[_Union[SmartLockYalePart.Loudness, str]] = ..., language: _Optional[_Union[SmartLockYalePart.Language, str]] = ..., alarm_mode: _Optional[_Union[SmartLockYalePart.AlarmMode, str]] = ..., user_code_blocking: _Optional[_Union[SmartLockYalePart.UserCodeBlocking, str]] = ..., fw_version: _Optional[str] = ...) -> None: ...

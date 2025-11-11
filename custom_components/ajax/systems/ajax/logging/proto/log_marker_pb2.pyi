@@ -1,8 +1,8 @@
-from typing import ClassVar as _ClassVar
-
+from google.protobuf import descriptor_pb2 as _descriptor_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -17,7 +17,6 @@ class LogMarker(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     LOG_MARKER_USER_ID: _ClassVar[LogMarker]
     LOG_MARKER_EMPLOYEE_ID: _ClassVar[LogMarker]
     LOG_MARKER_WEBRTC_SESSION_ID: _ClassVar[LogMarker]
-
 LOG_MARKER_UNSPECIFIED: LogMarker
 LOG_MARKER_VIDEO_EDGE_ID: LogMarker
 LOG_MARKER_SPACE_ID: LogMarker
@@ -36,4 +35,4 @@ class LogMarkerKey(_message.Message):
     __slots__ = ("value",)
     VALUE_FIELD_NUMBER: _ClassVar[int]
     value: str
-    def __init__(self, value: str | None = ...) -> None: ...
+    def __init__(self, value: _Optional[str] = ...) -> None: ...

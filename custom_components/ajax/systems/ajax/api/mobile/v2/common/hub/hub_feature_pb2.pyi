@@ -1,10 +1,9 @@
-from collections.abc import Iterable as _Iterable
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -21,9 +20,7 @@ class HubFeatures(_message.Message):
         HUB_FEATURE_MTR_2_3_EOL: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_DIMMER_SCENARIO: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_PHOD_SCENARIO_BY_ARMING: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_SIREN_SOUNDING_RESTART_DURING_ALARM: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_SIREN_SOUNDING_RESTART_DURING_ALARM: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SIRENS_ALARM_RESTRICTION: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_ARC_ALARM_SETTING: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_ENTRY_EXIT_ROUTE: _ClassVar[HubFeatures.HubFeature]
@@ -35,17 +32,11 @@ class HubFeatures(_message.Message):
         HUB_FEATURE_KEYPAD_S_PLUS_ONE_TOUCH_SCREEN: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_KEYPAD_PLUS_ONE_TOUCH_SCREEN: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_TWO_FACTOR_AUTH_KPTF: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_NOTIFY_BATTERY_CHARGING_MALFUNCTION: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_NOTIFY_BATTERY_CHARGING_MALFUNCTION: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_NOTIFY_BATTERY_TEST_FAILED: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_NOTIFY_MTR_BATTERY_CHARGING_MALFUNCTION: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_NOTIFY_MTR_BATTERY_CHARGING_MALFUNCTION: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_NFC_SUPPORT: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_SIP_MULTIPLE_COMMUNICATION_CHANNELS: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_SIP_MULTIPLE_COMMUNICATION_CHANNELS: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_WINGS_FOR_STREET_SIRENS: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_KPT_EVENT_SCREEN: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_ALARM_AUDIO_RECORDING: _ClassVar[HubFeatures.HubFeature]
@@ -59,33 +50,19 @@ class HubFeatures(_message.Message):
         HUB_FEATURE_AJAX_SIP: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_KPTF_EVENT_SCREEN: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_ARC_REPORTING: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_FW_UPDATE_PERMISSION_NOT_IN_SYSTEM_PERMISSIONS: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_FW_UPDATE_PERMISSION_NOT_IN_SYSTEM_PERMISSIONS: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_AUDIO_SCENARIOS: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_JOB_SEND_PROTOBUF: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_WALK_TEST: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_1: _ClassVar[
-            HubFeatures.HubFeature
-        ]
-        HUB_FEATURE_DOORBELL_INDOORCAM_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: _ClassVar[
-            HubFeatures.HubFeature
-        ]
-        HUB_FEATURE_SUPPORTS_ARM_AFTER_SECOND_STAGE_TIMER: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_1: _ClassVar[HubFeatures.HubFeature]
+        HUB_FEATURE_DOORBELL_INDOORCAM_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: _ClassVar[HubFeatures.HubFeature]
+        HUB_FEATURE_SUPPORTS_ARM_AFTER_SECOND_STAGE_TIMER: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_GSM_ANTENNA: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_JEWELLER_ANTENNA: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_IGNORE_EXTERNAL_BATTERY_MALFUNCTION_BADGE_TOGGLE: _ClassVar[
-            HubFeatures.HubFeature
-        ]
-        HUB_FEATURE_DOORBELL_BUTTON_PRESSED_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: (
-            _ClassVar[HubFeatures.HubFeature]
-        )
+        HUB_FEATURE_IGNORE_EXTERNAL_BATTERY_MALFUNCTION_BADGE_TOGGLE: _ClassVar[HubFeatures.HubFeature]
+        HUB_FEATURE_DOORBELL_BUTTON_PRESSED_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_AJAX_RECHARGEABLE_LITHIUM_BATTERY: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_DEFAULT_TAMPER_MODE_SETTING_SUPPORT: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_DEFAULT_TAMPER_MODE_SETTING_SUPPORT: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_INTERVAL_CHARGING: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_SUPPORTS_SPACE_OBJECT: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_INTERNAL_TAMPER: _ClassVar[HubFeatures.HubFeature]
@@ -94,18 +71,11 @@ class HubFeatures(_message.Message):
         HUB_FEATURE_EN54_HUB_HIDE_SETTINGS: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_EN54_HUB_SPEAKER_PHONE_DISABLED: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_MUTE_FIRE_ALARM_PERMISSION: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_SEPARATE_LINES_POWER_SUPPLY_MANAGEMENT: _ClassVar[
-            HubFeatures.HubFeature
-        ]
-        HUB_FEATURE_SEISMO_PROTECT_BOOM_DETECTION_SETTING: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_SEPARATE_LINES_POWER_SUPPLY_MANAGEMENT: _ClassVar[HubFeatures.HubFeature]
+        HUB_FEATURE_SEISMO_PROTECT_BOOM_DETECTION_SETTING: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_EXPANDED_OBJECT_INDEXES: _ClassVar[HubFeatures.HubFeature]
-        HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_2: _ClassVar[
-            HubFeatures.HubFeature
-        ]
+        HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_2: _ClassVar[HubFeatures.HubFeature]
         HUB_FEATURE_MODIFIABLE_OBJECT_INDEXES: _ClassVar[HubFeatures.HubFeature]
-
     HUB_FEATURE_UNSPECIFIED: HubFeatures.HubFeature
     HUB_FEATURE_BUKHOOR_MODE: HubFeatures.HubFeature
     HUB_FEATURE_EXIT_DELAY_EVENT: HubFeatures.HubFeature
@@ -149,19 +119,13 @@ class HubFeatures(_message.Message):
     HUB_FEATURE_SUPPORTS_AUDIO_SCENARIOS: HubFeatures.HubFeature
     HUB_FEATURE_SUPPORTS_JOB_SEND_PROTOBUF: HubFeatures.HubFeature
     HUB_FEATURE_SUPPORTS_WALK_TEST: HubFeatures.HubFeature
-    HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_1: (
-        HubFeatures.HubFeature
-    )
-    HUB_FEATURE_DOORBELL_INDOORCAM_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: (
-        HubFeatures.HubFeature
-    )
+    HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_1: HubFeatures.HubFeature
+    HUB_FEATURE_DOORBELL_INDOORCAM_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: HubFeatures.HubFeature
     HUB_FEATURE_SUPPORTS_ARM_AFTER_SECOND_STAGE_TIMER: HubFeatures.HubFeature
     HUB_FEATURE_SUPPORTS_GSM_ANTENNA: HubFeatures.HubFeature
     HUB_FEATURE_SUPPORTS_JEWELLER_ANTENNA: HubFeatures.HubFeature
     HUB_FEATURE_IGNORE_EXTERNAL_BATTERY_MALFUNCTION_BADGE_TOGGLE: HubFeatures.HubFeature
-    HUB_FEATURE_DOORBELL_BUTTON_PRESSED_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: (
-        HubFeatures.HubFeature
-    )
+    HUB_FEATURE_DOORBELL_BUTTON_PRESSED_AS_TRIGGER_FOR_AUTOMATION_SCENARIO: HubFeatures.HubFeature
     HUB_FEATURE_AJAX_RECHARGEABLE_LITHIUM_BATTERY: HubFeatures.HubFeature
     HUB_FEATURE_DEFAULT_TAMPER_MODE_SETTING_SUPPORT: HubFeatures.HubFeature
     HUB_FEATURE_INTERVAL_CHARGING: HubFeatures.HubFeature
@@ -175,12 +139,8 @@ class HubFeatures(_message.Message):
     HUB_FEATURE_SEPARATE_LINES_POWER_SUPPLY_MANAGEMENT: HubFeatures.HubFeature
     HUB_FEATURE_SEISMO_PROTECT_BOOM_DETECTION_SETTING: HubFeatures.HubFeature
     HUB_FEATURE_EXPANDED_OBJECT_INDEXES: HubFeatures.HubFeature
-    HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_2: (
-        HubFeatures.HubFeature
-    )
+    HUB_FEATURE_EN54_LANGUAGES_SUPPORTS_ADDITIONAL_LANGUAGE_PACK_2: HubFeatures.HubFeature
     HUB_FEATURE_MODIFIABLE_OBJECT_INDEXES: HubFeatures.HubFeature
     HUB_FEATURES_FIELD_NUMBER: _ClassVar[int]
     hub_features: _containers.RepeatedScalarFieldContainer[HubFeatures.HubFeature]
-    def __init__(
-        self, hub_features: _Iterable[HubFeatures.HubFeature | str] | None = ...
-    ) -> None: ...
+    def __init__(self, hub_features: _Optional[_Iterable[_Union[HubFeatures.HubFeature, str]]] = ...) -> None: ...

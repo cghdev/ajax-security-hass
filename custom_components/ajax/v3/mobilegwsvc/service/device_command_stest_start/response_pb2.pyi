@@ -1,24 +1,15 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DeviceCommandSoundTestStartResponse(_message.Message):
-    __slots__ = ("failure", "success")
+    __slots__ = ("success", "failure")
     class Failure(_message.Message):
-        __slots__ = (
-            "command_not_performed",
-            "delivered_was_already_performed",
-            "hub_busy",
-            "hub_offline",
-            "hub_wrong_state",
-            "object_not_found",
-            "permission_denied",
-        )
+        __slots__ = ("hub_offline", "hub_wrong_state", "command_not_performed", "delivered_was_already_performed", "permission_denied", "object_not_found", "hub_busy")
         HUB_OFFLINE_FIELD_NUMBER: _ClassVar[int]
         HUB_WRONG_STATE_FIELD_NUMBER: _ClassVar[int]
         COMMAND_NOT_PERFORMED_FIELD_NUMBER: _ClassVar[int]
@@ -33,25 +24,9 @@ class DeviceCommandSoundTestStartResponse(_message.Message):
         permission_denied: _response_pb2.Error
         object_not_found: _response_pb2.Error
         hub_busy: _response_pb2.HubBusyError
-        def __init__(
-            self,
-            hub_offline: _response_pb2.Error | _Mapping | None = ...,
-            hub_wrong_state: _response_pb2.HubWrongStateError | _Mapping | None = ...,
-            command_not_performed: _response_pb2.Error | _Mapping | None = ...,
-            delivered_was_already_performed: _response_pb2.Error
-            | _Mapping
-            | None = ...,
-            permission_denied: _response_pb2.Error | _Mapping | None = ...,
-            object_not_found: _response_pb2.Error | _Mapping | None = ...,
-            hub_busy: _response_pb2.HubBusyError | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, hub_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_wrong_state: _Optional[_Union[_response_pb2.HubWrongStateError, _Mapping]] = ..., command_not_performed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., delivered_was_already_performed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., object_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_busy: _Optional[_Union[_response_pb2.HubBusyError, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: DeviceCommandSoundTestStartResponse.Failure
-    def __init__(
-        self,
-        success: _response_pb2.Success | _Mapping | None = ...,
-        failure: DeviceCommandSoundTestStartResponse.Failure | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[DeviceCommandSoundTestStartResponse.Failure, _Mapping]] = ...) -> None: ...

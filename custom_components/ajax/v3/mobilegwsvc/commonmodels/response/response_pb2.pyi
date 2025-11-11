@@ -1,12 +1,9 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import object_type_pb2 as _object_type_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import (
-    object_type_pb2 as _object_type_pb2,
-)
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -16,7 +13,6 @@ class UpdateType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     UPDATE_TYPE_ADD: _ClassVar[UpdateType]
     UPDATE_TYPE_UPDATE: _ClassVar[UpdateType]
     UPDATE_TYPE_REMOVE: _ClassVar[UpdateType]
-
 UPDATE_TYPE_UNSPECIFIED: UpdateType
 UPDATE_TYPE_ADD: UpdateType
 UPDATE_TYPE_UPDATE: UpdateType
@@ -34,63 +30,23 @@ class HubBusyError(_message.Message):
     __slots__ = ("error_cause",)
     ERROR_CAUSE_FIELD_NUMBER: _ClassVar[int]
     error_cause: ErrorCause
-    def __init__(self, error_cause: ErrorCause | _Mapping | None = ...) -> None: ...
+    def __init__(self, error_cause: _Optional[_Union[ErrorCause, _Mapping]] = ...) -> None: ...
 
 class HubWrongStateError(_message.Message):
     __slots__ = ("error_cause",)
     ERROR_CAUSE_FIELD_NUMBER: _ClassVar[int]
     error_cause: ErrorCause
-    def __init__(self, error_cause: ErrorCause | _Mapping | None = ...) -> None: ...
+    def __init__(self, error_cause: _Optional[_Union[ErrorCause, _Mapping]] = ...) -> None: ...
 
 class ErrorCause(_message.Message):
-    __slots__ = (
-        "active_call",
-        "armed",
-        "battery_low",
-        "buses_problem",
-        "card_process",
-        "dev_always_active",
-        "dev_busy",
-        "dev_bypassed",
-        "dev_offline",
-        "dev_power_overload",
-        "dev_zone_test",
-        "dfu_in_progress",
-        "exit_timer",
-        "ext_power",
-        "extra_comm_chan_required",
-        "fp_bukhoor_forbidden_time",
-        "fp_fire_alarm",
-        "hub_pwr_test",
-        "hub_scan",
-        "in_lines_short_circuit",
-        "iwh_objects_limit_error",
-        "iwh_test_in_progress",
-        "jamming_detected",
-        "not_supported",
-        "out_lines_short_circuit",
-        "radiotest",
-        "ring_disconnected",
-        "ring_problem",
-        "ring_unregistered",
-        "route",
-        "source",
-        "walk_test_in_progress",
-        "wifi_func_not_work",
-        "wrong_power_supply_settings",
-    )
+    __slots__ = ("hub_scan", "hub_pwr_test", "dev_busy", "dfu_in_progress", "radiotest", "dev_zone_test", "card_process", "armed", "exit_timer", "route", "dev_offline", "ext_power", "dev_always_active", "not_supported", "buses_problem", "iwh_objects_limit_error", "iwh_test_in_progress", "ring_problem", "ring_unregistered", "ring_disconnected", "active_call", "fp_bukhoor_forbidden_time", "fp_fire_alarm", "dev_bypassed", "wrong_power_supply_settings", "in_lines_short_circuit", "out_lines_short_circuit", "wifi_func_not_work", "dev_power_overload", "battery_low", "extra_comm_chan_required", "jamming_detected", "walk_test_in_progress", "source")
     class Source(_message.Message):
         __slots__ = ("device_hex_id", "object_type")
         DEVICE_HEX_ID_FIELD_NUMBER: _ClassVar[int]
         OBJECT_TYPE_FIELD_NUMBER: _ClassVar[int]
         device_hex_id: str
         object_type: _object_type_pb2.ObjectType
-        def __init__(
-            self,
-            device_hex_id: str | None = ...,
-            object_type: _object_type_pb2.ObjectType | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, device_hex_id: _Optional[str] = ..., object_type: _Optional[_Union[_object_type_pb2.ObjectType, _Mapping]] = ...) -> None: ...
     HUB_SCAN_FIELD_NUMBER: _ClassVar[int]
     HUB_PWR_TEST_FIELD_NUMBER: _ClassVar[int]
     DEV_BUSY_FIELD_NUMBER: _ClassVar[int]
@@ -159,40 +115,4 @@ class ErrorCause(_message.Message):
     jamming_detected: Error
     walk_test_in_progress: Error
     source: ErrorCause.Source
-    def __init__(
-        self,
-        hub_scan: Error | _Mapping | None = ...,
-        hub_pwr_test: Error | _Mapping | None = ...,
-        dev_busy: Error | _Mapping | None = ...,
-        dfu_in_progress: Error | _Mapping | None = ...,
-        radiotest: Error | _Mapping | None = ...,
-        dev_zone_test: Error | _Mapping | None = ...,
-        card_process: Error | _Mapping | None = ...,
-        armed: Error | _Mapping | None = ...,
-        exit_timer: Error | _Mapping | None = ...,
-        route: Error | _Mapping | None = ...,
-        dev_offline: Error | _Mapping | None = ...,
-        ext_power: Error | _Mapping | None = ...,
-        dev_always_active: Error | _Mapping | None = ...,
-        not_supported: Error | _Mapping | None = ...,
-        buses_problem: Error | _Mapping | None = ...,
-        iwh_objects_limit_error: Error | _Mapping | None = ...,
-        iwh_test_in_progress: Error | _Mapping | None = ...,
-        ring_problem: Error | _Mapping | None = ...,
-        ring_unregistered: Error | _Mapping | None = ...,
-        ring_disconnected: Error | _Mapping | None = ...,
-        active_call: Error | _Mapping | None = ...,
-        fp_bukhoor_forbidden_time: Error | _Mapping | None = ...,
-        fp_fire_alarm: Error | _Mapping | None = ...,
-        dev_bypassed: Error | _Mapping | None = ...,
-        wrong_power_supply_settings: Error | _Mapping | None = ...,
-        in_lines_short_circuit: Error | _Mapping | None = ...,
-        out_lines_short_circuit: Error | _Mapping | None = ...,
-        wifi_func_not_work: Error | _Mapping | None = ...,
-        dev_power_overload: Error | _Mapping | None = ...,
-        battery_low: Error | _Mapping | None = ...,
-        extra_comm_chan_required: Error | _Mapping | None = ...,
-        jamming_detected: Error | _Mapping | None = ...,
-        walk_test_in_progress: Error | _Mapping | None = ...,
-        source: ErrorCause.Source | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, hub_scan: _Optional[_Union[Error, _Mapping]] = ..., hub_pwr_test: _Optional[_Union[Error, _Mapping]] = ..., dev_busy: _Optional[_Union[Error, _Mapping]] = ..., dfu_in_progress: _Optional[_Union[Error, _Mapping]] = ..., radiotest: _Optional[_Union[Error, _Mapping]] = ..., dev_zone_test: _Optional[_Union[Error, _Mapping]] = ..., card_process: _Optional[_Union[Error, _Mapping]] = ..., armed: _Optional[_Union[Error, _Mapping]] = ..., exit_timer: _Optional[_Union[Error, _Mapping]] = ..., route: _Optional[_Union[Error, _Mapping]] = ..., dev_offline: _Optional[_Union[Error, _Mapping]] = ..., ext_power: _Optional[_Union[Error, _Mapping]] = ..., dev_always_active: _Optional[_Union[Error, _Mapping]] = ..., not_supported: _Optional[_Union[Error, _Mapping]] = ..., buses_problem: _Optional[_Union[Error, _Mapping]] = ..., iwh_objects_limit_error: _Optional[_Union[Error, _Mapping]] = ..., iwh_test_in_progress: _Optional[_Union[Error, _Mapping]] = ..., ring_problem: _Optional[_Union[Error, _Mapping]] = ..., ring_unregistered: _Optional[_Union[Error, _Mapping]] = ..., ring_disconnected: _Optional[_Union[Error, _Mapping]] = ..., active_call: _Optional[_Union[Error, _Mapping]] = ..., fp_bukhoor_forbidden_time: _Optional[_Union[Error, _Mapping]] = ..., fp_fire_alarm: _Optional[_Union[Error, _Mapping]] = ..., dev_bypassed: _Optional[_Union[Error, _Mapping]] = ..., wrong_power_supply_settings: _Optional[_Union[Error, _Mapping]] = ..., in_lines_short_circuit: _Optional[_Union[Error, _Mapping]] = ..., out_lines_short_circuit: _Optional[_Union[Error, _Mapping]] = ..., wifi_func_not_work: _Optional[_Union[Error, _Mapping]] = ..., dev_power_overload: _Optional[_Union[Error, _Mapping]] = ..., battery_low: _Optional[_Union[Error, _Mapping]] = ..., extra_comm_chan_required: _Optional[_Union[Error, _Mapping]] = ..., jamming_detected: _Optional[_Union[Error, _Mapping]] = ..., walk_test_in_progress: _Optional[_Union[Error, _Mapping]] = ..., source: _Optional[_Union[ErrorCause.Source, _Mapping]] = ...) -> None: ...

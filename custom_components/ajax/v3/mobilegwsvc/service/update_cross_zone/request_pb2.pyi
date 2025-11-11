@@ -1,69 +1,32 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
+from systems.ajax.api.mobile.v2.common.space.device import hub_device_pb2 as _hub_device_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.api.mobile.v2.common.space.device import (
-    hub_device_pb2 as _hub_device_pb2,
-)
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class UpdateCrossZoneRequest(_message.Message):
-    __slots__ = (
-        "confirmation_alarms_count",
-        "confirmation_timeout",
-        "count_repeated_alarms",
-        "hub_hex_id",
-        "id",
-        "include_entry_delay",
-        "included_devices",
-        "name",
-        "reset_bypass",
-        "sirens_react_on_confirmation",
-        "tamper_confirmation",
-        "unconfirmed_alarm_type",
-    )
+    __slots__ = ("hub_hex_id", "id", "name", "confirmation_timeout", "confirmation_alarms_count", "unconfirmed_alarm_type", "count_repeated_alarms", "reset_bypass", "include_entry_delay", "tamper_confirmation", "sirens_react_on_confirmation", "included_devices")
     class UnconfirmedAlarmType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
-        UNCONFIRMED_ALARM_TYPE_UNSPECIFIED: _ClassVar[
-            UpdateCrossZoneRequest.UnconfirmedAlarmType
-        ]
-        UNCONFIRMED_ALARM_TYPE_DO_NOT_NOTIFY: _ClassVar[
-            UpdateCrossZoneRequest.UnconfirmedAlarmType
-        ]
-        UNCONFIRMED_ALARM_TYPE_POSTPONED_WARNING: _ClassVar[
-            UpdateCrossZoneRequest.UnconfirmedAlarmType
-        ]
-        UNCONFIRMED_ALARM_TYPE_INSTANT_WARNING: _ClassVar[
-            UpdateCrossZoneRequest.UnconfirmedAlarmType
-        ]
-        UNCONFIRMED_ALARM_TYPE_ALARM: _ClassVar[
-            UpdateCrossZoneRequest.UnconfirmedAlarmType
-        ]
-
+        UNCONFIRMED_ALARM_TYPE_UNSPECIFIED: _ClassVar[UpdateCrossZoneRequest.UnconfirmedAlarmType]
+        UNCONFIRMED_ALARM_TYPE_DO_NOT_NOTIFY: _ClassVar[UpdateCrossZoneRequest.UnconfirmedAlarmType]
+        UNCONFIRMED_ALARM_TYPE_POSTPONED_WARNING: _ClassVar[UpdateCrossZoneRequest.UnconfirmedAlarmType]
+        UNCONFIRMED_ALARM_TYPE_INSTANT_WARNING: _ClassVar[UpdateCrossZoneRequest.UnconfirmedAlarmType]
+        UNCONFIRMED_ALARM_TYPE_ALARM: _ClassVar[UpdateCrossZoneRequest.UnconfirmedAlarmType]
     UNCONFIRMED_ALARM_TYPE_UNSPECIFIED: UpdateCrossZoneRequest.UnconfirmedAlarmType
     UNCONFIRMED_ALARM_TYPE_DO_NOT_NOTIFY: UpdateCrossZoneRequest.UnconfirmedAlarmType
-    UNCONFIRMED_ALARM_TYPE_POSTPONED_WARNING: (
-        UpdateCrossZoneRequest.UnconfirmedAlarmType
-    )
+    UNCONFIRMED_ALARM_TYPE_POSTPONED_WARNING: UpdateCrossZoneRequest.UnconfirmedAlarmType
     UNCONFIRMED_ALARM_TYPE_INSTANT_WARNING: UpdateCrossZoneRequest.UnconfirmedAlarmType
     UNCONFIRMED_ALARM_TYPE_ALARM: UpdateCrossZoneRequest.UnconfirmedAlarmType
     class IncludedDevices(_message.Message):
         __slots__ = ("included_devices",)
         INCLUDED_DEVICES_FIELD_NUMBER: _ClassVar[int]
-        included_devices: _containers.RepeatedCompositeFieldContainer[
-            _hub_device_pb2.HubDevice
-        ]
-        def __init__(
-            self,
-            included_devices: _Iterable[_hub_device_pb2.HubDevice | _Mapping]
-            | None = ...,
-        ) -> None: ...
-
+        included_devices: _containers.RepeatedCompositeFieldContainer[_hub_device_pb2.HubDevice]
+        def __init__(self, included_devices: _Optional[_Iterable[_Union[_hub_device_pb2.HubDevice, _Mapping]]] = ...) -> None: ...
     HUB_HEX_ID_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
@@ -88,22 +51,4 @@ class UpdateCrossZoneRequest(_message.Message):
     tamper_confirmation: bool
     sirens_react_on_confirmation: bool
     included_devices: UpdateCrossZoneRequest.IncludedDevices
-    def __init__(
-        self,
-        hub_hex_id: str | None = ...,
-        id: str | None = ...,
-        name: str | None = ...,
-        confirmation_timeout: int | None = ...,
-        confirmation_alarms_count: int | None = ...,
-        unconfirmed_alarm_type: UpdateCrossZoneRequest.UnconfirmedAlarmType
-        | str
-        | None = ...,
-        count_repeated_alarms: bool = ...,
-        reset_bypass: bool = ...,
-        include_entry_delay: bool = ...,
-        tamper_confirmation: bool = ...,
-        sirens_react_on_confirmation: bool = ...,
-        included_devices: UpdateCrossZoneRequest.IncludedDevices
-        | _Mapping
-        | None = ...,
-    ) -> None: ...
+    def __init__(self, hub_hex_id: _Optional[str] = ..., id: _Optional[str] = ..., name: _Optional[str] = ..., confirmation_timeout: _Optional[int] = ..., confirmation_alarms_count: _Optional[int] = ..., unconfirmed_alarm_type: _Optional[_Union[UpdateCrossZoneRequest.UnconfirmedAlarmType, str]] = ..., count_repeated_alarms: bool = ..., reset_bypass: bool = ..., include_entry_delay: bool = ..., tamper_confirmation: bool = ..., sirens_react_on_confirmation: bool = ..., included_devices: _Optional[_Union[UpdateCrossZoneRequest.IncludedDevices, _Mapping]] = ...) -> None: ...

@@ -1,28 +1,15 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from google.protobuf import wrappers_pb2 as _wrappers_pb2
+from systems.ajax.protobuf.hub.device import hub_device_pb2 as _hub_device_pb2
+from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf import wrappers_pb2 as _wrappers_pb2
-from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
-from systems.ajax.protobuf.hub.device import hub_device_pb2 as _hub_device_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class LightweightHub(_message.Message):
-    __slots__ = (
-        "color",
-        "firmware",
-        "groups_enabled",
-        "id",
-        "image_urls",
-        "name",
-        "online",
-        "state",
-        "state_with_groups",
-        "subtype",
-        "warnings_total_count",
-    )
+    __slots__ = ("id", "name", "groups_enabled", "state", "state_with_groups", "image_urls", "online", "color", "subtype", "warnings_total_count", "firmware")
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     GROUPS_ENABLED_FIELD_NUMBER: _ClassVar[int]
@@ -45,17 +32,4 @@ class LightweightHub(_message.Message):
     subtype: _hub_device_pb2.HubDevice.Subtype
     warnings_total_count: _wrappers_pb2.Int32Value
     firmware: _hub_device_pb2.HubDevice.Firmware
-    def __init__(
-        self,
-        id: str | None = ...,
-        name: str | None = ...,
-        groups_enabled: bool = ...,
-        state: _hub_device_pb2.HubDevice.State | str | None = ...,
-        state_with_groups: _hub_device_pb2.HubDevice.StateWithGroups | str | None = ...,
-        image_urls: _image_urls_pb2.ImageUrls | _Mapping | None = ...,
-        online: _wrappers_pb2.BoolValue | _Mapping | None = ...,
-        color: _hub_device_pb2.HubDevice.Color | str | None = ...,
-        subtype: _hub_device_pb2.HubDevice.Subtype | str | None = ...,
-        warnings_total_count: _wrappers_pb2.Int32Value | _Mapping | None = ...,
-        firmware: _hub_device_pb2.HubDevice.Firmware | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., groups_enabled: bool = ..., state: _Optional[_Union[_hub_device_pb2.HubDevice.State, str]] = ..., state_with_groups: _Optional[_Union[_hub_device_pb2.HubDevice.StateWithGroups, str]] = ..., image_urls: _Optional[_Union[_image_urls_pb2.ImageUrls, _Mapping]] = ..., online: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., color: _Optional[_Union[_hub_device_pb2.HubDevice.Color, str]] = ..., subtype: _Optional[_Union[_hub_device_pb2.HubDevice.Subtype, str]] = ..., warnings_total_count: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., firmware: _Optional[_Union[_hub_device_pb2.HubDevice.Firmware, _Mapping]] = ...) -> None: ...

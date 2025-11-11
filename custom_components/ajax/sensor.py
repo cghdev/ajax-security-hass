@@ -4,12 +4,11 @@ This module creates sensors for:
 - Space-level statistics (device counts, notifications, etc.)
 - Device-level measurements (battery, signal, temperature, etc.)
 """
-
 from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 import logging
 from typing import Any
 
@@ -19,10 +18,10 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, UnitOfTemperature
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -48,7 +47,7 @@ def get_last_alert_timestamp(space: AjaxSpace) -> datetime | None:
             timestamp = notification.timestamp
             # Ensure timezone is set
             if timestamp and timestamp.tzinfo is None:
-                return timestamp.replace(tzinfo=UTC)
+                return timestamp.replace(tzinfo=timezone.utc)
             return timestamp
 
     return None
@@ -218,9 +217,7 @@ HUB_SENSORS: tuple[AjaxDeviceSensorDescription, ...] = (
             "sim_slots_total": device.attributes.get("sim_slots_total", 0),
             "sim_slots_used": device.attributes.get("sim_slots_used", 0),
             "sim_cards": device.attributes.get("sim_cards", []),
-        }
-        if "sim_cards" in device.attributes
-        else {},
+        } if "sim_cards" in device.attributes else {},
     ),
 )
 
@@ -297,7 +294,9 @@ async def async_setup_entry(
     # Create space-level sensors for each space (hub)
     for space_id, space in coordinator.account.spaces.items():
         for description in SPACE_SENSORS:
-            entities.append(AjaxSpaceSensor(coordinator, entry, space_id, description))
+            entities.append(
+                AjaxSpaceSensor(coordinator, entry, space_id, description)
+            )
         _LOGGER.debug(
             "Created %d space-level sensors for space '%s'",
             len(SPACE_SENSORS),
@@ -428,10 +427,7 @@ class AjaxSpaceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
                 if notification.type.value in ["alarm", "security_event"]:
                     # Get room name if available
                     room_name = None
-                    if (
-                        notification.device_id
-                        and notification.device_id in space.devices
-                    ):
+                    if notification.device_id and notification.device_id in space.devices:
                         device = space.devices[notification.device_id]
                         if device.room_id and device.room_id in space.rooms:
                             room = space.rooms[device.room_id]
@@ -441,11 +437,7 @@ class AjaxSpaceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
 
                     # Format message like the Ajax app
                     # Get language from Home Assistant (default to English)
-                    language = (
-                        self.hass.config.language
-                        if self.hass.config.language in ["en", "fr"]
-                        else "en"
-                    )
+                    language = self.hass.config.language if self.hass.config.language in ["en", "fr"] else "en"
 
                     # Create human-readable message
                     formatted_message = get_event_message(
@@ -566,9 +558,7 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
                 room_name = space.rooms[device.room_id].name
 
         # Include room name in device name if available
-        device_display_name = (
-            f"{room_name} - {device.name}" if room_name else device.name
-        )
+        device_display_name = f"{room_name} - {device.name}" if room_name else device.name
 
         return {
             "identifiers": {(DOMAIN, self._device_id)},
@@ -609,10 +599,7 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
             attributes["is_low_battery"] = device.is_low_battery
 
         # Add custom attributes from description if available
-        if (
-            hasattr(self.entity_description, "extra_attributes_fn")
-            and self.entity_description.extra_attributes_fn
-        ):
+        if hasattr(self.entity_description, "extra_attributes_fn") and self.entity_description.extra_attributes_fn:
             custom_attrs = self.entity_description.extra_attributes_fn(device)
             if custom_attrs:
                 attributes.update(custom_attrs)

@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from typing import ClassVar as _ClassVar
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -16,7 +15,6 @@ class RestorePermission(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     RESTORE_EXTERNAL_POWER_ACTIVATION: _ClassVar[RestorePermission]
     RESTORE_ATS_ACTIVATION: _ClassVar[RestorePermission]
     RESTORE_OTHER_FAULT_ACTIVATION: _ClassVar[RestorePermission]
-
 NO_RESTORE_PERMISSION_INFO: RestorePermission
 RESTORE_CONFIRMED_ALARMS: RestorePermission
 RESTORE_CONFIRMED_HU_ALARMS: RestorePermission

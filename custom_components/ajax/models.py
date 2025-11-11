@@ -6,11 +6,10 @@ This module defines the data models that mirror the Ajax app structure:
 - Device (Capteur/Detecteur)
 - Notification (Event/Alerte)
 """
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -45,9 +44,7 @@ class DeviceType(Enum):
     SIREN = "siren"
     TRANSMITTER = "transmitter"
     REPEATER = "repeater"
-    WIRE_INPUT = (
-        "wire_input"  # Wired input modules for connecting third-party detectors
-    )
+    WIRE_INPUT = "wire_input"  # Wired input modules for connecting third-party detectors
     LINE_SPLITTER = "line_splitter"  # Fibra line splitter/multiplexer
 
     # Smart Devices
@@ -126,9 +123,7 @@ class AjaxDevice:
     type: DeviceType
     space_id: str
     hub_id: str
-    raw_type: str | None = (
-        None  # Raw device type before parsing (for debugging unknown devices)
-    )
+    raw_type: str | None = None  # Raw device type before parsing (for debugging unknown devices)
     room_id: str | None = None
     group_id: str | None = None
 
@@ -187,39 +182,24 @@ class AjaxDevice:
         # Check notification type and timing
         # Motion/door sensors auto-reset after a short time
         if self.last_trigger_time:
-            from datetime import timedelta
+            from datetime import timedelta, timezone
 
             # Make sure both timestamps are timezone-aware
-            now = datetime.now(UTC)
+            now = datetime.now(timezone.utc)
             trigger_time = self.last_trigger_time
             if trigger_time.tzinfo is None:
-                trigger_time = trigger_time.replace(tzinfo=UTC)
+                trigger_time = trigger_time.replace(tzinfo=timezone.utc)
 
             # Auto-reset after 30 seconds
             if (now - trigger_time) > timedelta(seconds=30):
                 return False
 
         # Check notification message for trigger keywords
-        message = (
-            self.last_notification.message.lower()
-            if self.last_notification.message
-            else ""
-        )
-        title = (
-            self.last_notification.title.lower() if self.last_notification.title else ""
-        )
+        message = self.last_notification.message.lower() if self.last_notification.message else ""
+        title = self.last_notification.title.lower() if self.last_notification.title else ""
 
-        trigger_keywords = [
-            "motion",
-            "detected",
-            "triggered",
-            "opened",
-            "alarm",
-            "movement",
-        ]
-        return any(
-            keyword in message or keyword in title for keyword in trigger_keywords
-        )
+        trigger_keywords = ["motion", "detected", "triggered", "opened", "alarm", "movement"]
+        return any(keyword in message or keyword in title for keyword in trigger_keywords)
 
 
 @dataclass

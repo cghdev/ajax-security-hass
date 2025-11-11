@@ -1,23 +1,15 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class DeleteDeviceFromHubResponse(_message.Message):
-    __slots__ = ("failure", "success")
+    __slots__ = ("success", "failure")
     class Failure(_message.Message):
-        __slots__ = (
-            "bad_request",
-            "command_not_performed",
-            "hub_busy",
-            "hub_offline",
-            "hub_wrong_state",
-            "permission_denied",
-        )
+        __slots__ = ("hub_wrong_state", "bad_request", "permission_denied", "hub_busy", "hub_offline", "command_not_performed")
         HUB_WRONG_STATE_FIELD_NUMBER: _ClassVar[int]
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
@@ -30,22 +22,9 @@ class DeleteDeviceFromHubResponse(_message.Message):
         hub_busy: _response_pb2.HubBusyError
         hub_offline: _response_pb2.Error
         command_not_performed: _response_pb2.Error
-        def __init__(
-            self,
-            hub_wrong_state: _response_pb2.HubWrongStateError | _Mapping | None = ...,
-            bad_request: _response_pb2.Error | _Mapping | None = ...,
-            permission_denied: _response_pb2.Error | _Mapping | None = ...,
-            hub_busy: _response_pb2.HubBusyError | _Mapping | None = ...,
-            hub_offline: _response_pb2.Error | _Mapping | None = ...,
-            command_not_performed: _response_pb2.Error | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, hub_wrong_state: _Optional[_Union[_response_pb2.HubWrongStateError, _Mapping]] = ..., bad_request: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_busy: _Optional[_Union[_response_pb2.HubBusyError, _Mapping]] = ..., hub_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., command_not_performed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: _response_pb2.Success
     failure: DeleteDeviceFromHubResponse.Failure
-    def __init__(
-        self,
-        success: _response_pb2.Success | _Mapping | None = ...,
-        failure: DeleteDeviceFromHubResponse.Failure | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, success: _Optional[_Union[_response_pb2.Success, _Mapping]] = ..., failure: _Optional[_Union[DeleteDeviceFromHubResponse.Failure, _Mapping]] = ...) -> None: ...

@@ -7,7 +7,6 @@ This module creates binary sensors for:
 - Leak/Water detectors
 - Tamper detection
 """
-
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -61,9 +60,7 @@ BINARY_SENSORS: tuple[AjaxBinarySensorDescription, ...] = (
         key="motion",
         translation_key="motion",
         device_class=BinarySensorDeviceClass.MOTION,
-        value_fn=lambda device: device.is_triggered
-        if device.type == DeviceType.MOTION_DETECTOR
-        else device.attributes.get("motion_detected", False),
+        value_fn=lambda device: device.is_triggered if device.type == DeviceType.MOTION_DETECTOR else device.attributes.get("motion_detected", False),
         should_create=lambda device: device.type == DeviceType.MOTION_DETECTOR
         or "motion_detected" in device.attributes,
         enabled_by_default=True,
@@ -101,8 +98,7 @@ BINARY_SENSORS: tuple[AjaxBinarySensorDescription, ...] = (
         value_fn=lambda device: device.attributes.get("always_active", False),
         should_create=lambda device: (
             "always_active" in device.attributes
-            and device.type
-            in [
+            and device.type in [
                 DeviceType.MOTION_DETECTOR,
                 DeviceType.DOOR_CONTACT,
                 DeviceType.GLASS_BREAK,
@@ -120,8 +116,7 @@ BINARY_SENSORS: tuple[AjaxBinarySensorDescription, ...] = (
         value_fn=lambda device: device.attributes.get("armed_in_night_mode", False),
         should_create=lambda device: (
             "armed_in_night_mode" in device.attributes
-            and device.type
-            in [
+            and device.type in [
                 DeviceType.MOTION_DETECTOR,
                 DeviceType.DOOR_CONTACT,
                 DeviceType.GLASS_BREAK,
@@ -276,9 +271,7 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
                 room_name = space.rooms[device.room_id].name
 
         # Include room name in device name if available
-        device_display_name = (
-            f"{room_name} - {device.name}" if room_name else device.name
-        )
+        device_display_name = f"{room_name} - {device.name}" if room_name else device.name
 
         return {
             "identifiers": {(DOMAIN, self._device_id)},
@@ -345,9 +338,7 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
                         }
                         # Add room info if available
                         if dev.room_id:
-                            room = self.coordinator.get_room(
-                                self._space_id, dev.room_id
-                            )
+                            room = self.coordinator.get_room(self._space_id, dev.room_id)
                             if room:
                                 problem_info["room_name"] = room.name
                         devices_with_problems.append(problem_info)

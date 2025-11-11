@@ -1,34 +1,22 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from systems.ajax.api.mobile.v2.hubobject.model.company import company_info_pb2 as _company_info_pb2
+from systems.ajax.api.mobile.v2.common.hub import hub_permission_pb2 as _hub_permission_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf import timestamp_pb2 as _timestamp_pb2
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.api.mobile.v2.common.hub import (
-    hub_permission_pb2 as _hub_permission_pb2,
-)
-from systems.ajax.api.mobile.v2.hubobject.model.company import (
-    company_info_pb2 as _company_info_pb2,
-)
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class MonitoringCompany(_message.Message):
-    __slots__ = (
-        "company_info",
-        "hub_user_index",
-        "permissions",
-        "permissions_expired_at",
-        "status",
-    )
+    __slots__ = ("company_info", "permissions", "permissions_expired_at", "status", "hub_user_index")
     class MonitoringCompanyStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_STATE: _ClassVar[MonitoringCompany.MonitoringCompanyStatus]
         PENDING_APPROVAL: _ClassVar[MonitoringCompany.MonitoringCompanyStatus]
         APPROVED: _ClassVar[MonitoringCompany.MonitoringCompanyStatus]
         PENDING_DELETION: _ClassVar[MonitoringCompany.MonitoringCompanyStatus]
-
     NO_STATE: MonitoringCompany.MonitoringCompanyStatus
     PENDING_APPROVAL: MonitoringCompany.MonitoringCompanyStatus
     APPROVED: MonitoringCompany.MonitoringCompanyStatus
@@ -43,11 +31,4 @@ class MonitoringCompany(_message.Message):
     permissions_expired_at: _timestamp_pb2.Timestamp
     status: MonitoringCompany.MonitoringCompanyStatus
     hub_user_index: int
-    def __init__(
-        self,
-        company_info: _company_info_pb2.CompanyInfo | _Mapping | None = ...,
-        permissions: _hub_permission_pb2.HubPermissions | _Mapping | None = ...,
-        permissions_expired_at: _timestamp_pb2.Timestamp | _Mapping | None = ...,
-        status: MonitoringCompany.MonitoringCompanyStatus | str | None = ...,
-        hub_user_index: int | None = ...,
-    ) -> None: ...
+    def __init__(self, company_info: _Optional[_Union[_company_info_pb2.CompanyInfo, _Mapping]] = ..., permissions: _Optional[_Union[_hub_permission_pb2.HubPermissions, _Mapping]] = ..., permissions_expired_at: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ..., status: _Optional[_Union[MonitoringCompany.MonitoringCompanyStatus, str]] = ..., hub_user_index: _Optional[int] = ...) -> None: ...

@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
+from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -11,4 +10,4 @@ class Image(_message.Message):
     URL_FIELD_NUMBER: _ClassVar[int]
     resolution: str
     url: str
-    def __init__(self, resolution: str | None = ..., url: str | None = ...) -> None: ...
+    def __init__(self, resolution: _Optional[str] = ..., url: _Optional[str] = ...) -> None: ...

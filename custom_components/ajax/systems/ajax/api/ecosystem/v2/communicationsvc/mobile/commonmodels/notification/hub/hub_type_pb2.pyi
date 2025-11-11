@@ -1,7 +1,6 @@
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from typing import ClassVar as _ClassVar
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -28,7 +27,6 @@ class HubType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     HUB_TYPE_HUB_MEGA: _ClassVar[HubType]
     HUB_TYPE_HUB_SUPERIOR: _ClassVar[HubType]
     HUB_TYPE_HUB_HYBRID_2: _ClassVar[HubType]
-
 HUB_TYPE_UNSPECIFIED: HubType
 HUB_TYPE_HUB: HubType
 HUB_TYPE_HUB_PLUS: HubType

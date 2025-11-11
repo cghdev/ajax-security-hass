@@ -1,8 +1,7 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -75,25 +74,7 @@ class SubscriptionCanceledOnGracePeriodEnd(_message.Message):
     def __init__(self) -> None: ...
 
 class AccountingEventTag(_message.Message):
-    __slots__ = (
-        "feature_target_restored_by_dealer",
-        "feature_target_restored_by_reseller",
-        "feature_target_suspended_by_dealer",
-        "paid_service_assigned",
-        "paid_service_deactivated",
-        "paid_service_deactivated_by_reseller",
-        "payment_failed_invalid_card_state",
-        "payment_failed_technical",
-        "payment_failed_terminal",
-        "prepaid_service_deactivated",
-        "prepaid_service_deactivated_by_reseller",
-        "retry_payment_failed_invalid_card_state",
-        "retry_payment_failed_technical",
-        "sim_card_commissioning_period_ended",
-        "sim_card_commissioning_period_started",
-        "subscription_canceled_on_grace_period_end",
-        "subscription_renewed_after_failure",
-    )
+    __slots__ = ("feature_target_suspended_by_dealer", "feature_target_restored_by_dealer", "paid_service_assigned", "paid_service_deactivated", "prepaid_service_deactivated", "sim_card_commissioning_period_started", "sim_card_commissioning_period_ended", "prepaid_service_deactivated_by_reseller", "paid_service_deactivated_by_reseller", "feature_target_restored_by_reseller", "payment_failed_invalid_card_state", "payment_failed_terminal", "payment_failed_technical", "retry_payment_failed_invalid_card_state", "retry_payment_failed_technical", "subscription_renewed_after_failure", "subscription_canceled_on_grace_period_end")
     FEATURE_TARGET_SUSPENDED_BY_DEALER_FIELD_NUMBER: _ClassVar[int]
     FEATURE_TARGET_RESTORED_BY_DEALER_FIELD_NUMBER: _ClassVar[int]
     PAID_SERVICE_ASSIGNED_FIELD_NUMBER: _ClassVar[int]
@@ -128,47 +109,4 @@ class AccountingEventTag(_message.Message):
     retry_payment_failed_technical: RetryPaymentFailedTechnical
     subscription_renewed_after_failure: SubscriptionRenewedAfterFailure
     subscription_canceled_on_grace_period_end: SubscriptionCanceledOnGracePeriodEnd
-    def __init__(
-        self,
-        feature_target_suspended_by_dealer: FeatureTargetSuspendedByDealer
-        | _Mapping
-        | None = ...,
-        feature_target_restored_by_dealer: FeatureTargetRestoredByDealer
-        | _Mapping
-        | None = ...,
-        paid_service_assigned: PaidServiceAssigned | _Mapping | None = ...,
-        paid_service_deactivated: PaidServiceDeactivated | _Mapping | None = ...,
-        prepaid_service_deactivated: PrepaidServiceDeactivated | _Mapping | None = ...,
-        sim_card_commissioning_period_started: SimCardCommissioningPeriodStarted
-        | _Mapping
-        | None = ...,
-        sim_card_commissioning_period_ended: SimCardCommissioningPeriodEnded
-        | _Mapping
-        | None = ...,
-        prepaid_service_deactivated_by_reseller: PrepaidServiceDeactivatedByReseller
-        | _Mapping
-        | None = ...,
-        paid_service_deactivated_by_reseller: PaidServiceDeactivatedByReseller
-        | _Mapping
-        | None = ...,
-        feature_target_restored_by_reseller: FeatureTargetRestoredByReseller
-        | _Mapping
-        | None = ...,
-        payment_failed_invalid_card_state: PaymentFailedInvalidCardState
-        | _Mapping
-        | None = ...,
-        payment_failed_terminal: PaymentFailedTerminal | _Mapping | None = ...,
-        payment_failed_technical: PaymentFailedTechnical | _Mapping | None = ...,
-        retry_payment_failed_invalid_card_state: RetryPaymentFailedInvalidCardState
-        | _Mapping
-        | None = ...,
-        retry_payment_failed_technical: RetryPaymentFailedTechnical
-        | _Mapping
-        | None = ...,
-        subscription_renewed_after_failure: SubscriptionRenewedAfterFailure
-        | _Mapping
-        | None = ...,
-        subscription_canceled_on_grace_period_end: SubscriptionCanceledOnGracePeriodEnd
-        | _Mapping
-        | None = ...,
-    ) -> None: ...
+    def __init__(self, feature_target_suspended_by_dealer: _Optional[_Union[FeatureTargetSuspendedByDealer, _Mapping]] = ..., feature_target_restored_by_dealer: _Optional[_Union[FeatureTargetRestoredByDealer, _Mapping]] = ..., paid_service_assigned: _Optional[_Union[PaidServiceAssigned, _Mapping]] = ..., paid_service_deactivated: _Optional[_Union[PaidServiceDeactivated, _Mapping]] = ..., prepaid_service_deactivated: _Optional[_Union[PrepaidServiceDeactivated, _Mapping]] = ..., sim_card_commissioning_period_started: _Optional[_Union[SimCardCommissioningPeriodStarted, _Mapping]] = ..., sim_card_commissioning_period_ended: _Optional[_Union[SimCardCommissioningPeriodEnded, _Mapping]] = ..., prepaid_service_deactivated_by_reseller: _Optional[_Union[PrepaidServiceDeactivatedByReseller, _Mapping]] = ..., paid_service_deactivated_by_reseller: _Optional[_Union[PaidServiceDeactivatedByReseller, _Mapping]] = ..., feature_target_restored_by_reseller: _Optional[_Union[FeatureTargetRestoredByReseller, _Mapping]] = ..., payment_failed_invalid_card_state: _Optional[_Union[PaymentFailedInvalidCardState, _Mapping]] = ..., payment_failed_terminal: _Optional[_Union[PaymentFailedTerminal, _Mapping]] = ..., payment_failed_technical: _Optional[_Union[PaymentFailedTechnical, _Mapping]] = ..., retry_payment_failed_invalid_card_state: _Optional[_Union[RetryPaymentFailedInvalidCardState, _Mapping]] = ..., retry_payment_failed_technical: _Optional[_Union[RetryPaymentFailedTechnical, _Mapping]] = ..., subscription_renewed_after_failure: _Optional[_Union[SubscriptionRenewedAfterFailure, _Mapping]] = ..., subscription_canceled_on_grace_period_end: _Optional[_Union[SubscriptionCanceledOnGracePeriodEnd, _Mapping]] = ...) -> None: ...

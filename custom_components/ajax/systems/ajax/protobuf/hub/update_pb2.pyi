@@ -1,49 +1,26 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
 from google.protobuf import field_mask_pb2 as _field_mask_pb2
-from google.protobuf import message as _message
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.protobuf.hub import access_card_rc_pb2 as _access_card_rc_pb2
-from systems.ajax.protobuf.hub import (
-    access_card_reader_state_pb2 as _access_card_reader_state_pb2,
-)
-from systems.ajax.protobuf.hub import access_key_pb2 as _access_key_pb2
-from systems.ajax.protobuf.hub import camera_pb2 as _camera_pb2
-from systems.ajax.protobuf.hub import company_binding_pb2 as _company_binding_pb2
-from systems.ajax.protobuf.hub import (
-    config_migration_state_pb2 as _config_migration_state_pb2,
-)
-from systems.ajax.protobuf.hub import group_pb2 as _group_pb2
-from systems.ajax.protobuf.hub import (
-    hub_access_response_pb2 as _hub_access_response_pb2,
-)
-from systems.ajax.protobuf.hub import room_pb2 as _room_pb2
-from systems.ajax.protobuf.hub import scenario_pb2 as _scenario_pb2
-from systems.ajax.protobuf.hub import user_pb2 as _user_pb2
 from systems.ajax.protobuf.hub.device import device_pb2 as _device_pb2
+from systems.ajax.protobuf.hub import room_pb2 as _room_pb2
+from systems.ajax.protobuf.hub import group_pb2 as _group_pb2
+from systems.ajax.protobuf.hub import user_pb2 as _user_pb2
+from systems.ajax.protobuf.hub import camera_pb2 as _camera_pb2
+from systems.ajax.protobuf.hub import scenario_pb2 as _scenario_pb2
+from systems.ajax.protobuf.hub import company_binding_pb2 as _company_binding_pb2
+from systems.ajax.protobuf.hub import config_migration_state_pb2 as _config_migration_state_pb2
+from systems.ajax.protobuf.hub import hub_access_response_pb2 as _hub_access_response_pb2
+from systems.ajax.protobuf.hub import access_card_reader_state_pb2 as _access_card_reader_state_pb2
+from systems.ajax.protobuf.hub import access_card_rc_pb2 as _access_card_rc_pb2
+from systems.ajax.protobuf.hub import access_key_pb2 as _access_key_pb2
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Update(_message.Message):
-    __slots__ = (
-        "access_card_rc",
-        "access_card_reader_state",
-        "access_key_update",
-        "camera",
-        "company_binding",
-        "config_migration_state",
-        "device",
-        "group",
-        "hub_access_response",
-        "mask",
-        "room",
-        "scenario",
-        "settings_id",
-        "type",
-        "user",
-    )
+    __slots__ = ("room", "group", "user", "camera", "scenario", "company_binding", "config_migration_state", "device", "hub_access_response", "access_card_reader_state", "access_card_rc", "access_key_update", "mask", "type", "settings_id")
     class Type(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         UPDATE: _ClassVar[Update.Type]
@@ -58,7 +35,6 @@ class Update(_message.Message):
         ACCESS_KEY_TIMEOUT: _ClassVar[Update.Type]
         DEV_REG_SEARCH_STARTED: _ClassVar[Update.Type]
         UNREG_DEVICE_FOUND: _ClassVar[Update.Type]
-
     UPDATE: Update.Type
     ADD: Update.Type
     DELETE: Update.Type
@@ -101,27 +77,4 @@ class Update(_message.Message):
     mask: _field_mask_pb2.FieldMask
     type: Update.Type
     settings_id: str
-    def __init__(
-        self,
-        room: _room_pb2.Room | _Mapping | None = ...,
-        group: _group_pb2.Group | _Mapping | None = ...,
-        user: _user_pb2.User | _Mapping | None = ...,
-        camera: _camera_pb2.Camera | _Mapping | None = ...,
-        scenario: _scenario_pb2.Scenario | _Mapping | None = ...,
-        company_binding: _company_binding_pb2.CompanyBinding | _Mapping | None = ...,
-        config_migration_state: _config_migration_state_pb2.ConfigMigrationState
-        | _Mapping
-        | None = ...,
-        device: _device_pb2.Device | _Mapping | None = ...,
-        hub_access_response: _hub_access_response_pb2.HubAccessResponse
-        | _Mapping
-        | None = ...,
-        access_card_reader_state: _access_card_reader_state_pb2.AccessCardReaderState
-        | _Mapping
-        | None = ...,
-        access_card_rc: _access_card_rc_pb2.AccessCardRc | _Mapping | None = ...,
-        access_key_update: _access_key_pb2.AccessKeyUpdate | _Mapping | None = ...,
-        mask: _field_mask_pb2.FieldMask | _Mapping | None = ...,
-        type: Update.Type | str | None = ...,
-        settings_id: str | None = ...,
-    ) -> None: ...
+    def __init__(self, room: _Optional[_Union[_room_pb2.Room, _Mapping]] = ..., group: _Optional[_Union[_group_pb2.Group, _Mapping]] = ..., user: _Optional[_Union[_user_pb2.User, _Mapping]] = ..., camera: _Optional[_Union[_camera_pb2.Camera, _Mapping]] = ..., scenario: _Optional[_Union[_scenario_pb2.Scenario, _Mapping]] = ..., company_binding: _Optional[_Union[_company_binding_pb2.CompanyBinding, _Mapping]] = ..., config_migration_state: _Optional[_Union[_config_migration_state_pb2.ConfigMigrationState, _Mapping]] = ..., device: _Optional[_Union[_device_pb2.Device, _Mapping]] = ..., hub_access_response: _Optional[_Union[_hub_access_response_pb2.HubAccessResponse, _Mapping]] = ..., access_card_reader_state: _Optional[_Union[_access_card_reader_state_pb2.AccessCardReaderState, _Mapping]] = ..., access_card_rc: _Optional[_Union[_access_card_rc_pb2.AccessCardRc, _Mapping]] = ..., access_key_update: _Optional[_Union[_access_key_pb2.AccessKeyUpdate, _Mapping]] = ..., mask: _Optional[_Union[_field_mask_pb2.FieldMask, _Mapping]] = ..., type: _Optional[_Union[Update.Type, str]] = ..., settings_id: _Optional[str] = ...) -> None: ...

@@ -1,51 +1,17 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from google.protobuf import wrappers_pb2 as _wrappers_pb2
+from systems.ajax.protobuf.hub import name_pb2 as _name_pb2
+from systems.ajax.protobuf.hub import image_urls_pb2 as _image_urls_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
-from systems.ajax.protobuf.hub import name_pb2 as _name_pb2
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class CommonDevicePart(_message.Message):
-    __slots__ = (
-        "alarm_delay_seconds",
-        "apply_delays_to_night_mode",
-        "arm_delay_seconds",
-        "assigned_extender",
-        "battery_charge_level_percentage",
-        "battery_charge_volt",
-        "battery_ok",
-        "bypass_mode",
-        "cms_device_index",
-        "color",
-        "device_alarm_logic_type",
-        "device_transmission_power_mode",
-        "estimated_arming_state",
-        "firmware_version",
-        "group_id",
-        "id",
-        "indicator_light_mode",
-        "is_bypass_mode",
-        "issues_count",
-        "malfunctions",
-        "migration_state",
-        "name",
-        "night_mode_arm",
-        "online",
-        "perimeter_alarm_delay_seconds",
-        "perimeter_arm_delay_seconds",
-        "room_id",
-        "signal_level",
-        "state",
-        "tampered",
-        "temperature",
-        "verifies_alarm",
-    )
+    __slots__ = ("id", "temperature", "signal_level", "tampered", "battery_charge_level_percentage", "name", "room_id", "online", "issues_count", "state", "device_transmission_power_mode", "night_mode_arm", "malfunctions", "assigned_extender", "color", "cms_device_index", "battery_ok", "group_id", "battery_charge_volt", "arm_delay_seconds", "alarm_delay_seconds", "apply_delays_to_night_mode", "firmware_version", "verifies_alarm", "bypass_mode", "is_bypass_mode", "device_alarm_logic_type", "indicator_light_mode", "perimeter_arm_delay_seconds", "perimeter_alarm_delay_seconds", "estimated_arming_state", "migration_state")
     class DeviceColor(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         NO_COLOR_INFO: _ClassVar[CommonDevicePart.DeviceColor]
@@ -53,7 +19,6 @@ class CommonDevicePart(_message.Message):
         BLACK: _ClassVar[CommonDevicePart.DeviceColor]
         WHITE_LABEL_WHITE: _ClassVar[CommonDevicePart.DeviceColor]
         WHITE_LABEL_BLACK: _ClassVar[CommonDevicePart.DeviceColor]
-
     NO_COLOR_INFO: CommonDevicePart.DeviceColor
     WHITE: CommonDevicePart.DeviceColor
     BLACK: CommonDevicePart.DeviceColor
@@ -66,7 +31,6 @@ class CommonDevicePart(_message.Message):
         WEAK: _ClassVar[CommonDevicePart.DeviceSignalLevel]
         NORMAL: _ClassVar[CommonDevicePart.DeviceSignalLevel]
         STRONG: _ClassVar[CommonDevicePart.DeviceSignalLevel]
-
     NO_SIGNAL_LEVEL_INFO: CommonDevicePart.DeviceSignalLevel
     NO_SIGNAL: CommonDevicePart.DeviceSignalLevel
     WEAK: CommonDevicePart.DeviceSignalLevel
@@ -87,7 +51,6 @@ class CommonDevicePart(_message.Message):
         WAIT_RADIO_CHANNEL_TEST_START: _ClassVar[CommonDevicePart.DeviceState]
         RADIO_CHANNEL_TEST: _ClassVar[CommonDevicePart.DeviceState]
         WAIT_RADIO_CHANNEL_TEST_END: _ClassVar[CommonDevicePart.DeviceState]
-
     NO_DEVICE_STATE_INFO: CommonDevicePart.DeviceState
     PASSIVE: CommonDevicePart.DeviceState
     ACTIVE: CommonDevicePart.DeviceState
@@ -110,9 +73,7 @@ class CommonDevicePart(_message.Message):
         CO_SENSOR_MALFUNCTION: _ClassVar[CommonDevicePart.DeviceMalfunction]
         CO_SENSOR_LEVEL_EXCEEDED: _ClassVar[CommonDevicePart.DeviceMalfunction]
         SMOKE_DETECTOR_CAMERA_MALFUNCTION: _ClassVar[CommonDevicePart.DeviceMalfunction]
-        MICROWAVE_SENSOR_CALIBRATION_ERROR: _ClassVar[
-            CommonDevicePart.DeviceMalfunction
-        ]
+        MICROWAVE_SENSOR_CALIBRATION_ERROR: _ClassVar[CommonDevicePart.DeviceMalfunction]
         ACCELEROMETER_MALFUNCTION: _ClassVar[CommonDevicePart.DeviceMalfunction]
         BAD_INPUT_RESISTANCE: _ClassVar[CommonDevicePart.DeviceMalfunction]
         MODEM_MALFUNCTION: _ClassVar[CommonDevicePart.DeviceMalfunction]
@@ -121,7 +82,6 @@ class CommonDevicePart(_message.Message):
         BATTERY_CHARGE_ERROR: _ClassVar[CommonDevicePart.DeviceMalfunction]
         SOFTWARE_MALFUNCTION: _ClassVar[CommonDevicePart.DeviceMalfunction]
         FLASH_MALFUNCTION: _ClassVar[CommonDevicePart.DeviceMalfunction]
-
     NO_MALFUNCTION_INFO: CommonDevicePart.DeviceMalfunction
     CABLE_BREAK_ISSUE: CommonDevicePart.DeviceMalfunction
     VOLTAGE_INSTABILITY: CommonDevicePart.DeviceMalfunction
@@ -144,7 +104,6 @@ class CommonDevicePart(_message.Message):
         ENGINEER_BYPASS_OFF: _ClassVar[CommonDevicePart.BypassMode]
         ENGINEER_BYPASS_ON: _ClassVar[CommonDevicePart.BypassMode]
         TAMPER_BYPASS_ON: _ClassVar[CommonDevicePart.BypassMode]
-
     NO_BYPASS_MODE_INFO: CommonDevicePart.BypassMode
     ENGINEER_BYPASS_OFF: CommonDevicePart.BypassMode
     ENGINEER_BYPASS_ON: CommonDevicePart.BypassMode
@@ -156,7 +115,6 @@ class CommonDevicePart(_message.Message):
         ENABLED_TAMPER_BYPASS: _ClassVar[CommonDevicePart.IsBypassMode]
         AUTO_BYPASS_BY_COUNT: _ClassVar[CommonDevicePart.IsBypassMode]
         AUTO_BYPASS_BY_ACTIVE: _ClassVar[CommonDevicePart.IsBypassMode]
-
     NO_IN_BYPASS_MODE: CommonDevicePart.IsBypassMode
     ENABLED_ENGINEER_BYPASS: CommonDevicePart.IsBypassMode
     ENABLED_TAMPER_BYPASS: CommonDevicePart.IsBypassMode
@@ -168,7 +126,6 @@ class CommonDevicePart(_message.Message):
         NONE: _ClassVar[CommonDevicePart.DeviceAlarmLogicType]
         ARMING_COMPLETION_DEVICE: _ClassVar[CommonDevicePart.DeviceAlarmLogicType]
         ENTRY_ROUTE: _ClassVar[CommonDevicePart.DeviceAlarmLogicType]
-
     NO_DEVICE_ALARM_LOGIC_TYPE: CommonDevicePart.DeviceAlarmLogicType
     NONE: CommonDevicePart.DeviceAlarmLogicType
     ARMING_COMPLETION_DEVICE: CommonDevicePart.DeviceAlarmLogicType
@@ -178,7 +135,6 @@ class CommonDevicePart(_message.Message):
         NO_INDICATOR_LIGHT_MODE_INFO: _ClassVar[CommonDevicePart.IndicatorLightMode]
         DONT_BLINK_ON_ALARM: _ClassVar[CommonDevicePart.IndicatorLightMode]
         STANDARD: _ClassVar[CommonDevicePart.IndicatorLightMode]
-
     NO_INDICATOR_LIGHT_MODE_INFO: CommonDevicePart.IndicatorLightMode
     DONT_BLINK_ON_ALARM: CommonDevicePart.IndicatorLightMode
     STANDARD: CommonDevicePart.IndicatorLightMode
@@ -188,7 +144,6 @@ class CommonDevicePart(_message.Message):
         DISARMED: _ClassVar[CommonDevicePart.EstimatedArmingState]
         ARMED: _ClassVar[CommonDevicePart.EstimatedArmingState]
         N_A: _ClassVar[CommonDevicePart.EstimatedArmingState]
-
     NO_ESTIMATED_ARMING_STATE_INFO: CommonDevicePart.EstimatedArmingState
     DISARMED: CommonDevicePart.EstimatedArmingState
     ARMED: CommonDevicePart.EstimatedArmingState
@@ -237,9 +192,7 @@ class CommonDevicePart(_message.Message):
     state: CommonDevicePart.DeviceState
     device_transmission_power_mode: int
     night_mode_arm: bool
-    malfunctions: _containers.RepeatedScalarFieldContainer[
-        CommonDevicePart.DeviceMalfunction
-    ]
+    malfunctions: _containers.RepeatedScalarFieldContainer[CommonDevicePart.DeviceMalfunction]
     assigned_extender: int
     color: CommonDevicePart.DeviceColor
     cms_device_index: int
@@ -252,53 +205,11 @@ class CommonDevicePart(_message.Message):
     firmware_version: str
     verifies_alarm: bool
     bypass_mode: CommonDevicePart.BypassMode
-    is_bypass_mode: _containers.RepeatedScalarFieldContainer[
-        CommonDevicePart.IsBypassMode
-    ]
+    is_bypass_mode: _containers.RepeatedScalarFieldContainer[CommonDevicePart.IsBypassMode]
     device_alarm_logic_type: CommonDevicePart.DeviceAlarmLogicType
     indicator_light_mode: CommonDevicePart.IndicatorLightMode
     perimeter_arm_delay_seconds: int
     perimeter_alarm_delay_seconds: int
     estimated_arming_state: CommonDevicePart.EstimatedArmingState
     migration_state: int
-    def __init__(
-        self,
-        id: str | None = ...,
-        temperature: _wrappers_pb2.Int32Value | _Mapping | None = ...,
-        signal_level: CommonDevicePart.DeviceSignalLevel | str | None = ...,
-        tampered: _wrappers_pb2.BoolValue | _Mapping | None = ...,
-        battery_charge_level_percentage: _wrappers_pb2.Int32Value
-        | _Mapping
-        | None = ...,
-        name: _name_pb2.Name | _Mapping | None = ...,
-        room_id: str | None = ...,
-        online: _wrappers_pb2.BoolValue | _Mapping | None = ...,
-        issues_count: _wrappers_pb2.Int32Value | _Mapping | None = ...,
-        state: CommonDevicePart.DeviceState | str | None = ...,
-        device_transmission_power_mode: int | None = ...,
-        night_mode_arm: bool = ...,
-        malfunctions: _Iterable[CommonDevicePart.DeviceMalfunction | str] | None = ...,
-        assigned_extender: int | None = ...,
-        color: CommonDevicePart.DeviceColor | str | None = ...,
-        cms_device_index: int | None = ...,
-        battery_ok: _wrappers_pb2.BoolValue | _Mapping | None = ...,
-        group_id: str | None = ...,
-        battery_charge_volt: _wrappers_pb2.Int32Value | _Mapping | None = ...,
-        arm_delay_seconds: int | None = ...,
-        alarm_delay_seconds: int | None = ...,
-        apply_delays_to_night_mode: bool = ...,
-        firmware_version: str | None = ...,
-        verifies_alarm: bool = ...,
-        bypass_mode: CommonDevicePart.BypassMode | str | None = ...,
-        is_bypass_mode: _Iterable[CommonDevicePart.IsBypassMode | str] | None = ...,
-        device_alarm_logic_type: CommonDevicePart.DeviceAlarmLogicType
-        | str
-        | None = ...,
-        indicator_light_mode: CommonDevicePart.IndicatorLightMode | str | None = ...,
-        perimeter_arm_delay_seconds: int | None = ...,
-        perimeter_alarm_delay_seconds: int | None = ...,
-        estimated_arming_state: CommonDevicePart.EstimatedArmingState
-        | str
-        | None = ...,
-        migration_state: int | None = ...,
-    ) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., temperature: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., signal_level: _Optional[_Union[CommonDevicePart.DeviceSignalLevel, str]] = ..., tampered: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., battery_charge_level_percentage: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., name: _Optional[_Union[_name_pb2.Name, _Mapping]] = ..., room_id: _Optional[str] = ..., online: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., issues_count: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., state: _Optional[_Union[CommonDevicePart.DeviceState, str]] = ..., device_transmission_power_mode: _Optional[int] = ..., night_mode_arm: bool = ..., malfunctions: _Optional[_Iterable[_Union[CommonDevicePart.DeviceMalfunction, str]]] = ..., assigned_extender: _Optional[int] = ..., color: _Optional[_Union[CommonDevicePart.DeviceColor, str]] = ..., cms_device_index: _Optional[int] = ..., battery_ok: _Optional[_Union[_wrappers_pb2.BoolValue, _Mapping]] = ..., group_id: _Optional[str] = ..., battery_charge_volt: _Optional[_Union[_wrappers_pb2.Int32Value, _Mapping]] = ..., arm_delay_seconds: _Optional[int] = ..., alarm_delay_seconds: _Optional[int] = ..., apply_delays_to_night_mode: bool = ..., firmware_version: _Optional[str] = ..., verifies_alarm: bool = ..., bypass_mode: _Optional[_Union[CommonDevicePart.BypassMode, str]] = ..., is_bypass_mode: _Optional[_Iterable[_Union[CommonDevicePart.IsBypassMode, str]]] = ..., device_alarm_logic_type: _Optional[_Union[CommonDevicePart.DeviceAlarmLogicType, str]] = ..., indicator_light_mode: _Optional[_Union[CommonDevicePart.IndicatorLightMode, str]] = ..., perimeter_arm_delay_seconds: _Optional[int] = ..., perimeter_alarm_delay_seconds: _Optional[int] = ..., estimated_arming_state: _Optional[_Union[CommonDevicePart.EstimatedArmingState, str]] = ..., migration_state: _Optional[int] = ...) -> None: ...

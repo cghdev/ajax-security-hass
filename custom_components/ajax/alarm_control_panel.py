@@ -1,5 +1,4 @@
 """Ajax alarm control panel platform."""
-
 from __future__ import annotations
 
 import logging
@@ -45,9 +44,7 @@ async def async_setup_entry(
         _LOGGER.info("No Ajax spaces found, no alarm panels created (yet)")
 
 
-class AjaxAlarmControlPanel(
-    CoordinatorEntity[AjaxDataCoordinator], AlarmControlPanelEntity
-):
+class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControlPanelEntity):
     """Representation of an Ajax alarm control panel (one per space/hub)."""
 
     _attr_supported_features = (

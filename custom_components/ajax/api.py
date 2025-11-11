@@ -1,5 +1,4 @@
 """Ajax API client."""
-
 from __future__ import annotations
 
 import hashlib
@@ -8,11 +7,57 @@ from typing import Any
 
 import grpc
 
-# Import log_marker first as it's a dependency for other protobuf files
-from custom_components.ajax.systems.ajax.logging.proto import log_marker_pb2  # isort: skip
+from .const import (
+    API_BASE_URL,
+    API_PORT,
+    DEFAULT_DEVICE_MODEL,
+    DEFAULT_VERSION,
+    DEFAULT_OS,
+    DEFAULT_APP_LABEL,
+    DEFAULT_DEVICE_TYPE,
+)
 
-from custom_components.ajax.systems.ajax.api.mobile.v2.common.space import (
-    space_locator_pb2,
+# Import generated protobuf stubs
+from custom_components.ajax.v3.mobilegwsvc.service.login_by_password import (
+    endpoint_pb2_grpc as login_pb2_grpc,
+    request_pb2 as login_request_pb2,
+    response_pb2 as login_response_pb2,
+)
+from custom_components.ajax.v3.mobilegwsvc.service.login_by_totp import (
+    endpoint_pb2_grpc as totp_pb2_grpc,
+    request_pb2 as totp_request_pb2,
+    response_pb2 as totp_response_pb2,
+)
+from custom_components.ajax.v3.mobilegwsvc.service.find_user_spaces_with_pagination import (
+    endpoint_pb2_grpc as spaces_pb2_grpc,
+    request_pb2 as spaces_request_pb2,
+    response_pb2 as spaces_response_pb2,
+)
+from custom_components.ajax.v3.mobilegwsvc.service.stream_light_devices import (
+    endpoint_pb2_grpc as light_devices_pb2_grpc,
+    request_pb2 as light_devices_request_pb2,
+    response_pb2 as light_devices_response_pb2,
+)
+from custom_components.ajax.v3.mobilegwsvc.commonmodels.type import user_role_pb2
+
+# Import space security service
+from custom_components.ajax.systems.ajax.api.mobile.v2.space.security import (
+    space_security_endpoints_pb2_grpc,
+    arm_request_pb2,
+    disarm_request_pb2,
+    arm_to_night_mode_request_pb2,
+)
+from custom_components.ajax.systems.ajax.api.mobile.v2.space.security.group import (
+    arm_group_request_pb2,
+    disarm_group_request_pb2,
+)
+from custom_components.ajax.systems.ajax.api.mobile.v2.common.space import space_locator_pb2
+
+# Import space service for panic button and streaming
+from custom_components.ajax.systems.ajax.api.mobile.v2.space import (
+    space_endpoints_pb2_grpc,
+    press_panic_button_request_pb2,
+    stream_space_updates_request_pb2,
 )
 
 # Import hub object service for Hub-specific data
@@ -20,92 +65,31 @@ from custom_components.ajax.systems.ajax.api.mobile.v2.hubobject import (
     hub_object_endpoints_pb2_grpc,
     stream_hub_object_request_pb2,
 )
-from custom_components.ajax.systems.ajax.api.mobile.v2.notificationlog import (
-    find_notifications_pb2 as notification_find_pb2,
+
+# Import device streaming service for real-time device updates
+from custom_components.ajax.v3.mobilegwsvc.service.stream_hub_device import (
+    endpoint_pb2_grpc as stream_device_pb2_grpc,
+    request_pb2 as stream_device_request_pb2,
+    response_pb2 as stream_device_response_pb2,
 )
 
 # Import notification log service
 from custom_components.ajax.systems.ajax.api.mobile.v2.notificationlog import (
     notification_log_endpoints_pb2_grpc,
+    find_notifications_pb2 as notification_find_pb2,
     stream_notification_log_pb2,
-)
-
-# Import space service for panic button and streaming
-from custom_components.ajax.systems.ajax.api.mobile.v2.space import (
-    press_panic_button_request_pb2,
-    space_endpoints_pb2_grpc,
-    stream_space_updates_request_pb2,
-)
-
-# Import space security service
-from custom_components.ajax.systems.ajax.api.mobile.v2.space.security import (
-    arm_request_pb2,
-    arm_to_night_mode_request_pb2,
-    disarm_request_pb2,
-    space_security_endpoints_pb2_grpc,
-)
-from custom_components.ajax.systems.ajax.api.mobile.v2.space.security.group import (
-    arm_group_request_pb2,
-    disarm_group_request_pb2,
-)
-from custom_components.ajax.v3.mobilegwsvc.commonmodels.type import user_role_pb2
-from custom_components.ajax.v3.mobilegwsvc.service.device_command_device_off import (
-    endpoint_pb2_grpc as device_off_pb2_grpc,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.device_command_device_off import (
-    request_pb2 as device_off_request_pb2,
 )
 
 # Import device control services for sockets/relays
 from custom_components.ajax.v3.mobilegwsvc.service.device_command_device_on import (
     endpoint_pb2_grpc as device_on_pb2_grpc,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.device_command_device_on import (
     request_pb2 as device_on_request_pb2,
+    response_pb2 as device_on_response_pb2,
 )
-from custom_components.ajax.v3.mobilegwsvc.service.find_user_spaces_with_pagination import (
-    endpoint_pb2_grpc as spaces_pb2_grpc,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.find_user_spaces_with_pagination import (
-    request_pb2 as spaces_request_pb2,
-)
-
-# Import generated protobuf stubs
-from custom_components.ajax.v3.mobilegwsvc.service.login_by_password import (
-    endpoint_pb2_grpc as login_pb2_grpc,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.login_by_password import (
-    request_pb2 as login_request_pb2,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.login_by_totp import (
-    endpoint_pb2_grpc as totp_pb2_grpc,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.login_by_totp import (
-    request_pb2 as totp_request_pb2,
-)
-
-# Import device streaming service for real-time device updates
-from custom_components.ajax.v3.mobilegwsvc.service.stream_hub_device import (
-    endpoint_pb2_grpc as stream_device_pb2_grpc,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.stream_hub_device import (
-    request_pb2 as stream_device_request_pb2,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.stream_light_devices import (
-    endpoint_pb2_grpc as light_devices_pb2_grpc,
-)
-from custom_components.ajax.v3.mobilegwsvc.service.stream_light_devices import (
-    request_pb2 as light_devices_request_pb2,
-)
-
-from .const import (
-    API_BASE_URL,
-    API_PORT,
-    DEFAULT_APP_LABEL,
-    DEFAULT_DEVICE_MODEL,
-    DEFAULT_DEVICE_TYPE,
-    DEFAULT_OS,
-    DEFAULT_VERSION,
+from custom_components.ajax.v3.mobilegwsvc.service.device_command_device_off import (
+    endpoint_pb2_grpc as device_off_pb2_grpc,
+    request_pb2 as device_off_request_pb2,
+    response_pb2 as device_off_response_pb2,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -173,14 +157,12 @@ class AjaxApi:
         ]
 
         if include_auth and self.session_token:
-            metadata.extend(
-                [
-                    ("client-session-token", self.session_token.hex()),
-                    ("a911-user-id", self.user_id or ""),
-                    ("client-user-login", self.email),
-                    ("client-user-role", "USER"),
-                ]
-            )
+            metadata.extend([
+                ("client-session-token", self.session_token.hex()),
+                ("a911-user-id", self.user_id or ""),
+                ("client-user-login", self.email),
+                ("client-user-role", "USER"),
+            ])
 
         return metadata
 
@@ -215,43 +197,36 @@ class AjaxApi:
                         name_parts.append(account.first_name)
                     if account.last_name:
                         name_parts.append(account.last_name)
-                    self.user_name = (
-                        " ".join(name_parts) if name_parts else account.email
-                    )
+                    self.user_name = " ".join(name_parts) if name_parts else account.email
                 else:
                     self.user_id = None
                     self.user_name = self.email
 
-                _LOGGER.info(
-                    "Successfully logged in as %s (ID: %s)",
-                    self.user_name,
-                    self.user_id,
-                )
+                _LOGGER.info("Successfully logged in as %s (ID: %s)", self.user_name, self.user_id)
 
                 return {
                     "session_token": self.session_token.hex(),
                     "user_id": self.user_id,
                     "user_name": self.user_name,
                 }
-            if response.HasField("failure"):
+            elif response.HasField("failure"):
                 # Handle various failure cases
                 failure = response.failure
                 if failure.HasField("invalid_credentials"):
                     raise AjaxAuthError("Invalid email or password")
-                if failure.HasField("account_not_confirmed"):
+                elif failure.HasField("account_not_confirmed"):
                     raise AjaxAuthError("Account not confirmed")
-                if failure.HasField("account_locked"):
+                elif failure.HasField("account_locked"):
                     raise AjaxAuthError("Account is locked")
-                if failure.HasField("two_fa_required"):
+                elif failure.HasField("two_fa_required"):
                     # Extract request_id for TOTP login
                     request_id = failure.two_fa_required.request_id
-                    _LOGGER.info(
-                        "Two-factor authentication required (request_id: %s)",
-                        request_id,
-                    )
+                    _LOGGER.info("Two-factor authentication required (request_id: %s)", request_id)
                     raise Ajax2FARequiredError(request_id)
-                raise AjaxAuthError("Login failed: Unknown error")
-            raise AjaxApiError("Invalid login response")
+                else:
+                    raise AjaxAuthError("Login failed: Unknown error")
+            else:
+                raise AjaxApiError("Invalid login response")
 
         except grpc.RpcError as err:
             _LOGGER.error("gRPC error during login: %s", err)
@@ -264,9 +239,7 @@ class AjaxApi:
             _LOGGER.exception("Unexpected error during login")
             raise AjaxApiError(f"Login failed: {err}") from err
 
-    async def async_login_with_totp(
-        self, request_id: str, totp_code: str
-    ) -> dict[str, Any]:
+    async def async_login_with_totp(self, request_id: str, totp_code: str) -> dict[str, Any]:
         """Complete login with TOTP (two-factor authentication) code.
 
         Args:
@@ -307,37 +280,33 @@ class AjaxApi:
                         name_parts.append(account.first_name)
                     if account.last_name:
                         name_parts.append(account.last_name)
-                    self.user_name = (
-                        " ".join(name_parts) if name_parts else account.email
-                    )
+                    self.user_name = " ".join(name_parts) if name_parts else account.email
                 else:
                     self.user_id = None
                     self.user_name = self.email
 
-                _LOGGER.info(
-                    "Successfully logged in with TOTP as %s (ID: %s)",
-                    self.user_name,
-                    self.user_id,
-                )
+                _LOGGER.info("Successfully logged in with TOTP as %s (ID: %s)", self.user_name, self.user_id)
 
                 return {
                     "session_token": self.session_token.hex(),
                     "user_id": self.user_id,
                     "user_name": self.user_name,
                 }
-            if response.HasField("failure"):
+            elif response.HasField("failure"):
                 # Handle various failure cases
                 failure = response.failure
                 if failure.HasField("invalid_totp"):
                     raise AjaxAuthError("Invalid verification code")
-                if failure.HasField("account_not_confirmed"):
+                elif failure.HasField("account_not_confirmed"):
                     raise AjaxAuthError("Account not confirmed")
-                if failure.HasField("account_locked"):
+                elif failure.HasField("account_locked"):
                     raise AjaxAuthError("Account is locked")
-                if failure.HasField("bad_request"):
+                elif failure.HasField("bad_request"):
                     raise AjaxAuthError("Invalid request")
-                raise AjaxAuthError("TOTP login failed: Unknown error")
-            raise AjaxApiError("Invalid TOTP login response")
+                else:
+                    raise AjaxAuthError("TOTP login failed: Unknown error")
+            else:
+                raise AjaxApiError("Invalid TOTP login response")
 
         except grpc.RpcError as err:
             _LOGGER.error("gRPC error during TOTP login: %s", err)
@@ -386,9 +355,7 @@ class AjaxApi:
                 for space in response.success.spaces:
                     space_data = {
                         "id": space.id if hasattr(space, "id") else "",
-                        "name": space.profile.name
-                        if hasattr(space, "profile") and hasattr(space.profile, "name")
-                        else "Unknown",
+                        "name": space.profile.name if hasattr(space, "profile") and hasattr(space.profile, "name") else "Unknown",
                     }
 
                     # Add hub_id if available
@@ -399,11 +366,12 @@ class AjaxApi:
 
                 _LOGGER.info("Found %d spaces", len(spaces))
                 return spaces
-            if response.HasField("failure"):
+            elif response.HasField("failure"):
                 _LOGGER.error("Failed to get spaces: %s", response.failure)
                 raise AjaxApiError("Failed to get spaces")
-            _LOGGER.warning("Empty response when getting spaces")
-            return []
+            else:
+                _LOGGER.warning("Empty response when getting spaces")
+                return []
 
         except grpc.RpcError as err:
             _LOGGER.error("gRPC error getting spaces: %s", err)
@@ -445,7 +413,7 @@ class AjaxApi:
                         snapshot = response.success.snapshot
                         _LOGGER.info(
                             "Received device snapshot with %d light_devices",
-                            len(snapshot.light_devices),
+                            len(snapshot.light_devices)
                         )
 
                         # Process snapshot with all devices
@@ -456,7 +424,7 @@ class AjaxApi:
 
                         # After receiving snapshot, we can break (updates would follow in real streaming)
                         break
-                    if response.success.HasField("updates"):
+                    elif response.success.HasField("updates"):
                         # Skip updates for now - we only need initial snapshot
                         continue
                 elif response.HasField("failure"):
@@ -504,9 +472,9 @@ class AjaxApi:
                 response_count += 1
 
                 # Check which type of response (snapshot, update, create, delete)
-                which = response.WhichOneof("item")
+                which = response.WhichOneof('item')
 
-                if which in ("snapshot", "update", "create"):
+                if which in ('snapshot', 'update', 'create'):
                     hub_obj = getattr(response, which)
                     _LOGGER.info("Received HubObject %s for hub %s", which, hub_id)
 
@@ -515,10 +483,10 @@ class AjaxApi:
 
                     # For snapshot, we can break after first response
                     # For update/create, we continue streaming for real-time updates
-                    if which == "snapshot":
+                    if which == 'snapshot':
                         break
 
-                elif which == "delete":
+                elif which == 'delete':
                     _LOGGER.warning("Hub %s was deleted", hub_id)
                     return None
 
@@ -551,12 +519,8 @@ class AjaxApi:
                 if hasattr(hub_obj, "sim_card"):
                     sim = hub_obj.sim_card
                     hub_data["sim_card"] = {
-                        "active_sim_card": sim.active_sim_card
-                        if hasattr(sim, "active_sim_card")
-                        else None,
-                        "sim_card_status": str(sim.sim_card_status).split("_")[-1]
-                        if hasattr(sim, "sim_card_status")
-                        else None,
+                        "active_sim_card": sim.active_sim_card if hasattr(sim, "active_sim_card") else None,
+                        "sim_card_status": str(sim.sim_card_status).split("_")[-1] if hasattr(sim, "sim_card_status") else None,
                         "imei": sim.imei if hasattr(sim, "imei") else None,
                     }
             except (ValueError, AttributeError) as e:
@@ -569,30 +533,21 @@ class AjaxApi:
                     fw = hub_obj.system_firmware_update
                     hub_data["system_firmware_update"] = {
                         "enabled": True,
-                        "version": fw.firmware_version
-                        if hasattr(fw, "firmware_version")
-                        else None,
+                        "version": fw.firmware_version if hasattr(fw, "firmware_version") else None,
                     }
             except (ValueError, AttributeError) as e:
                 _LOGGER.debug("Could not parse system firmware update info: %s", e)
 
             # Parse device firmware updates
             try:
-                if (
-                    hasattr(hub_obj, "device_firmware_updates")
-                    and hub_obj.device_firmware_updates
-                ):
+                if hasattr(hub_obj, "device_firmware_updates") and hub_obj.device_firmware_updates:
                     updates = hub_obj.device_firmware_updates
                     if hasattr(updates, "device_firmware_update"):
                         update_list = []
                         for update in updates.device_firmware_update:
                             update_info = {
-                                "device_id": update.device_id
-                                if hasattr(update, "device_id")
-                                else None,
-                                "is_critical": update.is_critical.value
-                                if hasattr(update, "is_critical") and update.is_critical
-                                else False,
+                                "device_id": update.device_id if hasattr(update, "device_id") else None,
+                                "is_critical": update.is_critical.value if hasattr(update, "is_critical") and update.is_critical else False,
                             }
                             # Parse status
                             if hasattr(update, "status"):
@@ -608,10 +563,7 @@ class AjaxApi:
 
             # Parse hub connection properties
             try:
-                if (
-                    hasattr(hub_obj, "hub_connection_properties")
-                    and hub_obj.hub_connection_properties
-                ):
+                if hasattr(hub_obj, "hub_connection_properties") and hub_obj.hub_connection_properties:
                     props = hub_obj.hub_connection_properties
                     conn_data = {}
                     # Parse delay durations for offline detection
@@ -632,10 +584,7 @@ class AjaxApi:
 
             # Parse installation companies
             try:
-                if (
-                    hasattr(hub_obj, "installation_companies")
-                    and hub_obj.installation_companies
-                ):
+                if hasattr(hub_obj, "installation_companies") and hub_obj.installation_companies:
                     companies = hub_obj.installation_companies
                     if hasattr(companies, "installation_company"):
                         company_list = []
@@ -655,10 +604,7 @@ class AjaxApi:
 
             # Parse monitoring companies
             try:
-                if (
-                    hasattr(hub_obj, "monitoring_companies")
-                    and hub_obj.monitoring_companies
-                ):
+                if hasattr(hub_obj, "monitoring_companies") and hub_obj.monitoring_companies:
                     companies = hub_obj.monitoring_companies
                     if hasattr(companies, "monitoring_company"):
                         company_list = []
@@ -711,22 +657,15 @@ class AjaxApi:
                     "group_id": profile.group_id if profile.group_id else None,
                     "malfunctions": profile.malfunctions,
                     "bypassed": profile.bypassed,
-                    "states": [
-                        str(state).split(".")[-1] if "." in str(state) else str(state)
-                        for state in profile.states
-                    ],
+                    "states": [str(state).split(".")[-1] if "." in str(state) else str(state) for state in profile.states],
                     "online": True,  # TODO: Parse status to determine online state
                 }
 
                 # Add device color, label, and marketing ID
                 if hasattr(profile, "device_color"):
-                    device_data["device_color"] = str(profile.device_color).split("_")[
-                        -1
-                    ]
+                    device_data["device_color"] = str(profile.device_color).split("_")[-1]
                 if hasattr(profile, "device_label"):
-                    device_data["device_label"] = str(profile.device_label).split("_")[
-                        -1
-                    ]
+                    device_data["device_label"] = str(profile.device_label).split("_")[-1]
                 if hasattr(profile, "device_marketing_id"):
                     device_data["device_marketing_id"] = profile.device_marketing_id
 
@@ -746,12 +685,8 @@ class AjaxApi:
                     try:
                         # Battery status
                         if status.HasField("battery"):
-                            device_data["battery_level"] = (
-                                status.battery.charge_level_percentage
-                            )
-                            device_data["battery_state"] = str(
-                                status.battery.battery_state
-                            ).split("_")[-1]
+                            device_data["battery_level"] = status.battery.charge_level_percentage
+                            device_data["battery_state"] = str(status.battery.battery_state).split("_")[-1]
 
                         # SIM status
                         elif status.HasField("sim_status"):
@@ -760,16 +695,13 @@ class AjaxApi:
 
                             # Extract just the status name (e.g., "MISSING" from "SIM_CARD_STATUS_MISSING")
                             if "SIM_CARD_STATUS_" in sim_status_raw:
-                                sim_status_str = sim_status_raw.split(
-                                    "SIM_CARD_STATUS_"
-                                )[-1]
+                                sim_status_str = sim_status_raw.split("SIM_CARD_STATUS_")[-1]
                             else:
                                 sim_status_str = sim_status_raw
 
                             sim_info = {
                                 "status": sim_status_str,
-                                "installed": sim_status_str
-                                not in ["MISSING", "NOT_INSTALLED", "2"],
+                                "installed": sim_status_str not in ["MISSING", "NOT_INSTALLED", "2"],
                             }
 
                             # Check if there's a slot number or if this is aggregated data
@@ -787,10 +719,7 @@ class AjaxApi:
                         elif status.HasField("life_quality"):
                             lq = status.life_quality
                             # Values are in tenths (e.g., 225 = 22.5°C, 450 = 45.0%)
-                            if (
-                                hasattr(lq, "actual_temperature")
-                                and lq.actual_temperature
-                            ):
+                            if hasattr(lq, "actual_temperature") and lq.actual_temperature:
                                 attributes["temperature"] = lq.actual_temperature / 10.0
                             if hasattr(lq, "actual_humidity") and lq.actual_humidity:
                                 attributes["humidity"] = lq.actual_humidity / 10.0
@@ -805,9 +734,7 @@ class AjaxApi:
                         elif status.HasField("motion_detected"):
                             if hasattr(status.motion_detected, "detected_at"):
                                 attributes["motion_detected"] = True
-                                attributes["motion_detected_at"] = str(
-                                    status.motion_detected.detected_at
-                                )
+                                attributes["motion_detected_at"] = str(status.motion_detected.detected_at)
 
                         # Always active (device active even in night mode)
                         elif status.HasField("always_active"):
@@ -832,41 +759,29 @@ class AjaxApi:
                         # Signal strength
                         elif status.HasField("signal_strength"):
                             if hasattr(status.signal_strength, "device_signal_level"):
-                                signal_str = str(
-                                    status.signal_strength.device_signal_level
-                                ).split("_")[-1]
+                                signal_str = str(status.signal_strength.device_signal_level).split("_")[-1]
                                 # Convert to percentage estimate
-                                signal_map = {
-                                    "WEAK": 25,
-                                    "NORMAL": 50,
-                                    "STRONG": 75,
-                                    "EXCELLENT": 100,
-                                }
-                                device_data["signal_strength"] = signal_map.get(
-                                    signal_str, 50
-                                )
+                                signal_map = {"WEAK": 25, "NORMAL": 50, "STRONG": 75, "EXCELLENT": 100}
+                                device_data["signal_strength"] = signal_map.get(signal_str, 50)
                                 attributes["signal_level"] = signal_str
 
                     except (ValueError, AttributeError) as e:
                         # Some status fields may not exist on all devices
                         _LOGGER.debug("Error parsing status field: %s", e)
+                        pass
 
                     # Check for firmware/hardware without HasField (safer)
                     try:
                         if hasattr(status, "firmware") and status.firmware:
                             if hasattr(status.firmware, "version"):
-                                device_data["firmware_version"] = (
-                                    status.firmware.version
-                                )
+                                device_data["firmware_version"] = status.firmware.version
                     except (AttributeError, ValueError):
                         pass
 
                     try:
                         if hasattr(status, "hardware") and status.hardware:
                             if hasattr(status.hardware, "version"):
-                                device_data["hardware_version"] = (
-                                    status.hardware.version
-                                )
+                                device_data["hardware_version"] = status.hardware.version
                     except (AttributeError, ValueError):
                         pass
 
@@ -877,21 +792,13 @@ class AjaxApi:
                     # Detect total SIM slots based on device type
                     # Hub 2 Plus and Hub 2 (4G) have 2 SIM slots
                     device_type_lower = object_type_str.lower()
-                    if "hub" in device_type_lower and (
-                        "plus" in device_type_lower
-                        or "4g" in device_type_lower
-                        or "two" in device_type_lower
-                    ):
+                    if "hub" in device_type_lower and ("plus" in device_type_lower or "4g" in device_type_lower or "two" in device_type_lower):
                         expected_slots = 2
                     else:
                         expected_slots = len(sim_cards)
 
                     # If we only got 1 status but expect 2 slots, it means both are empty/missing
-                    if (
-                        len(sim_cards) == 1
-                        and sim_cards[0]["status"] == "MISSING"
-                        and expected_slots == 2
-                    ):
+                    if len(sim_cards) == 1 and sim_cards[0]["status"] == "MISSING" and expected_slots == 2:
                         total_slots = 2
                         installed_count = 0
                     else:
@@ -912,9 +819,7 @@ class AjaxApi:
                                 signal_level_str = str(gsm.signal_level).split("_")[-1]
                                 attributes["gsm_signal_level"] = signal_level_str
                             if hasattr(gsm, "network_status"):
-                                network_status_str = str(gsm.network_status).split("_")[
-                                    -1
-                                ]
+                                network_status_str = str(gsm.network_status).split("_")[-1]
                                 attributes["network_status"] = network_status_str
                     except (ValueError, AttributeError) as e:
                         _LOGGER.debug("Could not parse GSM data: %s", e)
@@ -931,9 +836,7 @@ class AjaxApi:
 
                     # Active channels (connection type)
                     if hasattr(hub_dev, "active_channels"):
-                        channels = [
-                            str(ch).split("_")[-1] for ch in hub_dev.active_channels
-                        ]
+                        channels = [str(ch).split("_")[-1] for ch in hub_dev.active_channels]
                         if channels:
                             attributes["active_connection"] = ", ".join(channels)
 
@@ -945,56 +848,34 @@ class AjaxApi:
                     # External power status
                     if hasattr(hub_dev, "externally_powered"):
                         attributes["externally_powered"] = hub_dev.externally_powered
-                        _LOGGER.debug(
-                            "Externally powered: %s", hub_dev.externally_powered
-                        )
+                        _LOGGER.debug("Externally powered: %s", hub_dev.externally_powered)
 
                     # Noise level
                     if hasattr(hub_dev, "noise_level") and hub_dev.noise_level:
                         noise = hub_dev.noise_level
                         if hasattr(noise, "avg_value_channel1"):
-                            attributes["noise_level_channel1"] = (
-                                noise.avg_value_channel1
-                            )
+                            attributes["noise_level_channel1"] = noise.avg_value_channel1
                         if hasattr(noise, "avg_value_channel2"):
-                            attributes["noise_level_channel2"] = (
-                                noise.avg_value_channel2
-                            )
+                            attributes["noise_level_channel2"] = noise.avg_value_channel2
                         if hasattr(noise, "high"):
                             attributes["noise_level_high"] = noise.high
                         # Calculate average if we have channel data
-                        if (
-                            "noise_level_channel1" in attributes
-                            and "noise_level_channel2" in attributes
-                        ):
-                            avg = (
-                                attributes["noise_level_channel1"]
-                                + attributes["noise_level_channel2"]
-                            ) / 2
+                        if "noise_level_channel1" in attributes and "noise_level_channel2" in attributes:
+                            avg = (attributes["noise_level_channel1"] + attributes["noise_level_channel2"]) / 2
                             attributes["noise_level_avg"] = round(avg, 1)
-                            _LOGGER.debug(
-                                "Noise levels: ch1=%d, ch2=%d, avg=%.1f",
-                                attributes["noise_level_channel1"],
-                                attributes["noise_level_channel2"],
-                                avg,
-                            )
+                            _LOGGER.debug("Noise levels: ch1=%d, ch2=%d, avg=%.1f",
+                                        attributes["noise_level_channel1"],
+                                        attributes["noise_level_channel2"],
+                                        avg)
 
                     # Firmware version (from hub firmware field, not profile statuses)
                     if hasattr(hub_dev, "firmware") and hub_dev.firmware:
-                        if (
-                            hasattr(hub_dev.firmware, "version")
-                            and hub_dev.firmware.version
-                        ):
+                        if hasattr(hub_dev.firmware, "version") and hub_dev.firmware.version:
                             device_data["firmware_version"] = hub_dev.firmware.version
-                            _LOGGER.debug(
-                                "Firmware version: %s", hub_dev.firmware.version
-                            )
+                            _LOGGER.debug("Firmware version: %s", hub_dev.firmware.version)
 
                     # Hardware versions
-                    if (
-                        hasattr(hub_dev, "hardware_versions")
-                        and hub_dev.hardware_versions
-                    ):
+                    if hasattr(hub_dev, "hardware_versions") and hub_dev.hardware_versions:
                         hw = hub_dev.hardware_versions
                         hw_parts = []
                         if hasattr(hw, "modem") and hw.modem:
@@ -1005,18 +886,12 @@ class AjaxApi:
                             hw_parts.append(f"Eth:{hw.ethernet}")
                         if hw_parts:
                             device_data["hardware_version"] = ", ".join(hw_parts)
-                            _LOGGER.debug(
-                                "Hardware versions: %s", device_data["hardware_version"]
-                            )
+                            _LOGGER.debug("Hardware versions: %s", device_data["hardware_version"])
 
                 # Check for spread_properties and device_specific_properties
                 # These might contain arming mode information or socket/relay states
                 if hasattr(hub_dev, "spread_properties") and hub_dev.spread_properties:
-                    _LOGGER.debug(
-                        "Device %s has %d spread_properties",
-                        profile.name,
-                        len(hub_dev.spread_properties),
-                    )
+                    _LOGGER.debug("Device %s has %d spread_properties", profile.name, len(hub_dev.spread_properties))
                     for idx, prop in enumerate(hub_dev.spread_properties):
                         _LOGGER.debug("  spread_property[%d]: %s", idx, prop)
 
@@ -1038,25 +913,14 @@ class AjaxApi:
                             if hasattr(channel, "output_mode"):
                                 channel_data["output_mode"] = str(channel.output_mode)
                             if hasattr(channel, "operating_mode"):
-                                channel_data["operating_mode"] = str(
-                                    channel.operating_mode
-                                )
+                                channel_data["operating_mode"] = str(channel.operating_mode)
 
                             if channel_data:
                                 attributes["channel"] = channel_data
-                                _LOGGER.debug(
-                                    "Socket/Relay channel data: %s", channel_data
-                                )
+                                _LOGGER.debug("Socket/Relay channel data: %s", channel_data)
 
-                if (
-                    hasattr(hub_dev, "device_specific_properties")
-                    and hub_dev.device_specific_properties
-                ):
-                    _LOGGER.debug(
-                        "Device %s has %d device_specific_properties",
-                        profile.name,
-                        len(hub_dev.device_specific_properties),
-                    )
+                if hasattr(hub_dev, "device_specific_properties") and hub_dev.device_specific_properties:
+                    _LOGGER.debug("Device %s has %d device_specific_properties", profile.name, len(hub_dev.device_specific_properties))
                     for idx, prop in enumerate(hub_dev.device_specific_properties):
                         _LOGGER.debug("  device_specific_property[%d]: %s", idx, prop)
 
@@ -1071,10 +935,7 @@ class AjaxApi:
 
                 # Add default value for door_opened if not set
                 # (door_opened status only appears when door is open, absent when closed)
-                if (
-                    "door" in object_type_str.lower()
-                    or "contact" in object_type_str.lower()
-                ):
+                if "door" in object_type_str.lower() or "contact" in object_type_str.lower():
                     if "door_opened" not in attributes:
                         attributes["door_opened"] = False
 
@@ -1084,17 +945,18 @@ class AjaxApi:
 
                 return device_data
 
-            if light_device.HasField("video_edge"):
+            elif light_device.HasField("video_edge"):
                 _LOGGER.debug("Found video_edge device (not yet implemented)")
                 return None
-            if light_device.HasField("video_edge_channel"):
+            elif light_device.HasField("video_edge_channel"):
                 _LOGGER.debug("Found video_edge_channel device (not yet implemented)")
                 return None
-            if light_device.HasField("smart_lock"):
+            elif light_device.HasField("smart_lock"):
                 _LOGGER.debug("Found smart_lock device (not yet implemented)")
                 return None
-            _LOGGER.warning("Unknown LightDevice type: %s", light_device)
-            return None
+            else:
+                _LOGGER.warning("Unknown LightDevice type: %s", light_device)
+                return None
 
         except Exception as err:
             _LOGGER.exception("Failed to parse light device: %s", err)
@@ -1129,12 +991,8 @@ class AjaxApi:
             )
 
             # Create stub and call service
-            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(
-                self.channel
-            )
-            response = await stub.arm(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(self.channel)
+            response = await stub.arm(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
@@ -1184,12 +1042,8 @@ class AjaxApi:
             )
 
             # Create stub and call service
-            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(
-                self.channel
-            )
-            response = await stub.disarm(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(self.channel)
+            response = await stub.disarm(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
@@ -1243,12 +1097,8 @@ class AjaxApi:
             )
 
             # Create stub and call service
-            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(
-                self.channel
-            )
-            response = await stub.armToNightMode(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(self.channel)
+            response = await stub.armToNightMode(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
@@ -1281,9 +1131,7 @@ class AjaxApi:
                 raise AjaxAuthError("Session expired") from err
             raise AjaxApiError(f"gRPC error: {err}") from err
 
-    async def async_arm_group(
-        self, space_id: str, group_id: str, force: bool = False
-    ) -> None:
+    async def async_arm_group(self, space_id: str, group_id: str, force: bool = False) -> None:
         """Arm a specific group/zone.
 
         Args:
@@ -1295,9 +1143,7 @@ class AjaxApi:
             raise AjaxAuthError("Not authenticated")
 
         try:
-            _LOGGER.info(
-                "Arming group %s in space %s (force=%s)", group_id, space_id, force
-            )
+            _LOGGER.info("Arming group %s in space %s (force=%s)", group_id, space_id, force)
 
             # Create space locator
             space_locator = space_locator_pb2.SpaceLocator(space_id=space_id)
@@ -1310,18 +1156,12 @@ class AjaxApi:
             )
 
             # Create stub and call service
-            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(
-                self.channel
-            )
-            response = await stub.armGroup(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(self.channel)
+            response = await stub.armGroup(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
-                _LOGGER.info(
-                    "Successfully armed group %s in space %s", group_id, space_id
-                )
+                _LOGGER.info("Successfully armed group %s in space %s", group_id, space_id)
             elif response.HasField("failure"):
                 failure = response.failure
                 error_msg = "Unknown error"
@@ -1374,18 +1214,12 @@ class AjaxApi:
             )
 
             # Create stub and call service
-            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(
-                self.channel
-            )
-            response = await stub.disarmGroup(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            stub = space_security_endpoints_pb2_grpc.SpaceSecurityServiceStub(self.channel)
+            response = await stub.disarmGroup(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
-                _LOGGER.info(
-                    "Successfully disarmed group %s in space %s", group_id, space_id
-                )
+                _LOGGER.info("Successfully disarmed group %s in space %s", group_id, space_id)
             elif response.HasField("failure"):
                 failure = response.failure
                 error_msg = "Unknown error"
@@ -1432,9 +1266,7 @@ class AjaxApi:
 
             # Create stub and call service
             stub = space_endpoints_pb2_grpc.SpaceServiceStub(self.channel)
-            response = await stub.pressPanicButton(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            response = await stub.pressPanicButton(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
@@ -1514,21 +1346,13 @@ class AjaxApi:
                 raise AjaxAuthError("Session expired") from err
 
             # Handle temporary connection errors (server unavailable, connection lost, etc.)
-            elif err.code() in (
-                grpc.StatusCode.UNAVAILABLE,
-                grpc.StatusCode.DEADLINE_EXCEEDED,
-            ):
+            elif err.code() in (grpc.StatusCode.UNAVAILABLE, grpc.StatusCode.DEADLINE_EXCEEDED):
                 # Don't log error here - coordinator will handle it based on retry count
                 raise AjaxConnectionError("Connection lost to Ajax server") from err
 
             # Other gRPC errors (real problems)
             else:
-                _LOGGER.error(
-                    "gRPC error in space stream for %s: %s (code: %s)",
-                    space_id,
-                    err,
-                    err.code(),
-                )
+                _LOGGER.error("gRPC error in space stream for %s: %s (code: %s)", space_id, err, err.code())
                 raise AjaxApiError(f"gRPC error: {err}") from err
 
     async def async_stream_device_updates(self, hub_id: str, device_id: str):
@@ -1549,13 +1373,12 @@ class AjaxApi:
             raise AjaxAuthError("Not authenticated")
 
         try:
-            _LOGGER.info(
-                "Starting device stream for device %s in hub %s", device_id, hub_id
-            )
+            _LOGGER.info("Starting device stream for device %s in hub %s", device_id, hub_id)
 
             # Create stream request
             request = stream_device_request_pb2.StreamHubDeviceRequest(
-                hub_id=hub_id, hub_device_id=device_id
+                hub_id=hub_id,
+                hub_device_id=device_id
             )
 
             # Create stub and start streaming
@@ -1583,9 +1406,7 @@ class AjaxApi:
                     elif failure.HasField("device_not_found"):
                         error_msg = "Device not found"
 
-                    _LOGGER.error(
-                        "Device stream error for %s: %s", device_id, error_msg
-                    )
+                    _LOGGER.error("Device stream error for %s: %s", device_id, error_msg)
                     raise AjaxApiError(f"Device stream error: {error_msg}")
 
         except grpc.RpcError as err:
@@ -1610,20 +1431,18 @@ class AjaxApi:
             raise AjaxAuthError("Not authenticated. Call async_login() first.")
 
         try:
-            _LOGGER.debug(
-                "Fetching notifications for space_id: %s (limit: %d)", space_id, limit
-            )
+            _LOGGER.debug("Fetching notifications for space_id: %s (limit: %d)", space_id, limit)
 
             # Create filter for the space
             from custom_components.ajax.systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification import (
                 filter_pb2 as notification_filter_pb2,
-            )
-            from custom_components.ajax.systems.ajax.api.ecosystem.v2.communicationsvc.mobile.commonmodels.notification import (
                 origin_id_pb2 as notification_origin_pb2,
             )
 
             # Create origin ID (space_id)
-            origin = notification_origin_pb2.NotificationOriginId(space_id=space_id)
+            origin = notification_origin_pb2.NotificationOriginId(
+                space_id=space_id
+            )
 
             notification_filter = notification_filter_pb2.NotificationsFilter(
                 origin=origin
@@ -1636,9 +1455,7 @@ class AjaxApi:
             )
 
             # Create stub and call service
-            stub = notification_log_endpoints_pb2_grpc.NotificationLogServiceStub(
-                self.channel
-            )
+            stub = notification_log_endpoints_pb2_grpc.NotificationLogServiceStub(self.channel)
             response = await stub.findNotifications(
                 request, metadata=self._get_metadata(include_auth=True)
             )
@@ -1660,19 +1477,18 @@ class AjaxApi:
 
                 return notifications
 
-            if response.HasField("failure"):
+            elif response.HasField("failure"):
                 failure = response.failure
                 # Check if it's a "not_found" error (user doesn't have access to notifications)
                 if hasattr(failure, "not_found") and failure.HasField("not_found"):
-                    _LOGGER.info(
-                        "User does not have access to notifications for space %s",
-                        space_id,
-                    )
+                    _LOGGER.info("User does not have access to notifications for space %s", space_id)
                     return []
-                _LOGGER.error("Failed to get notifications: %s", failure)
-                raise AjaxApiError("Failed to get notifications")
-            _LOGGER.warning("Unknown response type received")
-            return []
+                else:
+                    _LOGGER.error("Failed to get notifications: %s", failure)
+                    raise AjaxApiError("Failed to get notifications")
+            else:
+                _LOGGER.warning("Unknown response type received")
+                return []
 
         except grpc.RpcError as err:
             _LOGGER.error("gRPC error getting notifications: %s", err)
@@ -1706,7 +1522,9 @@ class AjaxApi:
             )
 
             # Create origin ID (space_id)
-            origin = notification_origin_pb2.NotificationOriginId(space_id=space_id)
+            origin = notification_origin_pb2.NotificationOriginId(
+                space_id=space_id
+            )
 
             # Create streaming request
             request = stream_notification_log_pb2.StreamNotificationLogRequest(
@@ -1714,9 +1532,7 @@ class AjaxApi:
             )
 
             # Create stub and start streaming
-            stub = notification_log_endpoints_pb2_grpc.NotificationLogServiceStub(
-                self.channel
-            )
+            stub = notification_log_endpoints_pb2_grpc.NotificationLogServiceStub(self.channel)
 
             async for response in stub.streamUpdates(
                 request, metadata=self._get_metadata(include_auth=True)
@@ -1734,35 +1550,23 @@ class AjaxApi:
         except grpc.RpcError as err:
             # Handle authentication errors
             if err.code() == grpc.StatusCode.UNAUTHENTICATED:
-                _LOGGER.error(
-                    "Session expired for notification stream (space %s)", space_id
-                )
+                _LOGGER.error("Session expired for notification stream (space %s)", space_id)
                 raise AjaxAuthError("Session expired") from err
 
             # Handle temporary connection errors
-            elif err.code() in (
-                grpc.StatusCode.UNAVAILABLE,
-                grpc.StatusCode.DEADLINE_EXCEEDED,
-            ):
+            elif err.code() in (grpc.StatusCode.UNAVAILABLE, grpc.StatusCode.DEADLINE_EXCEEDED):
                 # Don't log error here - coordinator will handle it based on retry count
                 raise AjaxConnectionError("Connection lost to Ajax server") from err
 
             # Other gRPC errors (real problems)
             else:
-                _LOGGER.error(
-                    "gRPC error in notification stream for %s: %s (code: %s)",
-                    space_id,
-                    err,
-                    err.code(),
-                )
+                _LOGGER.error("gRPC error in notification stream for %s: %s (code: %s)", space_id, err, err.code())
                 raise AjaxApiError(f"gRPC error: {err}") from err
 
         except (AjaxAuthError, AjaxApiError, AjaxConnectionError):
             raise
         except Exception as err:
-            _LOGGER.exception(
-                "Unexpected error in notification streaming for space %s", space_id
-            )
+            _LOGGER.exception("Unexpected error in notification streaming for space %s", space_id)
             raise AjaxApiError(f"Failed to stream notifications: {err}") from err
 
     def _parse_notification(self, notification) -> dict[str, Any] | None:
@@ -1778,9 +1582,7 @@ class AjaxApi:
             notification_data = {
                 "id": notification.id if hasattr(notification, "id") else None,
                 "timestamp": None,
-                "read": notification.read_by_user
-                if hasattr(notification, "read_by_user")
-                else False,
+                "read": notification.read_by_user if hasattr(notification, "read_by_user") else False,
                 "space_id": None,
                 "device_id": None,
                 "device_name": None,
@@ -1814,20 +1616,10 @@ class AjaxApi:
                     # Parse source (the device that triggered the event)
                     if hasattr(hub_content, "source") and hub_content.source:
                         source = hub_content.source
-                        notification_data["device_id"] = (
-                            source.id if hasattr(source, "id") else None
-                        )
-                        notification_data["device_name"] = (
-                            source.name if hasattr(source, "name") else None
-                        )
-                        notification_data["room_id"] = (
-                            source.room_hex_id
-                            if hasattr(source, "room_hex_id")
-                            else None
-                        )
-                        notification_data["room_name"] = (
-                            source.room_name if hasattr(source, "room_name") else None
-                        )
+                        notification_data["device_id"] = source.id if hasattr(source, "id") else None
+                        notification_data["device_name"] = source.name if hasattr(source, "name") else None
+                        notification_data["room_id"] = source.room_hex_id if hasattr(source, "room_hex_id") else None
+                        notification_data["room_name"] = source.room_name if hasattr(source, "room_name") else None
 
                     # Parse qualifier (event type)
                     if hasattr(hub_content, "qualifier") and hub_content.qualifier:
@@ -1865,29 +1657,14 @@ class AjaxApi:
 
                                             # Map tag types to event types and messages
                                             tag_mapping = {
-                                                "space_armed": (
-                                                    "armed",
-                                                    "Système armé",
-                                                ),
-                                                "space_disarmed": (
-                                                    "disarmed",
-                                                    "Système désarmé",
-                                                ),
-                                                "space_night_mode_on": (
-                                                    "night_mode_on",
-                                                    "Mode nuit activé",
-                                                ),
-                                                "space_partially_armed": (
-                                                    "partially_armed",
-                                                    "Armement partiel activé",
-                                                ),
+                                                "space_armed": ("armed", "Système armé"),
+                                                "space_disarmed": ("disarmed", "Système désarmé"),
+                                                "space_night_mode_on": ("night_mode_on", "Mode nuit activé"),
+                                                "space_partially_armed": ("partially_armed", "Armement partiel activé"),
                                             }
 
                                             if tag_type in tag_mapping:
-                                                (
-                                                    notification_data["event_type"],
-                                                    notification_data["message"],
-                                                ) = tag_mapping[tag_type]
+                                                notification_data["event_type"], notification_data["message"] = tag_mapping[tag_type]
                                             break
 
                         # Extract source information (who triggered the event)
@@ -1897,9 +1674,7 @@ class AjaxApi:
                                 source_name = space_source.name
                                 # Append source to message if we have a message
                                 if notification_data.get("message"):
-                                    notification_data["message"] = (
-                                        f"{notification_data['message']} par {source_name}"
-                                    )
+                                    notification_data["message"] = f"{notification_data['message']} par {source_name}"
 
             return notification_data
 
@@ -1947,21 +1722,13 @@ class AjaxApi:
                     if hasattr(group, "images") and group.images:
                         images = group.images
                         if hasattr(images, "light") and images.light:
-                            image_id = (
-                                images.light if isinstance(images.light, str) else None
-                            )
+                            image_id = images.light if isinstance(images.light, str) else None
 
                     groups_metadata[group_id] = {
                         "id": group_id,
-                        "name": group.name
-                        if hasattr(group, "name")
-                        else f"Group {group_id}",
-                        "bulk_arm_involved": group.bulk_arm_involved
-                        if hasattr(group, "bulk_arm_involved")
-                        else False,
-                        "bulk_disarm_involved": group.bulk_disarm_involved
-                        if hasattr(group, "bulk_disarm_involved")
-                        else False,
+                        "name": group.name if hasattr(group, "name") else f"Group {group_id}",
+                        "bulk_arm_involved": group.bulk_arm_involved if hasattr(group, "bulk_arm_involved") else False,
+                        "bulk_disarm_involved": group.bulk_disarm_involved if hasattr(group, "bulk_disarm_involved") else False,
                         "image_id": image_id,
                     }
 
@@ -1981,29 +1748,20 @@ class AjaxApi:
 
                     # Parse group security states
                     if hasattr(group_mode, "groups") and group_mode.groups:
-                        _LOGGER.debug(
-                            "Found %d group security states", len(group_mode.groups)
-                        )
+                        _LOGGER.debug("Found %d group security states", len(group_mode.groups))
                         for group_security in group_mode.groups:
-                            group_id = (
-                                group_security.group_id
-                                if hasattr(group_security, "group_id")
-                                else None
-                            )
+                            group_id = group_security.group_id if hasattr(group_security, "group_id") else None
                             if not group_id:
                                 continue
 
                             # Get metadata for this group
-                            metadata = groups_metadata.get(
-                                group_id,
-                                {
-                                    "id": group_id,
-                                    "name": f"Group {group_id}",
-                                    "bulk_arm_involved": False,
-                                    "bulk_disarm_involved": False,
-                                    "image_id": None,
-                                },
-                            )
+                            metadata = groups_metadata.get(group_id, {
+                                "id": group_id,
+                                "name": f"Group {group_id}",
+                                "bulk_arm_involved": False,
+                                "bulk_disarm_involved": False,
+                                "image_id": None,
+                            })
 
                             # Parse state
                             state = "none"
@@ -2017,15 +1775,9 @@ class AjaxApi:
 
                             # Parse night mode for this group
                             group_night_mode = False
-                            if (
-                                hasattr(group_security, "transition")
-                                and group_security.transition
-                            ):
+                            if hasattr(group_security, "transition") and group_security.transition:
                                 transition = group_security.transition
-                                if (
-                                    hasattr(transition, "desired_state")
-                                    and transition.desired_state
-                                ):
+                                if hasattr(transition, "desired_state") and transition.desired_state:
                                     desired = transition.desired_state
                                     if hasattr(desired, "night_mode_enabled"):
                                         group_night_mode = desired.night_mode_enabled
@@ -2086,9 +1838,7 @@ class AjaxApi:
                 if hasattr(room, "images") and room.images:
                     images = room.images
                     if hasattr(images, "light") and images.light:
-                        image_id = (
-                            images.light if isinstance(images.light, str) else None
-                        )
+                        image_id = images.light if isinstance(images.light, str) else None
 
                 rooms[room_id] = {
                     "id": room_id,
@@ -2104,9 +1854,7 @@ class AjaxApi:
             _LOGGER.exception("Error parsing rooms from space: %s", err)
             return rooms
 
-    async def async_turn_on_device(
-        self, space_id: str, device_id: str, hub_id: str, channel_id: int = 1
-    ) -> None:
+    async def async_turn_on_device(self, space_id: str, device_id: str, hub_id: str, channel_id: int = 1) -> None:
         """Turn on a device (socket/relay).
 
         Args:
@@ -2123,9 +1871,7 @@ class AjaxApi:
 
             # Get device type - need to fetch device info
             # For now, assume socket type
-            from custom_components.ajax.systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import (
-                object_type_pb2,
-            )
+            from custom_components.ajax.systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import object_type_pb2
 
             # Create device type for socket
             device_type = object_type_pb2.ObjectType()
@@ -2134,17 +1880,11 @@ class AjaxApi:
             # Map channel_id to Channel enum
             channel_enum = device_on_request_pb2.DeviceCommandDeviceOnRequest.CHANNEL_1
             if channel_id == 2:
-                channel_enum = (
-                    device_on_request_pb2.DeviceCommandDeviceOnRequest.CHANNEL_2
-                )
+                channel_enum = device_on_request_pb2.DeviceCommandDeviceOnRequest.CHANNEL_2
             elif channel_id == 3:
-                channel_enum = (
-                    device_on_request_pb2.DeviceCommandDeviceOnRequest.CHANNEL_3
-                )
+                channel_enum = device_on_request_pb2.DeviceCommandDeviceOnRequest.CHANNEL_3
             elif channel_id == 4:
-                channel_enum = (
-                    device_on_request_pb2.DeviceCommandDeviceOnRequest.CHANNEL_4
-                )
+                channel_enum = device_on_request_pb2.DeviceCommandDeviceOnRequest.CHANNEL_4
 
             # Create request
             request = device_on_request_pb2.DeviceCommandDeviceOnRequest(
@@ -2156,9 +1896,7 @@ class AjaxApi:
 
             # Create stub and call service
             stub = device_on_pb2_grpc.DeviceCommandDeviceOnServiceStub(self.channel)
-            response = await stub.device_command_device_on(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            response = await stub.device_command_device_on(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
@@ -2169,13 +1907,9 @@ class AjaxApi:
 
                 if hasattr(failure, "hub_offline") and failure.HasField("hub_offline"):
                     error_msg = "Hub is offline"
-                elif hasattr(failure, "device_offline") and failure.HasField(
-                    "device_offline"
-                ):
+                elif hasattr(failure, "device_offline") and failure.HasField("device_offline"):
                     error_msg = "Device is offline"
-                elif hasattr(failure, "permission_denied") and failure.HasField(
-                    "permission_denied"
-                ):
+                elif hasattr(failure, "permission_denied") and failure.HasField("permission_denied"):
                     error_msg = "Permission denied"
 
                 _LOGGER.error("Failed to turn on device: %s", error_msg)
@@ -2188,9 +1922,7 @@ class AjaxApi:
             _LOGGER.exception("Error turning on device: %s", err)
             raise AjaxApiError(f"Failed to turn on device: {err}")
 
-    async def async_turn_off_device(
-        self, space_id: str, device_id: str, hub_id: str, channel_id: int = 1
-    ) -> None:
+    async def async_turn_off_device(self, space_id: str, device_id: str, hub_id: str, channel_id: int = 1) -> None:
         """Turn off a device (socket/relay).
 
         Args:
@@ -2207,30 +1939,20 @@ class AjaxApi:
 
             # Get device type - need to fetch device info
             # For now, assume socket type
-            from custom_components.ajax.systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import (
-                object_type_pb2,
-            )
+            from custom_components.ajax.systems.ajax.api.ecosystem.v2.hubsvc.commonmodels import object_type_pb2
 
             # Create device type for socket
             device_type = object_type_pb2.ObjectType()
             device_type.socket.CopyFrom(object_type_pb2.ObjectType.Socket())
 
             # Map channel_id to Channel enum
-            channel_enum = (
-                device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_1
-            )
+            channel_enum = device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_1
             if channel_id == 2:
-                channel_enum = (
-                    device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_2
-                )
+                channel_enum = device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_2
             elif channel_id == 3:
-                channel_enum = (
-                    device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_3
-                )
+                channel_enum = device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_3
             elif channel_id == 4:
-                channel_enum = (
-                    device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_4
-                )
+                channel_enum = device_off_request_pb2.DeviceCommandDeviceOffRequest.CHANNEL_4
 
             # Create request
             request = device_off_request_pb2.DeviceCommandDeviceOffRequest(
@@ -2242,9 +1964,7 @@ class AjaxApi:
 
             # Create stub and call service
             stub = device_off_pb2_grpc.DeviceCommandDeviceOffServiceStub(self.channel)
-            response = await stub.device_command_device_off(
-                request, metadata=self._get_metadata(include_auth=True)
-            )
+            response = await stub.device_command_device_off(request, metadata=self._get_metadata(include_auth=True))
 
             # Check response
             if response.HasField("success"):
@@ -2255,13 +1975,9 @@ class AjaxApi:
 
                 if hasattr(failure, "hub_offline") and failure.HasField("hub_offline"):
                     error_msg = "Hub is offline"
-                elif hasattr(failure, "device_offline") and failure.HasField(
-                    "device_offline"
-                ):
+                elif hasattr(failure, "device_offline") and failure.HasField("device_offline"):
                     error_msg = "Device is offline"
-                elif hasattr(failure, "permission_denied") and failure.HasField(
-                    "permission_denied"
-                ):
+                elif hasattr(failure, "permission_denied") and failure.HasField("permission_denied"):
                     error_msg = "Permission denied"
 
                 _LOGGER.error("Failed to turn off device: %s", error_msg)

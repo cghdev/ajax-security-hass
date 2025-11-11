@@ -1,41 +1,18 @@
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from v3.mobilegwsvc.commonmodels.response import response_pb2 as _response_pb2
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class CreateBackupChannelResponse(_message.Message):
-    __slots__ = ("failure", "success")
+    __slots__ = ("success", "failure")
     class Success(_message.Message):
         __slots__ = ()
         def __init__(self) -> None: ...
-
     class Failure(_message.Message):
-        __slots__ = (
-            "bad_request",
-            "hub_device_already_added",
-            "hub_error",
-            "hub_is_busy",
-            "hub_not_found",
-            "hub_offline",
-            "mcu_invalid_state",
-            "mcu_io_error",
-            "mcu_no_response_from_mcu",
-            "need_update_hub_firmware",
-            "objects_limit_exceeded",
-            "permission_denied",
-            "search_timeout",
-            "space_armed",
-            "space_not_found",
-            "unknown_hub_device",
-            "unsupported_hub_device",
-            "video_edge_is_offline",
-            "video_edge_not_found",
-            "wrong_hub_state",
-        )
+        __slots__ = ("bad_request", "space_not_found", "permission_denied", "video_edge_not_found", "hub_not_found", "space_armed", "hub_error", "search_timeout", "hub_is_busy", "wrong_hub_state", "objects_limit_exceeded", "hub_device_already_added", "unknown_hub_device", "unsupported_hub_device", "need_update_hub_firmware", "hub_offline", "video_edge_is_offline", "mcu_io_error", "mcu_invalid_state", "mcu_no_response_from_mcu")
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         SPACE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
@@ -76,36 +53,9 @@ class CreateBackupChannelResponse(_message.Message):
         mcu_io_error: _response_pb2.Error
         mcu_invalid_state: _response_pb2.Error
         mcu_no_response_from_mcu: _response_pb2.Error
-        def __init__(
-            self,
-            bad_request: _response_pb2.Error | _Mapping | None = ...,
-            space_not_found: _response_pb2.Error | _Mapping | None = ...,
-            permission_denied: _response_pb2.Error | _Mapping | None = ...,
-            video_edge_not_found: _response_pb2.Error | _Mapping | None = ...,
-            hub_not_found: _response_pb2.Error | _Mapping | None = ...,
-            space_armed: _response_pb2.Error | _Mapping | None = ...,
-            hub_error: _response_pb2.Error | _Mapping | None = ...,
-            search_timeout: _response_pb2.Error | _Mapping | None = ...,
-            hub_is_busy: _response_pb2.Error | _Mapping | None = ...,
-            wrong_hub_state: _response_pb2.Error | _Mapping | None = ...,
-            objects_limit_exceeded: _response_pb2.Error | _Mapping | None = ...,
-            hub_device_already_added: _response_pb2.Error | _Mapping | None = ...,
-            unknown_hub_device: _response_pb2.Error | _Mapping | None = ...,
-            unsupported_hub_device: _response_pb2.Error | _Mapping | None = ...,
-            need_update_hub_firmware: _response_pb2.Error | _Mapping | None = ...,
-            hub_offline: _response_pb2.Error | _Mapping | None = ...,
-            video_edge_is_offline: _response_pb2.Error | _Mapping | None = ...,
-            mcu_io_error: _response_pb2.Error | _Mapping | None = ...,
-            mcu_invalid_state: _response_pb2.Error | _Mapping | None = ...,
-            mcu_no_response_from_mcu: _response_pb2.Error | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, bad_request: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., space_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_not_found: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., space_armed: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_error: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., search_timeout: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_is_busy: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., wrong_hub_state: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., objects_limit_exceeded: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_device_already_added: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., unknown_hub_device: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., unsupported_hub_device: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., need_update_hub_firmware: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., hub_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., video_edge_is_offline: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., mcu_io_error: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., mcu_invalid_state: _Optional[_Union[_response_pb2.Error, _Mapping]] = ..., mcu_no_response_from_mcu: _Optional[_Union[_response_pb2.Error, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: CreateBackupChannelResponse.Success
     failure: CreateBackupChannelResponse.Failure
-    def __init__(
-        self,
-        success: CreateBackupChannelResponse.Success | _Mapping | None = ...,
-        failure: CreateBackupChannelResponse.Failure | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, success: _Optional[_Union[CreateBackupChannelResponse.Success, _Mapping]] = ..., failure: _Optional[_Union[CreateBackupChannelResponse.Failure, _Mapping]] = ...) -> None: ...

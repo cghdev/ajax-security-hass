@@ -1,19 +1,15 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-
+from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
+from systems.ajax.api.mobile.v2.common.space.scenario import scenario_pb2 as _scenario_pb2
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from google.protobuf.internal import containers as _containers
-from systems.ajax.api.mobile.v2.common.response import response_pb2 as _response_pb2
-from systems.ajax.api.mobile.v2.common.space.scenario import (
-    scenario_pb2 as _scenario_pb2,
-)
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class UpdateScenarioRequest(_message.Message):
-    __slots__ = ("cases", "enabled", "name", "scenario_id", "space_id")
+    __slots__ = ("space_id", "scenario_id", "name", "enabled", "cases")
     SPACE_ID_FIELD_NUMBER: _ClassVar[int]
     SCENARIO_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
@@ -24,35 +20,17 @@ class UpdateScenarioRequest(_message.Message):
     name: str
     enabled: bool
     cases: _containers.RepeatedCompositeFieldContainer[_scenario_pb2.Scenario.Case]
-    def __init__(
-        self,
-        space_id: str | None = ...,
-        scenario_id: str | None = ...,
-        name: str | None = ...,
-        enabled: bool = ...,
-        cases: _Iterable[_scenario_pb2.Scenario.Case | _Mapping] | None = ...,
-    ) -> None: ...
+    def __init__(self, space_id: _Optional[str] = ..., scenario_id: _Optional[str] = ..., name: _Optional[str] = ..., enabled: bool = ..., cases: _Optional[_Iterable[_Union[_scenario_pb2.Scenario.Case, _Mapping]]] = ...) -> None: ...
 
 class UpdateScenarioResponse(_message.Message):
-    __slots__ = ("failure", "success")
+    __slots__ = ("success", "failure")
     class Success(_message.Message):
         __slots__ = ("scenario",)
         SCENARIO_FIELD_NUMBER: _ClassVar[int]
         scenario: _scenario_pb2.Scenario
-        def __init__(
-            self, scenario: _scenario_pb2.Scenario | _Mapping | None = ...
-        ) -> None: ...
-
+        def __init__(self, scenario: _Optional[_Union[_scenario_pb2.Scenario, _Mapping]] = ...) -> None: ...
     class Failure(_message.Message):
-        __slots__ = (
-            "bad_request",
-            "duplicated_name",
-            "permission_denied",
-            "scenario_not_found",
-            "space_armed",
-            "space_locked",
-            "space_not_found",
-        )
+        __slots__ = ("bad_request", "permission_denied", "space_not_found", "space_armed", "space_locked", "duplicated_name", "scenario_not_found")
         BAD_REQUEST_FIELD_NUMBER: _ClassVar[int]
         PERMISSION_DENIED_FIELD_NUMBER: _ClassVar[int]
         SPACE_NOT_FOUND_FIELD_NUMBER: _ClassVar[int]
@@ -67,23 +45,9 @@ class UpdateScenarioResponse(_message.Message):
         space_locked: _response_pb2.SpaceLockedError
         duplicated_name: _response_pb2.DefaultError
         scenario_not_found: _response_pb2.DefaultError
-        def __init__(
-            self,
-            bad_request: _response_pb2.DefaultError | _Mapping | None = ...,
-            permission_denied: _response_pb2.DefaultError | _Mapping | None = ...,
-            space_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
-            space_armed: _response_pb2.DefaultError | _Mapping | None = ...,
-            space_locked: _response_pb2.SpaceLockedError | _Mapping | None = ...,
-            duplicated_name: _response_pb2.DefaultError | _Mapping | None = ...,
-            scenario_not_found: _response_pb2.DefaultError | _Mapping | None = ...,
-        ) -> None: ...
-
+        def __init__(self, bad_request: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., permission_denied: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_armed: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., space_locked: _Optional[_Union[_response_pb2.SpaceLockedError, _Mapping]] = ..., duplicated_name: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ..., scenario_not_found: _Optional[_Union[_response_pb2.DefaultError, _Mapping]] = ...) -> None: ...
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
     FAILURE_FIELD_NUMBER: _ClassVar[int]
     success: UpdateScenarioResponse.Success
     failure: UpdateScenarioResponse.Failure
-    def __init__(
-        self,
-        success: UpdateScenarioResponse.Success | _Mapping | None = ...,
-        failure: UpdateScenarioResponse.Failure | _Mapping | None = ...,
-    ) -> None: ...
+    def __init__(self, success: _Optional[_Union[UpdateScenarioResponse.Success, _Mapping]] = ..., failure: _Optional[_Union[UpdateScenarioResponse.Failure, _Mapping]] = ...) -> None: ...
