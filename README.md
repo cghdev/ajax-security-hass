@@ -6,6 +6,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/foXaCe?style=flat&logo=github&label=Sponsor&color=ea4aaa)](https://github.com/sponsors/foXaCe)
+[![Community Forum](https://img.shields.io/badge/Home_Assistant-Community-blue?logo=home-assistant)](https://community.home-assistant.io/t/custom-component-ajax-systems/948939/2)
 
 **Full-featured** Home Assistant integration for Ajax Security Systems via the official Cloud API with **real-time synchronization**.
 
