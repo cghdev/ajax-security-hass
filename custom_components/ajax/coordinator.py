@@ -595,17 +595,24 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
                             # Determine overall space security state based on armed groups
                             armed_groups = [g for g in space.groups.values() if g.state == GroupState.ARMED]
+                            night_mode_groups = [g for g in space.groups.values() if g.night_mode_enabled]
                             _LOGGER.debug(
-                                "Night mode detection for space %s: %d/%d groups armed, groups: %s",
+                                "Night mode detection for space %s: %d/%d groups armed, %d/%d with night_mode, groups: %s",
                                 space.name,
                                 len(armed_groups),
+                                len(space.groups),
+                                len(night_mode_groups),
                                 len(space.groups),
                                 {g.name: {"state": g.state, "night_mode": g.night_mode_enabled} for g in space.groups.values()}
                             )
 
-                            if not armed_groups:
+                            # Check if night mode is active (any group has night_mode_enabled)
+                            if night_mode_groups:
+                                space.security_state = SecurityState.NIGHT_MODE
+                                _LOGGER.info("Space %s: NIGHT_MODE (%d/%d groups with night_mode enabled)", space.name, len(night_mode_groups), len(space.groups))
+                            elif not armed_groups:
                                 space.security_state = SecurityState.DISARMED
-                                _LOGGER.debug("Space %s: DISARMED (no armed groups)", space.name)
+                                _LOGGER.debug("Space %s: DISARMED (no armed groups, no night mode)", space.name)
                             elif len(armed_groups) == len(space.groups):
                                 # Check if all armed groups have night mode enabled
                                 all_night_mode = all(g.night_mode_enabled for g in armed_groups)
