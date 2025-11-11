@@ -35,6 +35,7 @@ from .models import (
     AjaxRoom,
     AjaxSpace,
     DeviceType,
+    GroupState,
     NotificationType,
     SecurityState,
 )
@@ -731,8 +732,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 if group_id in space.groups:
                     del space.groups[group_id]
                     _LOGGER.info("Group %s removed from space %s", group_id, space.name)
-                    if not batch_mode:
-                        self.async_set_updated_data(self.account)
+                    self.async_set_updated_data(self.account)
                 return
 
             # SPACE_UPDATE_TYPE_ADD = 1 or SPACE_UPDATE_TYPE_UPDATE = 2
@@ -770,8 +770,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 space.groups[group_id] = group
                 _LOGGER.info("Added new group %s to space %s", group_name, space.name)
 
-            if not batch_mode:
-                self.async_set_updated_data(self.account)
+            self.async_set_updated_data(self.account)
 
         except Exception as err:
             _LOGGER.exception("Error handling group update: %s", err)

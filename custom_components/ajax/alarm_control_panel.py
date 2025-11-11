@@ -166,18 +166,3 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
             }
 
         return attributes
-
-    @property
-    def device_info(self) -> dict[str, Any]:
-        """Return device information."""
-        space = self.coordinator.get_space(self._space_id)
-        if not space:
-            return {}
-
-        return {
-            "identifiers": {(DOMAIN, self._space_id)},
-            "name": f"Ajax Hub - {space.name}",
-            "manufacturer": "Ajax Systems",
-            "model": "Security Hub",
-            "sw_version": None,  # TODO: Add hub firmware version when available
-        }
