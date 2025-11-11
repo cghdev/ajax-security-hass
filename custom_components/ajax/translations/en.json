@@ -24,11 +24,22 @@
         "data_description": {
           "spaces": "Choose one or more spaces to monitor in Home Assistant"
         }
+      },
+      "totp": {
+        "title": "Two-Factor Authentication",
+        "description": "Enter the 6-digit verification code from your authenticator app for {email}",
+        "data": {
+          "totp_code": "Verification code"
+        },
+        "data_description": {
+          "totp_code": "6-digit code from your authenticator app"
+        }
       }
     },
     "error": {
       "cannot_connect": "Failed to connect to Ajax server. Check your internet connection.",
       "invalid_auth": "Invalid credentials. Check your email and password.",
+      "invalid_totp": "Invalid verification code. Please try again.",
       "unknown": "Unexpected error. Check the logs for more details.",
       "no_spaces_selected": "Please select at least one space."
     },

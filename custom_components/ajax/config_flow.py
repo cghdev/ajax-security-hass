@@ -14,7 +14,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 
-from .api import AjaxApi, AjaxApiError, AjaxAuthError
+from .api import AjaxApi, AjaxApiError, AjaxAuthError, Ajax2FARequiredError
 from .const import (
     DOMAIN,
     CONF_DEVICE_ID,
@@ -27,6 +27,8 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+CONF_TOTP = "totp_code"
 
 def get_user_data_schema(hass: HomeAssistant) -> vol.Schema:
     """Get the user data schema with translated notification filter options."""
@@ -92,6 +94,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._user_input: dict[str, Any] = {}
         self._spaces: list[dict[str, Any]] = []
         self._info: dict[str, Any] = {}
+        self._totp_request_id: str | None = None
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -106,6 +109,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
+            except Ajax2FARequiredError as err:
+                # Store request_id and user input, then go to TOTP step
+                self._totp_request_id = err.request_id
+                self._user_input = user_input
+                return await self.async_step_totp()
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -143,6 +151,86 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=get_user_data_schema(self.hass),
             errors=errors,
+        )
+
+    async def async_step_totp(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle the TOTP (two-factor authentication) step."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            totp_code = user_input.get(CONF_TOTP, "").strip()
+
+            if not totp_code:
+                errors["base"] = "invalid_totp"
+            else:
+                # Generate device ID if not already present
+                device_id = self._user_input.get(CONF_DEVICE_ID)
+                if not device_id:
+                    device_id = f"homeassistant_{uuid.uuid4().hex[:16]}"
+
+                # Create API client and try TOTP login
+                api = AjaxApi(
+                    email=self._user_input[CONF_EMAIL],
+                    password=self._user_input[CONF_PASSWORD],
+                    device_id=device_id,
+                )
+
+                try:
+                    login_result = await api.async_login_with_totp(
+                        self._totp_request_id, totp_code
+                    )
+
+                    # Login successful, store info
+                    self._info = {
+                        "title": f"Ajax - {login_result.get('user_name', self._user_input[CONF_EMAIL])}",
+                        "device_id": device_id,
+                        "user_id": login_result.get("user_id"),
+                    }
+
+                    # Set unique ID based on user ID
+                    await self.async_set_unique_id(self._info["user_id"])
+                    self._abort_if_unique_id_configured()
+
+                    # Get list of spaces for selection
+                    try:
+                        self._spaces = await api.async_get_spaces()
+                        await api.close()
+
+                        # If only one space, skip selection step
+                        if len(self._spaces) == 1:
+                            return await self.async_step_select_spaces({
+                                "spaces": [self._spaces[0]["id"]]
+                            })
+
+                        # Go to space selection step
+                        return await self.async_step_select_spaces()
+
+                    except Exception as err:
+                        _LOGGER.exception("Error fetching spaces: %s", err)
+                        errors["base"] = "cannot_connect"
+
+                except AjaxAuthError:
+                    errors["base"] = "invalid_totp"
+                except AjaxApiError:
+                    errors["base"] = "cannot_connect"
+                except Exception:  # pylint: disable=broad-except
+                    _LOGGER.exception("Unexpected exception during TOTP login")
+                    errors["base"] = "unknown"
+                finally:
+                    await api.close()
+
+        # Show TOTP input form
+        return self.async_show_form(
+            step_id="totp",
+            data_schema=vol.Schema({
+                vol.Required(CONF_TOTP): str,
+            }),
+            errors=errors,
+            description_placeholders={
+                "email": self._user_input.get(CONF_EMAIL, ""),
+            },
         )
 
     async def async_step_select_spaces(

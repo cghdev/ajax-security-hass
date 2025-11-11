@@ -24,11 +24,22 @@
         "data_description": {
           "spaces": "Choisissez un ou plusieurs espaces à surveiller dans Home Assistant"
         }
+      },
+      "totp": {
+        "title": "Authentification à deux facteurs",
+        "description": "Entrez le code de vérification à 6 chiffres de votre application d'authentification pour {email}",
+        "data": {
+          "totp_code": "Code de vérification"
+        },
+        "data_description": {
+          "totp_code": "Code à 6 chiffres de votre application d'authentification"
+        }
       }
     },
     "error": {
       "cannot_connect": "Échec de la connexion au serveur Ajax. Vérifiez votre connexion Internet.",
       "invalid_auth": "Identifiants incorrects. Vérifiez votre adresse e-mail et votre mot de passe.",
+      "invalid_totp": "Code de vérification invalide. Veuillez réessayer.",
       "unknown": "Erreur inattendue. Consultez les journaux pour plus de détails.",
       "no_spaces_selected": "Veuillez sélectionner au moins un espace."
     },

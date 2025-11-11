@@ -23,6 +23,11 @@ from custom_components.ajax.v3.mobilegwsvc.service.login_by_password import (
     request_pb2 as login_request_pb2,
     response_pb2 as login_response_pb2,
 )
+from custom_components.ajax.v3.mobilegwsvc.service.login_by_totp import (
+    endpoint_pb2_grpc as totp_pb2_grpc,
+    request_pb2 as totp_request_pb2,
+    response_pb2 as totp_response_pb2,
+)
 from custom_components.ajax.v3.mobilegwsvc.service.find_user_spaces_with_pagination import (
     endpoint_pb2_grpc as spaces_pb2_grpc,
     request_pb2 as spaces_request_pb2,
@@ -96,6 +101,15 @@ class AjaxApiError(Exception):
 
 class AjaxAuthError(AjaxApiError):
     """Exception for authentication errors."""
+
+
+class Ajax2FARequiredError(AjaxAuthError):
+    """Exception for when two-factor authentication is required."""
+
+    def __init__(self, request_id: str) -> None:
+        """Initialize with request_id for subsequent 2FA login."""
+        super().__init__("Two-factor authentication required")
+        self.request_id = request_id
 
 
 class AjaxConnectionError(AjaxApiError):
@@ -205,7 +219,10 @@ class AjaxApi:
                 elif failure.HasField("account_locked"):
                     raise AjaxAuthError("Account is locked")
                 elif failure.HasField("two_fa_required"):
-                    raise AjaxAuthError("Two-factor authentication required (not yet supported)")
+                    # Extract request_id for TOTP login
+                    request_id = failure.two_fa_required.request_id
+                    _LOGGER.info("Two-factor authentication required (request_id: %s)", request_id)
+                    raise Ajax2FARequiredError(request_id)
                 else:
                     raise AjaxAuthError("Login failed: Unknown error")
             else:
@@ -221,6 +238,86 @@ class AjaxApi:
         except Exception as err:
             _LOGGER.exception("Unexpected error during login")
             raise AjaxApiError(f"Login failed: {err}") from err
+
+    async def async_login_with_totp(self, request_id: str, totp_code: str) -> dict[str, Any]:
+        """Complete login with TOTP (two-factor authentication) code.
+
+        Args:
+            request_id: The request_id received from async_login when 2FA was required
+            totp_code: The 6-digit TOTP code from the authenticator app
+
+        Returns:
+            Dictionary with session_token, user_id, and user_name
+
+        Raises:
+            AjaxAuthError: If the TOTP code is invalid or authentication fails
+            AjaxApiError: If there's a communication error
+        """
+        try:
+            # Create TOTP login request
+            request = totp_request_pb2.LoginByTotpRequest(
+                email=self.email,
+                user_role=user_role_pb2.USER_ROLE_USER,
+                totp=totp_code,
+                request_id=request_id,
+            )
+
+            # Create stub and call TOTP login service
+            stub = totp_pb2_grpc.LoginByTotpServiceStub(self.channel)
+            response = await stub.execute(request, metadata=self._get_metadata())
+
+            # Check response type
+            if response.HasField("success"):
+                # Extract session token and user info
+                self.session_token = response.success.session_token
+
+                account = response.success.lite_account
+                if account:
+                    self.user_id = account.user_hex_id
+                    # Build full name from first_name and last_name
+                    name_parts = []
+                    if account.first_name:
+                        name_parts.append(account.first_name)
+                    if account.last_name:
+                        name_parts.append(account.last_name)
+                    self.user_name = " ".join(name_parts) if name_parts else account.email
+                else:
+                    self.user_id = None
+                    self.user_name = self.email
+
+                _LOGGER.info("Successfully logged in with TOTP as %s (ID: %s)", self.user_name, self.user_id)
+
+                return {
+                    "session_token": self.session_token.hex(),
+                    "user_id": self.user_id,
+                    "user_name": self.user_name,
+                }
+            elif response.HasField("failure"):
+                # Handle various failure cases
+                failure = response.failure
+                if failure.HasField("invalid_totp"):
+                    raise AjaxAuthError("Invalid verification code")
+                elif failure.HasField("account_not_confirmed"):
+                    raise AjaxAuthError("Account not confirmed")
+                elif failure.HasField("account_locked"):
+                    raise AjaxAuthError("Account is locked")
+                elif failure.HasField("bad_request"):
+                    raise AjaxAuthError("Invalid request")
+                else:
+                    raise AjaxAuthError("TOTP login failed: Unknown error")
+            else:
+                raise AjaxApiError("Invalid TOTP login response")
+
+        except grpc.RpcError as err:
+            _LOGGER.error("gRPC error during TOTP login: %s", err)
+            if err.code() == grpc.StatusCode.UNAUTHENTICATED:
+                raise AjaxAuthError("Invalid verification code") from err
+            raise AjaxApiError(f"gRPC error: {err}") from err
+        except (AjaxAuthError, AjaxApiError):
+            raise
+        except Exception as err:
+            _LOGGER.exception("Unexpected error during TOTP login")
+            raise AjaxApiError(f"TOTP login failed: {err}") from err
 
     async def async_get_account(self) -> dict[str, Any]:
         """Get account information."""

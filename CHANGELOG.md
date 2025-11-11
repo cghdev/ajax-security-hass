@@ -5,6 +5,26 @@ All notable changes to the Ajax Security System integration will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Two-factor authentication (2FA/TOTP) support** (Fixes #17)
+  - Automatic detection when 2FA is required
+  - New TOTP step in configuration flow for entering 6-digit verification code
+  - Support for authenticator apps (Google Authenticator, Authy, etc.)
+  - Seamless experience: one step without 2FA, two steps with 2FA
+
+### Fixed
+- Fixed alarm control panel not updating when arming night mode in group mode (Fixes #18)
+  - Properly detects night_mode_enabled flag on armed groups
+  - Sets space security state to NIGHT_MODE when appropriate
+
+### Technical
+- Added `async_login_with_totp()` method to AjaxApi
+- Added `Ajax2FARequiredError` exception with request_id
+- Added `async_step_totp()` to config flow
+- Updated translations (EN/FR) for 2FA step
+
 ## [0.4.6] - 2025-11-10
 
 ### Changed
