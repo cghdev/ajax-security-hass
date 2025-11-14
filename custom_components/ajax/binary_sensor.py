@@ -97,9 +97,20 @@ BINARY_SENSORS: tuple[AjaxBinarySensorDescription, ...] = (
         key="tamper",
         translation_key="tamper",
         device_class=BinarySensorDeviceClass.TAMPER,
-        value_fn=lambda device: device.attributes.get("tampered", False),
-        should_create=lambda device: "tampered" in device.attributes,
-        enabled_by_default=False,  # Disabled by default as it's rarely triggered
+        value_fn=lambda device: not device.attributes.get("tampered", False),
+        should_create=lambda device: device.type in [
+            DeviceType.HUB,
+            DeviceType.MOTION_DETECTOR,
+            DeviceType.DOOR_CONTACT,
+            DeviceType.GLASS_BREAK,
+            DeviceType.COMBI_PROTECT,
+            DeviceType.SMOKE_DETECTOR,
+            DeviceType.FLOOD_DETECTOR,
+            DeviceType.TEMPERATURE_SENSOR,
+            DeviceType.KEYPAD,
+            DeviceType.SIREN,
+        ],
+        enabled_by_default=True,
     ),
     AjaxBinarySensorDescription(
         key="always_active",

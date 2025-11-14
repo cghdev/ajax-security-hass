@@ -680,6 +680,18 @@ class AjaxApi:
                             status_data["door_opened"] = False
                             _LOGGER.debug("Door closed on device %s", update_data["device_id"])
 
+                    # Lid/Cover status (tamper detection)
+                    # Check if lid_opened field exists and is set
+                    if hasattr(status, "lid_opened"):
+                        # Check if the field is actually set
+                        if status.HasField("lid_opened"):
+                            status_data["tampered"] = True
+                            _LOGGER.warning("Lid opened (tamper) on device %s", update_data["device_id"])
+                        else:
+                            # Field exists but is not set - lid is closed (no tamper)
+                            status_data["tampered"] = False
+                            _LOGGER.debug("Lid closed (tamper OK) on device %s", update_data["device_id"])
+
                     # Wire input status (EOL sensors)
                     if hasattr(status, "wire_input_status") and status.HasField("wire_input_status"):
                         wire_status = status.wire_input_status

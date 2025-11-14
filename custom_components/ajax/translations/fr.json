@@ -312,7 +312,11 @@
         "name": "Problèmes système"
       },
       "tamper": {
-        "name": "Couvercle"
+        "name": "Couvercle",
+        "state": {
+          "on": "Fermé",
+          "off": "Ouvert"
+        }
       },
       "moisture": {
         "name": "Humidité"

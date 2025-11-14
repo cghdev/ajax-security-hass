@@ -1752,9 +1752,25 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             if "opened" in event_type or "open" in event_type or "ouvert" in event_type:
                 device.attributes["door_opened"] = True
                 _LOGGER.info("Device '%s': Door opened", device.name)
+
+                # Start fast polling when door opens to quickly detect closure
+                device_id = notification.device_id
+                if device_id not in self._fast_poll_tasks:
+                    _LOGGER.info("Door opened, starting fast polling for device %s", device_id)
+                    task = asyncio.create_task(self._async_fast_poll_door_sensor(space.id, device_id))
+                    self._fast_poll_tasks[device_id] = task
+
             elif "closed" in event_type or "close" in event_type or "fermé" in event_type:
                 device.attributes["door_opened"] = False
                 _LOGGER.info("Device '%s': Door closed", device.name)
+
+                # Cancel fast polling if door closed
+                device_id = notification.device_id
+                if device_id in self._fast_poll_tasks:
+                    _LOGGER.info("Door closed, cancelling fast polling for device %s", device_id)
+                    task = self._fast_poll_tasks[device_id]
+                    task.cancel()
+                    del self._fast_poll_tasks[device_id]
 
         elif "window" in event_type or "fenêtre" in event_type:
             # Window sensor event (use same attribute as door)
@@ -1797,12 +1813,17 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
         elif "tamper" in event_type or "sabotage" in event_type:
             # Tamper event
-            if "detected" in event_type or "triggered" in event_type or "détecté" in event_type:
+            # NOTE: Ajax sends "tamper_opened" when the cover is CLOSED (tamper OK)
+            # This is counter-intuitive but confirmed by testing
+            if "opened" in event_type:
+                # Cover is closed/normal - tamper OK
+                device.attributes["tampered"] = False
+                _LOGGER.info("Device '%s': Tamper cleared (cover closed)", device.name)
+            elif "detected" in event_type or "triggered" in event_type or "détecté" in event_type or "closed" in event_type:
+                # Cover was opened - tamper detected
                 device.attributes["tampered"] = True
                 device.attributes["tampered_at"] = notification.timestamp.isoformat()
-                _LOGGER.warning("Device '%s': Tamper detected!", device.name)
-            elif "cleared" in event_type or "recovered" in event_type or "norm" in event_type:
-                device.attributes["tampered"] = False
+                _LOGGER.warning("Device '%s': Tamper detected (cover opened)!", device.name)
 
         elif "external_contact" in event_type or "external contact" in event_type:
             # External contact event (for EOL/wire_input sensors)

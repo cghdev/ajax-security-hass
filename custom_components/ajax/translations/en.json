@@ -271,7 +271,11 @@
         "name": "System problems"
       },
       "tamper": {
-        "name": "Tamper"
+        "name": "Tamper",
+        "state": {
+          "on": "Closed",
+          "off": "Open"
+        }
       },
       "moisture": {
         "name": "Moisture"
