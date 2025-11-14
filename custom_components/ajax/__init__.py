@@ -104,6 +104,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Create coordinator
     coordinator = AjaxDataCoordinator(hass, api)
 
+    # Delay initial data fetch to let Home Assistant finish core initialization
+    # This prevents overwhelming HA during startup with all Ajax entities at once
+    import asyncio
+    await asyncio.sleep(2)
+
     # Fetch initial data
     await coordinator.async_config_entry_first_refresh()
 

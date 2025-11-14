@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import AjaxApi, AjaxApiError, AjaxAuthError, AjaxConnectionError
+from .api import AjaxApi, AjaxApiError, AjaxAuthError, AjaxConnectionError, AjaxPermissionError
 from .const import (
     CONF_NOTIFICATION_FILTER,
     CONF_PERSISTENT_NOTIFICATION,
@@ -279,6 +279,14 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             except asyncio.CancelledError:
                 _LOGGER.info("Notification streaming cancelled for space %s", space_id)
                 raise
+
+            except AjaxPermissionError:
+                # User doesn't have permission to access notifications - disable streaming permanently
+                _LOGGER.warning(
+                    "Notification streaming disabled for space %s: user does not have permission to access notifications",
+                    space_id
+                )
+                return  # Exit permanently, don't retry
 
             except AjaxConnectionError as err:
                 # Temporary network error - adjust log level based on retry count
@@ -574,11 +582,22 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                             if not existing_device:
                                 continue
 
+                            # Log all attributes for debugging wire_input
+                            _LOGGER.debug(
+                                "Wire_input '%s' polling data: %s",
+                                device_data.get("name", "unknown"),
+                                device_data.get("attributes", {})
+                            )
+
                             # Check if door_opened state changed
                             new_door_opened = device_data.get("attributes", {}).get("door_opened", False)
                             old_door_opened = existing_device.attributes.get("door_opened", False)
 
-                            if new_door_opened != old_door_opened:
+                            # Also check external_contact_opened
+                            new_external_opened = device_data.get("attributes", {}).get("external_contact_opened")
+                            old_external_opened = existing_device.attributes.get("external_contact_opened")
+
+                            if new_door_opened != old_door_opened or (new_external_opened is not None and new_external_opened != old_external_opened):
                                 _LOGGER.info(
                                     "Wire_input '%s' state changed: %s -> %s",
                                     existing_device.name,
@@ -587,6 +606,8 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                                 )
                                 # Update the device attributes
                                 existing_device.attributes["door_opened"] = new_door_opened
+                                if new_external_opened is not None:
+                                    existing_device.attributes["external_contact_opened"] = new_external_opened
                                 updated_count += 1
 
                         # Notify Home Assistant of changes if any updates occurred

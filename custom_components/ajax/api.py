@@ -117,6 +117,10 @@ class AjaxConnectionError(AjaxApiError):
     """Exception for temporary network connection errors."""
 
 
+class AjaxPermissionError(AjaxApiError):
+    """Exception for permission/access denied errors."""
+
+
 class AjaxApi:
     """Ajax API client using gRPC."""
 
@@ -574,11 +578,16 @@ class AjaxApi:
                     _LOGGER.warning("Unknown response type received")
 
         except grpc.RpcError as err:
-            _LOGGER.error("gRPC error streaming devices: %s", err)
             if err.code() == grpc.StatusCode.UNAUTHENTICATED:
+                _LOGGER.error("Session expired for device stream")
                 raise AjaxAuthError("Session expired") from err
-            raise AjaxApiError(f"gRPC error: {err}") from err
-        except (AjaxAuthError, AjaxApiError):
+            elif err.code() in (grpc.StatusCode.UNAVAILABLE, grpc.StatusCode.DEADLINE_EXCEEDED):
+                # Temporary connection issue - don't log error, coordinator will handle it
+                raise AjaxConnectionError("Connection lost to Ajax server") from err
+            else:
+                _LOGGER.error("gRPC error streaming devices: %s", err)
+                raise AjaxApiError(f"gRPC error: {err}") from err
+        except (AjaxAuthError, AjaxApiError, AjaxConnectionError):
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error streaming devices")
@@ -769,16 +778,16 @@ class AjaxApi:
 
                     # TEMPORARY DEBUG: Dump all HubObject fields
                     if which == 'snapshot':  # Only dump on snapshot to avoid spam
-                        _LOGGER.info("=== HubObject FULL DUMP START ===")
+                        _LOGGER.debug("=== HubObject FULL DUMP START ===")
                         for attr in dir(hub_obj):
                             if not attr.startswith('_') and not attr.startswith('DESCRIPTOR'):
                                 try:
                                     value = getattr(hub_obj, attr)
                                     if not callable(value):
-                                        _LOGGER.info("  HubObject.%s = %s", attr, value)
+                                        _LOGGER.debug("  HubObject.%s = %s", attr, value)
                                 except Exception as e:
                                     _LOGGER.debug("  HubObject.%s = <error: %s>", attr, e)
-                        _LOGGER.info("=== HubObject FULL DUMP END ===")
+                        _LOGGER.debug("=== HubObject FULL DUMP END ===")
 
                     # Parse the HubObject
                     hub_data = self._parse_hub_object(hub_obj)
@@ -943,16 +952,16 @@ class AjaxApi:
                     if hasattr(common_test, "object_type"):
                         object_type_test = self._get_device_type(common_test.object_type)
                         if "hub" in object_type_test.lower():
-                            _LOGGER.info("=== HUB DEVICE FULL DUMP START ===")
+                            _LOGGER.debug("=== HUB DEVICE FULL DUMP START ===")
                             for attr in dir(hub_dev):
                                 if not attr.startswith('_') and not attr.startswith('DESCRIPTOR'):
                                     try:
                                         value = getattr(hub_dev, attr)
                                         if not callable(value):
-                                            _LOGGER.info("  hub_device.%s = %s", attr, value)
+                                            _LOGGER.debug("  hub_device.%s = %s", attr, value)
                                     except Exception as e:
                                         _LOGGER.debug("  hub_device.%s = <error: %s>", attr, e)
-                            _LOGGER.info("=== HUB DEVICE FULL DUMP END ===")
+                            _LOGGER.debug("=== HUB DEVICE FULL DUMP END ===")
                 except:
                     pass
 
@@ -2038,7 +2047,12 @@ class AjaxApi:
                         yield event
 
                 elif response.HasField("failure"):
-                    _LOGGER.error("Notification stream failure: %s", response.failure)
+                    failure_msg = str(response.failure)
+                    # Check if it's a permission error (user doesn't have access to notifications)
+                    if "not_found" in failure_msg.lower():
+                        _LOGGER.debug("Notification stream permission denied: %s", failure_msg)
+                        raise AjaxPermissionError("No permission to access notification stream")
+                    _LOGGER.error("Notification stream failure: %s", failure_msg)
                     raise AjaxApiError("Notification stream failed")
 
         except grpc.RpcError as err:
