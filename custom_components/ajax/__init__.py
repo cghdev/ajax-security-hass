@@ -13,9 +13,18 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 
-from .api import AjaxApi, AjaxApiError, AjaxAuthError
-from .const import DOMAIN, CONF_SESSION_TOKEN
+from .api import AjaxRestApi, AjaxRestApiError, AjaxRestAuthError
+from .const import (
+    DOMAIN,
+    CONF_SESSION_TOKEN,
+    CONF_AWS_ACCESS_KEY,
+    CONF_AWS_SECRET_KEY,
+    CONF_AWS_QUEUE_NAME,
+    CONF_AWS_REGION,
+    DEFAULT_AWS_REGION,
+)
 from .coordinator import AjaxDataCoordinator
+from .sqs_client import AjaxSQSClient
 
 if TYPE_CHECKING:
     from homeassistant.helpers.typing import ConfigType
@@ -69,10 +78,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     device_id = entry.entry_id  # Use entry ID as unique device ID
     session_token = entry.data.get(CONF_SESSION_TOKEN)
 
-    # Create API instance
+    # Get AWS SQS configuration (optional)
+    aws_access_key = entry.data.get(CONF_AWS_ACCESS_KEY)
+    aws_secret_key = entry.data.get(CONF_AWS_SECRET_KEY)
+    aws_queue_name = entry.data.get(CONF_AWS_QUEUE_NAME)
+    aws_region = entry.data.get(CONF_AWS_REGION, DEFAULT_AWS_REGION)
+
+    # Create REST API instance
     # Password is already hashed (SHA256) in config entry
     # Use session token if available to avoid 2FA requirement
-    api = AjaxApi(
+    api = AjaxRestApi(
         email=email,
         password=password,
         device_id=device_id,
@@ -89,33 +104,42 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Store the session token for future use
             new_data = dict(entry.data)
-            new_data[CONF_SESSION_TOKEN] = api.session_token.hex() if api.session_token else None
+            new_data[CONF_SESSION_TOKEN] = api.session_token
             hass.config_entries.async_update_entry(entry, data=new_data)
         else:
-            _LOGGER.info("Using existing session token for authentication")
+            _LOGGER.debug("Using existing session token for authentication")
 
-    except AjaxAuthError as err:
+    except AjaxRestAuthError as err:
         _LOGGER.error("Authentication failed: %s", err)
         return False
-    except AjaxApiError as err:
+    except AjaxRestApiError as err:
         _LOGGER.error("API error during setup: %s", err)
         raise ConfigEntryNotReady from err
 
     # Create coordinator
     coordinator = AjaxDataCoordinator(hass, api)
 
-    # Delay initial data fetch to let Home Assistant finish core initialization
-    # This prevents overwhelming HA during startup with all Ajax entities at once
-    import asyncio
-    await asyncio.sleep(2)
+    # Initialize AWS SQS client if credentials are provided
+    if aws_access_key and aws_secret_key and aws_queue_name:
+        _LOGGER.info("Initializing AWS SQS client for real-time events")
+        sqs_client = AjaxSQSClient(
+            aws_access_key=aws_access_key,
+            aws_secret_key=aws_secret_key,
+            queue_name=aws_queue_name,
+            region=aws_region,
+        )
+        coordinator.sqs_client = sqs_client
+    else:
+        _LOGGER.info("AWS SQS not configured, using polling fallback (60s interval)")
 
-    # Fetch initial data
-    await coordinator.async_config_entry_first_refresh()
-
-    # Store coordinator
+    # Store coordinator immediately so platforms can access it
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Set up platforms
+    # Fetch initial data - this will run in background via coordinator's built-in refresh mechanism
+    # No need to block startup waiting for all data
+    await coordinator.async_config_entry_first_refresh()
+
+    # Set up platforms - they will handle their own entity creation asynchronously
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     # Register services
@@ -344,6 +368,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         coordinator: AjaxDataCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
+
+        # Stop SQS client if running
+        if hasattr(coordinator, 'sqs_client') and coordinator.sqs_client:
+            _LOGGER.info("Stopping AWS SQS client")
+            await coordinator.sqs_client.stop()
 
         # Close API connection
         await coordinator.api.close()

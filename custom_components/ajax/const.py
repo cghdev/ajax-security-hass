@@ -10,6 +10,15 @@ CONF_PASSWORD = "password"
 CONF_DEVICE_ID = "device_id"
 CONF_SESSION_TOKEN = "session_token"
 
+# AWS SQS Configuration (optional)
+CONF_AWS_ACCESS_KEY = "aws_access_key"
+CONF_AWS_SECRET_KEY = "aws_secret_key"
+CONF_AWS_QUEUE_NAME = "aws_queue_name"
+CONF_AWS_REGION = "aws_region"
+
+# API mode selection
+CONF_USE_REST_API = "use_rest_api"  # Toggle between gRPC (old) and REST (new)
+
 # Options
 CONF_PERSISTENT_NOTIFICATION = "persistent_notification"
 CONF_NOTIFICATION_FILTER = "notification_filter"
@@ -20,16 +29,23 @@ NOTIFICATION_FILTER_ALARMS_ONLY = "alarms_only"
 NOTIFICATION_FILTER_SECURITY_EVENTS = "security_events"
 NOTIFICATION_FILTER_ALL = "all"
 
-# Default values
-DEFAULT_DEVICE_MODEL = "Home Assistant"
-DEFAULT_VERSION = "3.34"
-DEFAULT_OS = "Linux"
+# Default values - Simulate Google Pixel 9 with Android 15
+DEFAULT_DEVICE_MODEL = "Google Pixel 9"
+DEFAULT_VERSION = "3.35"
+DEFAULT_OS = "Android 15"
 DEFAULT_APP_LABEL = "Ajax"
 DEFAULT_DEVICE_TYPE = "MOBILE"
 
-# API endpoints
+# gRPC API endpoints (legacy)
 API_BASE_URL = "mobile-gw.prod.ajax.systems"
 API_PORT = 443
+
+# REST API endpoints (official)
+AJAX_REST_API_BASE_URL = "https://api.ajax.systems/api/v1"
+AJAX_REST_API_TIMEOUT = 30  # seconds
+
+# AWS SQS defaults
+DEFAULT_AWS_REGION = "eu-west-1"  # Dublin
 
 # Update intervals (seconds)
 UPDATE_INTERVAL = 60  # Poll every 60 seconds (real-time updates via streaming)

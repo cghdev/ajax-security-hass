@@ -15,31 +15,44 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 
-from .api import AjaxApi, AjaxApiError, AjaxAuthError, Ajax2FARequiredError
+from .api import (
+    AjaxRestApi,
+    AjaxRestApiError,
+    AjaxRestAuthError,
+    AjaxRest2FARequiredError,
+)
 from .const import (
     DOMAIN,
     CONF_DEVICE_ID,
     CONF_SESSION_TOKEN,
+    CONF_AWS_ACCESS_KEY,
+    CONF_AWS_SECRET_KEY,
+    CONF_AWS_QUEUE_NAME,
+    CONF_AWS_REGION,
     CONF_PERSISTENT_NOTIFICATION,
     CONF_NOTIFICATION_FILTER,
     NOTIFICATION_FILTER_NONE,
     NOTIFICATION_FILTER_ALARMS_ONLY,
     NOTIFICATION_FILTER_SECURITY_EVENTS,
     NOTIFICATION_FILTER_ALL,
+    DEFAULT_AWS_REGION,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 CONF_TOTP = "totp_code"
 
+
 def get_user_data_schema(hass: HomeAssistant) -> vol.Schema:
-    """Get the user data schema with translated notification filter options."""
+    """Get the user data schema."""
     return vol.Schema(
         {
             vol.Required(CONF_EMAIL): str,
             vol.Required(CONF_PASSWORD): str,
             vol.Optional(CONF_PERSISTENT_NOTIFICATION, default=False): bool,
-            vol.Optional(CONF_NOTIFICATION_FILTER, default=NOTIFICATION_FILTER_NONE): vol.In(
+            vol.Optional(
+                CONF_NOTIFICATION_FILTER, default=NOTIFICATION_FILTER_NONE
+            ): vol.In(
                 {
                     NOTIFICATION_FILTER_NONE: NOTIFICATION_FILTER_NONE,
                     NOTIFICATION_FILTER_ALARMS_ONLY: NOTIFICATION_FILTER_ALARMS_ONLY,
@@ -51,10 +64,22 @@ def get_user_data_schema(hass: HomeAssistant) -> vol.Schema:
     )
 
 
+def get_aws_sqs_schema() -> vol.Schema:
+    """Get AWS SQS configuration schema."""
+    return vol.Schema(
+        {
+            vol.Optional(CONF_AWS_ACCESS_KEY): str,
+            vol.Optional(CONF_AWS_SECRET_KEY): str,
+            vol.Optional(CONF_AWS_QUEUE_NAME): str,
+            vol.Optional(CONF_AWS_REGION, default=DEFAULT_AWS_REGION): str,
+        }
+    )
+
+
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect.
 
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
+    Data has the keys from user data schema with values provided by the user.
     Note: password is in plain text here - API will hash it for authentication.
     """
     # Generate a unique device ID if not provided
@@ -62,8 +87,8 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     if not device_id:
         device_id = f"homeassistant_{uuid.uuid4().hex[:16]}"
 
-    # Create API client with plain password (API will hash it)
-    api = AjaxApi(
+    # Create REST API client with plain password (API will hash it)
+    api = AjaxRestApi(
         email=data[CONF_EMAIL],
         password=data[CONF_PASSWORD],
         device_id=device_id,
@@ -73,12 +98,12 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     # Try to authenticate
     try:
         login_result = await api.async_login()
-    except Ajax2FARequiredError:
+    except AjaxRest2FARequiredError:
         # Re-raise 2FA exception to be handled in async_step_user
         raise
-    except AjaxAuthError as err:
+    except AjaxRestAuthError as err:
         raise InvalidAuth from err
-    except AjaxApiError as err:
+    except AjaxRestApiError as err:
         raise CannotConnect from err
     finally:
         await api.close()
@@ -88,13 +113,14 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         "title": f"Ajax - {login_result.get('user_name', data[CONF_EMAIL])}",
         "device_id": device_id,
         "user_id": login_result.get("user_id"),
+        "session_token": login_result.get("session_token"),
     }
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Ajax."""
 
-    VERSION = 2
+    VERSION = 3  # Incremented for REST API migration
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -117,11 +143,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except InvalidAuth:
                 errors["base"] = "invalid_auth"
-            except Ajax2FARequiredError as err:
+            except AjaxRest2FARequiredError as err:
                 # Hash password before storing for TOTP step
-                password_hash = hashlib.sha256(user_input[CONF_PASSWORD].encode()).hexdigest()
+                password_hash = hashlib.sha256(
+                    user_input[CONF_PASSWORD].encode()
+                ).hexdigest()
                 user_input[CONF_PASSWORD] = password_hash
-                # Store request_id and user input (with hashed password), then go to TOTP step
+                # Store request_id and user input (with hashed password)
                 self._totp_request_id = err.request_id
                 self._user_input = user_input
                 return await self.async_step_totp()
@@ -130,8 +158,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
             else:
                 # Hash password before storing in config entry
-                password_hash = hashlib.sha256(user_input[CONF_PASSWORD].encode()).hexdigest()
+                password_hash = hashlib.sha256(
+                    user_input[CONF_PASSWORD].encode()
+                ).hexdigest()
                 user_input[CONF_PASSWORD] = password_hash
+
                 # Set unique ID based on user ID
                 await self.async_set_unique_id(info["user_id"])
                 self._abort_if_unique_id_configured()
@@ -142,21 +173,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 # Get list of spaces for selection
                 try:
-                    from .api import AjaxApi
-                    api = AjaxApi(user_input[CONF_EMAIL], user_input[CONF_PASSWORD], info["device_id"], password_is_hashed=True)
-                    login_result = await api.async_login()
-
-                    # Store session token for future use
-                    info["session_token"] = login_result.get("session_token")
+                    api = AjaxRestApi(
+                        user_input[CONF_EMAIL],
+                        user_input[CONF_PASSWORD],
+                        info["device_id"],
+                        password_is_hashed=True,
+                        session_token=info.get("session_token"),
+                    )
 
                     self._spaces = await api.async_get_spaces()
                     await api.close()
 
-                    # If only one space, skip selection step
+                    # If only one space, skip selection step and go to AWS config
                     if len(self._spaces) == 1:
-                        return await self.async_step_select_spaces({
-                            "spaces": [self._spaces[0]["id"]]
-                        })
+                        self._user_input["selected_spaces"] = [self._spaces[0]["id"]]
+                        return await self.async_step_aws_sqs()
 
                     # Go to space selection step
                     return await self.async_step_select_spaces()
@@ -169,6 +200,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=get_user_data_schema(self.hass),
             errors=errors,
+            description_placeholders={
+                "docs_url": "https://github.com/foXaCe/ajax-hass"
+            },
         )
 
     async def async_step_totp(
@@ -189,7 +223,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     device_id = f"homeassistant_{uuid.uuid4().hex[:16]}"
 
                 # Create API client and try TOTP login
-                api = AjaxApi(
+                api = AjaxRestApi(
                     email=self._user_input[CONF_EMAIL],
                     password=self._user_input[CONF_PASSWORD],
                     device_id=device_id,
@@ -218,11 +252,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         self._spaces = await api.async_get_spaces()
                         await api.close()
 
-                        # If only one space, skip selection step
+                        # If only one space, skip selection and go to AWS config
                         if len(self._spaces) == 1:
-                            return await self.async_step_select_spaces({
-                                "spaces": [self._spaces[0]["id"]]
-                            })
+                            self._user_input["selected_spaces"] = [
+                                self._spaces[0]["id"]
+                            ]
+                            return await self.async_step_aws_sqs()
 
                         # Go to space selection step
                         return await self.async_step_select_spaces()
@@ -231,9 +266,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         _LOGGER.exception("Error fetching spaces: %s", err)
                         errors["base"] = "cannot_connect"
 
-                except AjaxAuthError:
+                except AjaxRestAuthError:
                     errors["base"] = "invalid_totp"
-                except AjaxApiError:
+                except AjaxRestApiError:
                     errors["base"] = "cannot_connect"
                 except Exception:  # pylint: disable=broad-except
                     _LOGGER.exception("Unexpected exception during TOTP login")
@@ -244,9 +279,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Show TOTP input form
         return self.async_show_form(
             step_id="totp",
-            data_schema=vol.Schema({
-                vol.Required(CONF_TOTP): str,
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_TOTP): str,
+                }
+            ),
             errors=errors,
             description_placeholders={
                 "email": self._user_input.get(CONF_EMAIL, ""),
@@ -265,31 +302,74 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not selected_spaces:
                 errors["base"] = "no_spaces_selected"
             else:
-                # Create config entry with selected spaces and session token
-                return self.async_create_entry(
-                    title=self._info["title"],
-                    data={
-                        CONF_EMAIL: self._user_input[CONF_EMAIL],
-                        CONF_PASSWORD: self._user_input[CONF_PASSWORD],
-                        CONF_DEVICE_ID: self._info["device_id"],
-                        CONF_SESSION_TOKEN: self._info.get("session_token"),
-                        "selected_spaces": selected_spaces,
-                    },
-                    options={
-                        CONF_PERSISTENT_NOTIFICATION: self._user_input.get(CONF_PERSISTENT_NOTIFICATION, False),
-                        CONF_NOTIFICATION_FILTER: self._user_input.get(CONF_NOTIFICATION_FILTER, NOTIFICATION_FILTER_NONE),
-                    },
-                )
+                # Store selected spaces
+                self._user_input["selected_spaces"] = selected_spaces
+                # Go to AWS SQS configuration
+                return await self.async_step_aws_sqs()
 
         # Build space selection schema
         space_options = {space["id"]: space["name"] for space in self._spaces}
 
         return self.async_show_form(
             step_id="select_spaces",
-            data_schema=vol.Schema({
-                vol.Required("spaces", default=list(space_options.keys())): cv.multi_select(space_options),
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required("spaces", default=list(space_options.keys())): cv.multi_select(
+                        space_options
+                    ),
+                }
+            ),
             errors=errors,
+        )
+
+    async def async_step_aws_sqs(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle AWS SQS configuration (optional)."""
+        if user_input is not None:
+            # Store AWS SQS config if provided
+            aws_config = {}
+            if user_input.get(CONF_AWS_ACCESS_KEY):
+                aws_config[CONF_AWS_ACCESS_KEY] = user_input[CONF_AWS_ACCESS_KEY]
+            if user_input.get(CONF_AWS_SECRET_KEY):
+                aws_config[CONF_AWS_SECRET_KEY] = user_input[CONF_AWS_SECRET_KEY]
+            if user_input.get(CONF_AWS_QUEUE_NAME):
+                aws_config[CONF_AWS_QUEUE_NAME] = user_input[CONF_AWS_QUEUE_NAME]
+            if user_input.get(CONF_AWS_REGION):
+                aws_config[CONF_AWS_REGION] = user_input[CONF_AWS_REGION]
+
+            # Create config entry
+            return self.async_create_entry(
+                title=self._info["title"],
+                data={
+                    CONF_EMAIL: self._user_input[CONF_EMAIL],
+                    CONF_PASSWORD: self._user_input[CONF_PASSWORD],
+                    CONF_DEVICE_ID: self._info["device_id"],
+                    CONF_SESSION_TOKEN: self._info.get("session_token"),
+                    "selected_spaces": self._user_input.get("selected_spaces", []),
+                    **aws_config,
+                },
+                options={
+                    CONF_PERSISTENT_NOTIFICATION: self._user_input.get(
+                        CONF_PERSISTENT_NOTIFICATION, False
+                    ),
+                    CONF_NOTIFICATION_FILTER: self._user_input.get(
+                        CONF_NOTIFICATION_FILTER, NOTIFICATION_FILTER_NONE
+                    ),
+                },
+            )
+
+        # Show AWS SQS configuration form
+        return self.async_show_form(
+            step_id="aws_sqs",
+            data_schema=get_aws_sqs_schema(),
+            description_placeholders={
+                "info": (
+                    "AWS SQS is optional but recommended for instant event notifications. "
+                    "Without SQS, the integration will poll every 60 seconds. "
+                    "Leave empty to skip SQS configuration."
+                )
+            },
         )
 
     @staticmethod
@@ -321,12 +401,30 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     data=new_data,
                 )
 
+            # Check if AWS SQS config changed
+            aws_fields = [
+                CONF_AWS_ACCESS_KEY,
+                CONF_AWS_SECRET_KEY,
+                CONF_AWS_QUEUE_NAME,
+                CONF_AWS_REGION,
+            ]
+            aws_changed = any(field in user_input for field in aws_fields)
+
+            if aws_changed:
+                new_data = dict(self.config_entry.data)
+                for field in aws_fields:
+                    if field in user_input:
+                        new_data[field] = user_input.pop(field)
+
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry,
+                    data=new_data,
+                )
+
             return self.async_create_entry(title="", data=user_input)
 
-        # Get available spaces from the running coordinator instead of reconnecting
-        # This avoids 2FA issues and is more efficient
+        # Get available spaces from the running coordinator
         try:
-            from . import DOMAIN
             coordinator = self.hass.data[DOMAIN].get(self.config_entry.entry_id)
             if coordinator and coordinator.account and coordinator.account.spaces:
                 self._spaces = [
@@ -334,13 +432,15 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     for space in coordinator.account.spaces.values()
                 ]
             else:
-                _LOGGER.warning("Could not get spaces from coordinator, using empty list")
+                _LOGGER.warning(
+                    "Could not get spaces from coordinator, using empty list"
+                )
                 self._spaces = []
         except Exception as err:
             _LOGGER.exception("Error fetching spaces from coordinator: %s", err)
             self._spaces = []
 
-        # Get currently selected spaces (default to all if not set)
+        # Get currently selected spaces
         selected_spaces = self.config_entry.data.get("selected_spaces")
         if not selected_spaces and self._spaces:
             # Legacy support: if no selected_spaces, default to all
@@ -375,12 +475,38 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
         # Add space selection if spaces are available
         if space_options:
-            options_schema = options_schema.extend({
+            options_schema = options_schema.extend(
+                {
+                    vol.Optional(
+                        "spaces",
+                        default=selected_spaces or list(space_options.keys()),
+                    ): cv.multi_select(space_options),
+                }
+            )
+
+        # Add AWS SQS options
+        options_schema = options_schema.extend(
+            {
                 vol.Optional(
-                    "spaces",
-                    default=selected_spaces or list(space_options.keys()),
-                ): cv.multi_select(space_options),
-            })
+                    CONF_AWS_ACCESS_KEY,
+                    default=self.config_entry.data.get(CONF_AWS_ACCESS_KEY, ""),
+                ): str,
+                vol.Optional(
+                    CONF_AWS_SECRET_KEY,
+                    default=self.config_entry.data.get(CONF_AWS_SECRET_KEY, ""),
+                ): str,
+                vol.Optional(
+                    CONF_AWS_QUEUE_NAME,
+                    default=self.config_entry.data.get(CONF_AWS_QUEUE_NAME, ""),
+                ): str,
+                vol.Optional(
+                    CONF_AWS_REGION,
+                    default=self.config_entry.data.get(
+                        CONF_AWS_REGION, DEFAULT_AWS_REGION
+                    ),
+                ): str,
+            }
+        )
 
         return self.async_show_form(step_id="init", data_schema=options_schema)
 

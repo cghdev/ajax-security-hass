@@ -1,7 +1,7 @@
 """Ajax data coordinator for Home Assistant.
 
 This coordinator manages:
-- Real-time streaming updates from Ajax API
+- Real-time updates from AWS SQS (or polling fallback)
 - Space, Room, Device, and Notification data
 - State synchronization between Ajax and Home Assistant
 """
@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import AjaxApi, AjaxApiError, AjaxAuthError, AjaxConnectionError, AjaxPermissionError
+from .api import AjaxRestApi, AjaxRestApiError, AjaxRestAuthError
 from .const import (
     CONF_NOTIFICATION_FILTER,
     CONF_PERSISTENT_NOTIFICATION,
@@ -59,16 +59,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             └── Notifications (Events)
     """
 
-    def __init__(self, hass: HomeAssistant, api: AjaxApi) -> None:
+    def __init__(self, hass: HomeAssistant, api: AjaxRestApi) -> None:
         """Initialize the coordinator."""
         self.api = api
         self.account: AjaxAccount | None = None
-        self._streaming_tasks: dict[str, asyncio.Task] = {}  # space_id -> space updates streaming task
-        self._notification_streaming_tasks: dict[str, asyncio.Task] = {}  # space_id -> notification streaming task
-        self._device_streaming_tasks: dict[str, asyncio.Task] = {}  # space_id -> device status streaming task
-        self._specific_device_streams: dict[str, asyncio.Task] = {}  # device_id -> device-specific streaming task
+        self.sqs_client = None  # Will be set by __init__.py if AWS SQS is configured
         self._fast_poll_tasks: dict[str, asyncio.Task] = {}  # device_id -> fast polling task for door sensors
-        self._groups_loaded_events: dict[str, asyncio.Event] = {}  # space_id -> event triggered when groups are loaded
         self._wire_input_polling_tasks: dict[str, asyncio.Task] = {}  # space_id -> wire_input polling task
         self._initial_load_done: bool = False  # Track if initial data load is complete
 
@@ -80,10 +76,10 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         )
 
     async def _async_update_data(self) -> AjaxAccount:
-        """Fetch data from Ajax API.
+        """Fetch data from Ajax REST API.
 
-        This is called periodically, but we also use streaming for real-time updates.
-        On first load, we fetch all data. On subsequent updates, we rely on streaming.
+        This is called periodically. If AWS SQS is configured, it provides real-time events.
+        Without SQS, we rely on this polling for updates (60s interval).
         """
         try:
             # Initialize account if needed
@@ -91,417 +87,85 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 await self._async_init_account()
 
             # Only do full data load on first run or manual reload
-            # After that, rely on streaming for real-time updates
+            # After that, rely on SQS events (or periodic polling if no SQS)
             if not self._initial_load_done:
                 _LOGGER.debug("Performing initial/full data load")
 
                 # Update spaces
                 await self._async_update_spaces()
 
-                # Update devices for each space
+                # Load devices and notifications in parallel for all spaces
+                tasks = []
                 for space_id in self.account.spaces.keys():
-                    await self._async_update_devices(space_id)
+                    tasks.append(self._async_update_devices(space_id))
+                    tasks.append(self._async_update_notifications(space_id, limit=20))
 
-                # Update notifications (last 50)
-                for space_id in self.account.spaces.keys():
-                    await self._async_update_notifications(space_id, limit=50)
+                # Execute all API calls in parallel for faster startup
+                await asyncio.gather(*tasks, return_exceptions=True)
 
-                # Create events for waiting on groups to be loaded from stream
-                for space_id in self.account.spaces.keys():
-                    if space_id not in self._groups_loaded_events:
-                        self._groups_loaded_events[space_id] = asyncio.Event()
-
-                # Start real-time streaming tasks for each space (if not already started)
-                await self._async_start_streaming_tasks()
-
-                # Wait for groups to be loaded from stream (with timeout)
-                # This ensures group/zone entities are created during first setup
-                if self.account:
-                    await self._async_wait_for_groups()
+                # Start AWS SQS listener if configured
+                if self.sqs_client:
+                    _LOGGER.info("Starting AWS SQS listener for real-time events")
+                    self.sqs_client.set_event_callback(self._handle_sqs_event)
+                    await self.sqs_client.start()
+                else:
+                    _LOGGER.info("AWS SQS not configured, relying on polling (60s interval)")
 
                 # Mark initial load as complete
                 self._initial_load_done = True
-                _LOGGER.debug("Initial data load complete, relying on streaming for updates")
+                _LOGGER.debug("Initial data load complete")
             else:
-                # Periodic update - just reset expired motion detections
-                # Everything else is handled by streaming
-                _LOGGER.debug("Periodic update - resetting expired motion detections")
+                # Periodic update - reset expired motion detections and refresh devices
+                _LOGGER.debug("Periodic update - refreshing device states")
                 for space_id in self.account.spaces.keys():
                     space = self.account.spaces.get(space_id)
                     if space:
                         self._reset_expired_motion_detections(space)
+                        # Refresh devices periodically (important if no SQS)
+                        await self._async_update_devices(space_id)
 
             return self.account
 
-        except AjaxAuthError as err:
+        except AjaxRestAuthError as err:
             raise ConfigEntryAuthFailed(f"Authentication failed: {err}") from err
-        except AjaxApiError as err:
+        except AjaxRestApiError as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
-    async def _async_wait_for_groups(self) -> None:
-        """Wait for groups to be loaded from stream during initial setup.
+    async def _handle_sqs_event(self, event_data: dict[str, Any]) -> None:
+        """Handle an event received from AWS SQS.
 
-        This method waits for the first stream update containing group/security data
-        to ensure that group entities are created during the initial setup.
-        Uses a timeout to avoid blocking if the space has no groups.
+        Args:
+            event_data: The event data from SQS
         """
-        timeout = 10  # seconds
-        wait_tasks = []
-
-        for space_id, event in self._groups_loaded_events.items():
-            if not event.is_set():
-                wait_tasks.append((space_id, event.wait()))
-
-        if not wait_tasks:
-            return
-
-        _LOGGER.debug("Waiting for groups to be loaded from stream (timeout: %ds)...", timeout)
-
         try:
-            # Wait for all events with timeout
-            await asyncio.wait_for(
-                asyncio.gather(*[task for _, task in wait_tasks], return_exceptions=True),
-                timeout=timeout
-            )
-            _LOGGER.info("Groups loaded from stream successfully")
-        except asyncio.TimeoutError:
-            # Timeout is expected if space has no groups or stream is slow
-            _LOGGER.debug("Timeout waiting for groups (this is normal if space has no groups)")
+            _LOGGER.debug("Received SQS event: %s", event_data.get("type", "unknown"))
+
+            # Extract event information
+            event_type = event_data.get("type")
+            space_id = event_data.get("space_id")
+
+            if not event_type or not space_id:
+                _LOGGER.warning("Invalid SQS event (missing type or space_id): %s", event_data)
+                return
+
+            # Handle different event types
+            if event_type == "device_status":
+                # Device state changed (door opened, motion detected, etc.)
+                await self._async_update_devices(space_id)
+            elif event_type == "security_mode":
+                # Security mode changed (armed, disarmed, etc.)
+                await self._async_update_spaces()
+            elif event_type == "notification":
+                # New notification/alarm
+                await self._async_update_notifications(space_id, limit=10)
+            else:
+                _LOGGER.debug("Unknown SQS event type: %s", event_type)
+
+            # Trigger coordinator update to notify all entities
+            self.async_set_updated_data(self.account)
+
         except Exception as err:
-            _LOGGER.warning("Error waiting for groups: %s", err)
-
-    async def _async_start_streaming_tasks(self) -> None:
-        """Start real-time streaming tasks for all spaces."""
-        if not self.account:
-            return
-
-        for space_id in self.account.spaces.keys():
-            # Start space updates stream if not already running
-            if space_id not in self._streaming_tasks or self._streaming_tasks[space_id].done():
-                task = asyncio.create_task(self._async_stream_space(space_id))
-                self._streaming_tasks[space_id] = task
-                _LOGGER.info("Started space updates streaming for space %s", space_id)
-
-            # Start notification updates stream if not already running
-            if space_id not in self._notification_streaming_tasks or self._notification_streaming_tasks[space_id].done():
-                task = asyncio.create_task(self._async_stream_notifications(space_id))
-                self._notification_streaming_tasks[space_id] = task
-                _LOGGER.info("Started notification streaming for space %s", space_id)
-
-            # Start device status updates stream if not already running
-            if space_id not in self._device_streaming_tasks or self._device_streaming_tasks[space_id].done():
-                task = asyncio.create_task(self._async_stream_devices(space_id))
-                self._device_streaming_tasks[space_id] = task
-                _LOGGER.info("Started device status streaming for space %s", space_id)
-
-            # Start wire_input polling if not already running and if space has wire_input devices
-            space = self.account.spaces.get(space_id)
-            if space:
-                has_wire_inputs = any(device.type == DeviceType.WIRE_INPUT for device in space.devices.values())
-                if has_wire_inputs:
-                    if space_id not in self._wire_input_polling_tasks or self._wire_input_polling_tasks[space_id].done():
-                        task = asyncio.create_task(self._async_poll_wire_inputs(space_id))
-                        self._wire_input_polling_tasks[space_id] = task
-                        _LOGGER.info("Started wire_input polling for space %s", space_id)
-
-            # Device-specific stream removed - was causing errors
-
-    async def _async_stream_space(self, space_id: str) -> None:
-        """Stream updates for a specific space in the background."""
-        retry_count = 0
-        max_retries = 10
-        was_disconnected = False
-
-        while retry_count < max_retries:
-            try:
-                async for success in self.api.async_stream_space_updates(space_id):
-                    # Log successful reconnection if we were previously disconnected
-                    if was_disconnected:
-                        _LOGGER.info("Successfully reconnected space stream for %s", space_id)
-                        was_disconnected = False
-
-                    # Reset retry count on successful message
-                    retry_count = 0
-                    # Process the update
-                    await self._async_process_stream_update(space_id, success)
-
-            except asyncio.CancelledError:
-                _LOGGER.info("Streaming cancelled for space %s", space_id)
-                raise
-
-            except AjaxConnectionError as err:
-                # Temporary network error - adjust log level based on retry count
-                retry_count += 1
-                was_disconnected = True
-
-                # First 3 attempts: WARNING (it's probably temporary)
-                if retry_count <= 3:
-                    _LOGGER.warning(
-                        "Connection lost for space %s (attempt %d/%d), retrying...",
-                        space_id,
-                        retry_count,
-                        max_retries,
-                    )
-                # After 3 attempts: ERROR (it's becoming a problem)
-                else:
-                    _LOGGER.error(
-                        "Connection still lost for space %s (attempt %d/%d)",
-                        space_id,
-                        retry_count,
-                        max_retries,
-                    )
-
-                if retry_count < max_retries:
-                    # Exponential backoff: 5s, 10s, 20s, 40s, then 60s max
-                    wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    await asyncio.sleep(wait_time)
-                else:
-                    _LOGGER.error("Max retries reached for space streaming %s, giving up", space_id)
-                    break
-
-            except Exception as err:
-                # Real error (not just network issue) - always log as ERROR with traceback
-                retry_count += 1
-                was_disconnected = True
-                _LOGGER.error(
-                    "Error in streaming task for space %s (attempt %d/%d): %s",
-                    space_id,
-                    retry_count,
-                    max_retries,
-                    err,
-                    exc_info=True
-                )
-                if retry_count < max_retries:
-                    wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    _LOGGER.info("Retrying space streaming for %s in %d seconds", space_id, wait_time)
-                    await asyncio.sleep(wait_time)
-                else:
-                    _LOGGER.error("Max retries reached for space streaming %s, giving up", space_id)
-                    break
-
-    async def _async_stream_notifications(self, space_id: str) -> None:
-        """Stream real-time notification updates for a specific space."""
-        retry_count = 0
-        max_retries = 10
-        was_disconnected = False
-
-        _LOGGER.info("Starting notification streaming for space %s", space_id)
-
-        while retry_count < max_retries:
-            try:
-                async for event in self.api.async_stream_notification_updates(space_id):
-                    # Log successful reconnection if we were previously disconnected
-                    if was_disconnected:
-                        _LOGGER.info("Successfully reconnected notification stream for %s", space_id)
-                        was_disconnected = False
-                        retry_count = 0
-
-                    # Process notification event
-                    await self._async_process_notification_event(space_id, event)
-
-            except asyncio.CancelledError:
-                _LOGGER.info("Notification streaming cancelled for space %s", space_id)
-                raise
-
-            except AjaxPermissionError:
-                # User doesn't have permission to access notifications - disable streaming permanently
-                _LOGGER.warning(
-                    "Notification streaming disabled for space %s: user does not have permission to access notifications",
-                    space_id
-                )
-                return  # Exit permanently, don't retry
-
-            except AjaxConnectionError as err:
-                # Temporary network error - adjust log level based on retry count
-                retry_count += 1
-                was_disconnected = True
-
-                # First 3 attempts: WARNING (it's probably temporary)
-                if retry_count <= 3:
-                    _LOGGER.warning(
-                        "Connection lost for notification stream %s (attempt %d/%d), retrying...",
-                        space_id,
-                        retry_count,
-                        max_retries,
-                    )
-                # After 3 attempts: ERROR (it's becoming a problem)
-                else:
-                    _LOGGER.error(
-                        "Connection still lost for notification stream %s (attempt %d/%d)",
-                        space_id,
-                        retry_count,
-                        max_retries,
-                    )
-
-                if retry_count < max_retries:
-                    # Exponential backoff: 5s, 10s, 20s, 40s, then 60s max
-                    wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    await asyncio.sleep(wait_time)
-                else:
-                    _LOGGER.error("Max retries reached for notification streaming %s, giving up", space_id)
-                    break
-
-            except Exception as err:
-                # Real error (not just network issue) - always log as ERROR with traceback
-                retry_count += 1
-                was_disconnected = True
-                _LOGGER.error(
-                    "Error in notification streaming for space %s (attempt %d/%d): %s",
-                    space_id,
-                    retry_count,
-                    max_retries,
-                    err,
-                    exc_info=True
-                )
-                if retry_count < max_retries:
-                    wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    await asyncio.sleep(wait_time)
-                else:
-                    _LOGGER.error("Max retries reached for notification streaming %s, giving up", space_id)
-                    break
-
-    async def _async_stream_devices(self, space_id: str) -> None:
-        """Stream real-time device status updates for a specific space."""
-        retry_count = 0
-        max_retries = 10
-        was_disconnected = False
-
-        _LOGGER.info("Starting device status streaming for space %s", space_id)
-
-        while retry_count < max_retries:
-            try:
-                async for update in self.api.async_stream_light_devices(space_id):
-                    # Log successful reconnection if we were previously disconnected
-                    if was_disconnected:
-                        _LOGGER.info("Successfully reconnected device stream for %s", space_id)
-                        was_disconnected = False
-                        retry_count = 0
-
-                    # Process device status update
-                    await self._async_process_device_update(space_id, update)
-
-            except asyncio.CancelledError:
-                _LOGGER.info("Device streaming cancelled for space %s", space_id)
-                raise
-
-            except AjaxConnectionError as err:
-                # Temporary network error - adjust log level based on retry count
-                retry_count += 1
-                was_disconnected = True
-
-                # First 3 attempts: WARNING (it's probably temporary)
-                if retry_count <= 3:
-                    _LOGGER.warning(
-                        "Connection lost for device stream %s (attempt %d/%d), retrying...",
-                        space_id,
-                        retry_count,
-                        max_retries,
-                    )
-                # After 3 attempts: ERROR (it's becoming a problem)
-                else:
-                    _LOGGER.error(
-                        "Connection still lost for device stream %s (attempt %d/%d)",
-                        space_id,
-                        retry_count,
-                        max_retries,
-                    )
-
-                if retry_count < max_retries:
-                    # Exponential backoff: 5s, 10s, 20s, 40s, then 60s max
-                    wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    await asyncio.sleep(wait_time)
-                else:
-                    _LOGGER.error("Max retries reached for device streaming %s, giving up", space_id)
-                    break
-
-            except Exception as err:
-                # Real error (not just network issue) - always log as ERROR with traceback
-                retry_count += 1
-                was_disconnected = True
-                _LOGGER.error(
-                    "Error in device streaming for space %s (attempt %d/%d): %s",
-                    space_id,
-                    retry_count,
-                    max_retries,
-                    err,
-                    exc_info=True
-                )
-                if retry_count < max_retries:
-                    wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    await asyncio.sleep(wait_time)
-                else:
-                    _LOGGER.error("Max retries reached for device streaming %s, giving up", space_id)
-                    break
-
-    async def _async_stream_specific_device(self, space_id: str, device_id: str) -> None:
-        """Stream real-time updates for a specific device (door sensor).
-
-        This uses the device-specific stream API which sends complete snapshots
-        of the device state, including door_opened=false when closed.
-        """
-        retry_count = 0
-        max_retries = 10
-        was_disconnected = False
-
-        _LOGGER.info("Starting device-specific stream for device %s in space %s", device_id, space_id)
-
-        while retry_count < max_retries:
-            try:
-                async for hub_device in self.api.async_stream_device_updates(space_id, device_id):
-                    # Log successful reconnection if we were previously disconnected
-                    if was_disconnected:
-                        _LOGGER.info("Successfully reconnected device-specific stream for %s", device_id)
-                        was_disconnected = False
-                        retry_count = 0
-
-                    # Parse the HubDevice protobuf to get door_opened status
-                    try:
-                        # Extract device state from the HubDevice protobuf
-                        door_opened = False  # Default to closed
-
-                        if hasattr(hub_device, "common_part") and hub_device.HasField("common_part"):
-                            common = hub_device.common_part
-                            if hasattr(common, "door_opened") and common.HasField("door_opened"):
-                                door_opened = True
-
-                        # Update the device in our account model
-                        space = self.account.spaces.get(space_id)
-                        if space and device_id in space.devices:
-                            device = space.devices[device_id]
-                            old_state = device.attributes.get("door_opened", False)
-
-                            if old_state != door_opened:
-                                device.attributes["door_opened"] = door_opened
-                                state_str = "opened" if door_opened else "closed"
-                                _LOGGER.info("Device '%s': Door %s (via device-specific stream)", device.name, state_str)
-
-                                # Notify Home Assistant of the change
-                                self.async_set_updated_data(self.account)
-
-                    except Exception as err:
-                        _LOGGER.error("Error processing device-specific stream update for %s: %s", device_id, err, exc_info=True)
-
-            except asyncio.CancelledError:
-                _LOGGER.info("Device-specific streaming cancelled for device %s", device_id)
-                raise
-
-            except Exception as err:
-                retry_count += 1
-                was_disconnected = True
-                _LOGGER.error(
-                    "Error in device-specific streaming for %s (attempt %d/%d): %s",
-                    device_id,
-                    retry_count,
-                    max_retries,
-                    err,
-                    exc_info=True
-                )
-                if retry_count < max_retries:
-                    wait_time = min(5 * (2 ** (retry_count - 1)), 60)
-                    await asyncio.sleep(wait_time)
-                else:
-                    _LOGGER.error("Max retries reached for device-specific streaming %s, giving up", device_id)
-                    break
+            _LOGGER.error("Error handling SQS event: %s", err)
 
     async def _async_fast_poll_door_sensor(self, space_id: str, device_id: str) -> None:
         """Fast poll a door sensor after opening to quickly detect closure.
@@ -551,13 +215,19 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
                             # If door is now closed, stop polling
                             if not door_opened:
-                                _LOGGER.info("Door sensor %s closed (detected via fast polling), stopping", device_id)
+                                _LOGGER.info("🔄 POLLING: 🚪⬅️ Door '%s' CLOSED (detected via fast polling @ %dms) ✅",
+                                           device.name if device_id in space.devices else device_id,
+                                           poll_interval * 1000)
                                 # Notify HA of the change
                                 self.async_set_updated_data(self.account)
                                 # Remove from fast poll tasks
                                 if device_id in self._fast_poll_tasks:
                                     del self._fast_poll_tasks[device_id]
                                 break
+                            else:
+                                _LOGGER.debug("🔄 POLLING: Door '%s' still OPENED (polling @ %dms)",
+                                            device.name if device_id in space.devices else device_id,
+                                            poll_interval * 1000)
 
                     if not device_found:
                         _LOGGER.warning("Device %s not found in API response", device_id)
@@ -694,7 +364,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     if old_door_state != new_door_state:
                         device.attributes["door_opened"] = new_door_state
                         state_str = "opened" if new_door_state else "closed"
-                        _LOGGER.info("Device '%s': Door %s (via snapshot)", device.name, state_str)
+                        _LOGGER.debug("Device '%s': Door %s (via snapshot)", device.name, state_str)
                         # Notify Home Assistant of change
                         self.async_set_updated_data(self.account)
 
@@ -726,7 +396,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     device.attributes["motion_detected"] = status_data["motion_detected"]
                     if "motion_detected_at" in status_data:
                         device.attributes["motion_detected_at"] = status_data["motion_detected_at"].isoformat()
-                    _LOGGER.info("Device '%s': Motion status updated via stream: %s", device.name, status_data["motion_detected"])
+                    _LOGGER.debug("Device '%s': Motion status updated via stream: %s", device.name, status_data["motion_detected"])
                     updated = True
 
                 # Door opened/closed
@@ -736,17 +406,17 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     if old_state != new_state:
                         device.attributes["door_opened"] = new_state
                         state_str = "opened" if new_state else "closed"
-                        _LOGGER.info("Device '%s': Door %s (via stream)", device.name, state_str)
+                        _LOGGER.debug("Device '%s': Door %s (via stream)", device.name, state_str)
                         updated = True
 
                         # Start fast polling when door opens to quickly detect closure
                         if new_state and device_id not in self._fast_poll_tasks:
-                            _LOGGER.info("Door opened, starting fast polling for device %s", device_id)
+                            _LOGGER.info("🔄 POLLING: 🚪➡️ Door '%s' OPENED, starting fast polling @ 500ms", device.name)
                             task = asyncio.create_task(self._async_fast_poll_door_sensor(space_id, device_id))
                             self._fast_poll_tasks[device_id] = task
                         # Cancel fast polling if door closed (detected via stream or snapshot)
                         elif not new_state and device_id in self._fast_poll_tasks:
-                            _LOGGER.info("Door closed, cancelling fast polling for device %s", device_id)
+                            _LOGGER.info("🔄 POLLING: 🚪⬅️ Door '%s' CLOSED (via stream), cancelling fast polling", device.name)
                             task = self._fast_poll_tasks[device_id]
                             task.cancel()
                             del self._fast_poll_tasks[device_id]
@@ -757,236 +427,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
         except Exception as err:
             _LOGGER.error("Error processing device update for space %s: %s", space_id, err, exc_info=True)
-
-    async def _async_process_notification_event(self, space_id: str, event) -> None:
-        """Process a notification event from the stream."""
-        from datetime import datetime
-
-        try:
-            space = self.account.spaces.get(space_id)
-            if not space:
-                return
-
-            # Check event type
-            if event.HasField("notification_created"):
-                notification_proto = event.notification_created
-
-                # Parse notification
-                notification_data = self.api._parse_notification(notification_proto)
-                if not notification_data:
-                    return
-
-                # Extract event details
-                event_type = notification_data.get("event_type", "") or ""
-                device_id = notification_data.get("device_id")
-                device_name = notification_data.get("device_name", "Device")
-                timestamp = notification_data.get("timestamp") or datetime.now(timezone.utc)
-
-                # Ensure timezone is set
-                if timestamp.tzinfo is None:
-                    timestamp = timestamp.replace(tzinfo=timezone.utc)
-
-                # Determine notification type
-                notif_type = self._parse_notification_type(event_type)
-
-                # Get room name if available
-                room_name = None
-                if device_id and device_id in space.devices:
-                    device = space.devices[device_id]
-                    if device.room_id and device.room_id in space.rooms:
-                        room_name = space.rooms[device.room_id].name
-
-                # Get language from Home Assistant (default to English)
-                language = self.hass.config.language if self.hass.config.language in ["en", "fr"] else "en"
-
-                # Format message like the Ajax app (only if event_type is not empty)
-                if event_type:
-                    formatted_message = get_event_message(
-                        event_type,
-                        language=language,
-                        device_name=device_name,
-                        room_name=room_name,
-                    )
-                else:
-                    # Fallback for notifications without event_type (e.g., arming/disarming)
-                    formatted_message = notification_data.get("message", "") or device_name
-
-                # Create notification object
-                notification = AjaxNotification(
-                    id=notification_data.get("id", ""),
-                    space_id=space_id,
-                    type=notif_type,
-                    title=event_type,  # Keep raw event type for filtering/processing
-                    message=formatted_message,  # Use formatted message
-                    timestamp=timestamp,
-                    device_id=device_id,
-                    device_name=device_name,
-                    read=notification_data.get("read", False),
-                    user_name=notification_data.get("user_name"),  # User who triggered the event
-                )
-
-                # Add to space notifications list (keep only last 50)
-                space.notifications.insert(0, notification)
-                if len(space.notifications) > 50:
-                    space.notifications = space.notifications[:50]
-
-                # Update device state based on notification
-                if device_id and event_type:
-                    self._update_device_from_notification(space, notification)
-
-                # Create persistent notification if enabled
-                await self._create_persistent_notification(
-                    notification, formatted_message, notif_type
-                )
-
-                # Fire Home Assistant event for automations
-                await self._fire_ajax_event(
-                    space, notification, event_type, device_id, device_name, room_name, timestamp
-                )
-
-                # Trigger update
-                _LOGGER.info(
-                    "Real-time notification: %s (%s)",
-                    formatted_message,
-                    timestamp.strftime("%H:%M:%S"),
-                )
-                self.async_set_updated_data(self.account)
-
-            elif event.HasField("notification_updated"):
-                # Notification was updated (e.g., marked as read)
-                # We could update the notification in our list, but for now just log it
-                pass
-
-            elif event.HasField("counters_updated"):
-                # Unread counter updated
-                pass
-
-        except Exception as err:
-            _LOGGER.error("Error processing notification event for space %s: %s", space_id, err, exc_info=True)
-
-    async def _async_parse_groups_from_snapshot(self, space_id: str, space_protobuf) -> None:
-        """Parse groups from Space snapshot and update the data model.
-
-        Args:
-            space_id: The space ID
-            space_protobuf: The Space protobuf message
-        """
-        try:
-            # Use the API client's parsing method
-            groups_data = self.api._parse_groups_from_space(space_protobuf)
-
-            # Get the space from our account
-            if not self.account or space_id not in self.account.spaces:
-                _LOGGER.warning("Space %s not found in account", space_id)
-                return
-
-            space = self.account.spaces[space_id]
-
-            # Update space with group mode settings
-            space.group_mode_enabled = groups_data["group_mode_enabled"]
-            space.night_mode_enabled = groups_data["night_mode_enabled"]
-
-            # Convert parsed groups to AjaxGroup objects
-            from .models import AjaxGroup, GroupState
-
-            for group_id, group_data in groups_data["groups"].items():
-                # Map string state to GroupState enum
-                state_str = group_data.get("state", "none")
-                if state_str == "armed":
-                    state = GroupState.ARMED
-                elif state_str == "disarmed":
-                    state = GroupState.DISARMED
-                else:
-                    state = GroupState.NONE
-
-                # Create or update the group
-                ajax_group = AjaxGroup(
-                    id=group_id,
-                    name=group_data["name"],
-                    space_id=space_id,
-                    state=state,
-                    night_mode_enabled=group_data.get("night_mode_enabled", False),
-                    bulk_arm_involved=group_data.get("bulk_arm_involved", False),
-                    bulk_disarm_involved=group_data.get("bulk_disarm_involved", False),
-                    image_id=group_data.get("image_id"),
-                )
-
-                space.groups[group_id] = ajax_group
-
-            _LOGGER.info(
-                "Updated space %s with %d groups (group_mode=%s)",
-                space_id,
-                len(space.groups),
-                space.group_mode_enabled,
-            )
-
-        except Exception as err:
-            _LOGGER.exception("Error parsing groups from snapshot: %s", err)
-
-    async def _async_parse_rooms_from_snapshot(self, space_id: str, space_protobuf) -> None:
-        """Parse rooms from Space snapshot and update the data model.
-
-        Args:
-            space_id: The space ID
-            space_protobuf: The Space protobuf message
-        """
-        try:
-            # Use the API client's parsing method
-            rooms_data = self.api._parse_rooms_from_space(space_protobuf)
-
-            # Get the space from our account
-            if not self.account or space_id not in self.account.spaces:
-                _LOGGER.warning("Space %s not found in account", space_id)
-                return
-
-            space = self.account.spaces[space_id]
-
-            # Convert parsed rooms to AjaxRoom objects
-            for room_id, room_data in rooms_data.items():
-                # Create or update the room
-                ajax_room = AjaxRoom(
-                    id=room_id,
-                    name=room_data["name"],
-                    space_id=space_id,
-                    image_id=room_data.get("image_id"),
-                    image_url=room_data.get("image_url"),
-                )
-
-                space.rooms[room_id] = ajax_room
-
-            _LOGGER.info(
-                "Updated space %s with %d rooms",
-                space_id,
-                len(space.rooms),
-            )
-
-        except Exception as err:
-            _LOGGER.exception("Error parsing rooms from snapshot: %s", err)
-
-    async def _async_process_stream_update(self, space_id: str, success) -> None:
-        """Process a single stream update."""
-        try:
-            # Check if it's a snapshot (initial data) or an update
-            if success.HasField("snapshot"):
-                # The snapshot IS the Space object, parse it directly
-                await self._async_parse_groups_from_snapshot(space_id, success.snapshot)
-                await self._async_parse_rooms_from_snapshot(space_id, success.snapshot)
-                # Trigger a refresh to ensure consistency
-                self.async_set_updated_data(self.account)
-
-            elif success.HasField("update"):
-                # Single update
-                await self._async_handle_single_update(space_id, success.update, batch_mode=False)
-
-            elif success.HasField("updates"):
-                # Multiple updates - use batch mode to avoid multiple refreshes
-                for update in success.updates.updates:
-                    await self._async_handle_single_update(space_id, update, batch_mode=True)
-                # Trigger single refresh at the end
-                self.async_set_updated_data(self.account)
-
-        except Exception as err:
-            _LOGGER.error("Error processing stream update for space %s: %s", space_id, err)
 
     async def _async_handle_single_update(self, space_id: str, update, batch_mode: bool = False) -> None:
         """Handle a single update from the stream.
@@ -1166,23 +606,40 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
             # Device update (from stream_space_updates)
             elif update.HasField("device"):
-                _LOGGER.debug("Received device update from stream_space_updates")
+                _LOGGER.info("🧪 APPROACH 2: Received device update from stream_space_updates")
                 device_proto = update.device
 
-                # Log the entire device update for debugging wire_input states
-                _LOGGER.debug("Device update type: %s", type(device_proto).__name__)
-                _LOGGER.debug("Device update fields: %s", device_proto)
+                # Log the entire device update structure
+                _LOGGER.info("🧪 APPROACH 2: Device update type: %s", type(device_proto).__name__)
+                _LOGGER.info("🧪 APPROACH 2: Device update available fields: %s",
+                           [f.name for f in device_proto.DESCRIPTOR.fields if device_proto.HasField(f.name)])
 
-                # Check if it's a hub device (contains wire_input devices)
+                # Check all possible device types in StandaloneDevice
                 if device_proto.HasField("hub"):
                     hub = device_proto.hub
-                    _LOGGER.debug("Hub device update - ID: %s", hub.id if hasattr(hub, "id") else "unknown")
+                    _LOGGER.info("🧪 APPROACH 2: ✅ Found 'hub' field - ID: %s",
+                               hub.id if hasattr(hub, "id") else "unknown")
 
-                    # Log all fields to see what's available
+                    # Log all hub fields
                     for field in hub.DESCRIPTOR.fields:
                         if hub.HasField(field.name):
                             field_value = getattr(hub, field.name)
-                            _LOGGER.debug("  Hub field '%s': %s", field.name, field_value)
+                            _LOGGER.info("🧪 APPROACH 2:   Hub field '%s': %s", field.name, field_value)
+
+                # Check for other device types that might contain door sensors
+                for field_name in ["video_edge", "passive_hub", "smart_lock", "vaelsys_camera"]:
+                    if device_proto.HasField(field_name):
+                        _LOGGER.info("🧪 APPROACH 2: ✅ Found '%s' field", field_name)
+                        device_obj = getattr(device_proto, field_name)
+                        _LOGGER.info("🧪 APPROACH 2:   %s fields: %s", field_name,
+                                   [f.name for f in device_obj.DESCRIPTOR.fields if device_obj.HasField(f.name)])
+
+                # IMPORTANT: Check if there's a sorting_key that might indicate device ID
+                if hasattr(device_proto, "sorting_key"):
+                    _LOGGER.info("🧪 APPROACH 2: Device sorting_key: %s", device_proto.sorting_key)
+
+                _LOGGER.warning("🧪 APPROACH 2: ⚠️ StandaloneDevice only contains hub/video_edge/etc, NOT individual devices like door sensors!")
+                _LOGGER.warning("🧪 APPROACH 2: This stream won't help us detect door sensor states")
 
         except Exception as err:
             _LOGGER.error("Error handling stream update: %s", err)
@@ -1449,7 +906,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         Args:
             space: The AjaxSpace to process
         """
-        from datetime import timezone, timedelta
+        from datetime import timedelta
 
         now = datetime.now(timezone.utc)
         expiry_seconds = 30  # Reset motion detection after 30 seconds
@@ -1727,7 +1184,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             old_state: Previous security state
             new_state: New security state
         """
-        from datetime import timezone
 
         # Determine event type based on new state
         if new_state == SecurityState.ARMED:
@@ -1791,16 +1247,16 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["motion_detected"] = True
                 device.attributes["motion_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.info("Device '%s': Motion detected", device.name)
+                _LOGGER.debug("Device '%s': Motion detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["motion_detected"] = False
-                _LOGGER.info("Device '%s': Motion cleared", device.name)
+                _LOGGER.debug("Device '%s': Motion cleared", device.name)
 
         elif "door" in event_type or "porte" in event_type:
             # Door sensor event
             if "opened" in event_type or "open" in event_type or "ouvert" in event_type:
                 device.attributes["door_opened"] = True
-                _LOGGER.info("Device '%s': Door opened", device.name)
+                _LOGGER.debug("Device '%s': Door opened", device.name)
 
                 # Start fast polling when door opens to quickly detect closure
                 device_id = notification.device_id
@@ -1810,7 +1266,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     del self._fast_poll_tasks[device_id]
 
                 if device_id not in self._fast_poll_tasks:
-                    _LOGGER.info("Door opened, starting fast polling for device %s", device_id)
+                    _LOGGER.debug("Door opened, starting fast polling for device %s", device_id)
                     task = asyncio.create_task(self._async_fast_poll_door_sensor(space.id, device_id))
                     self._fast_poll_tasks[device_id] = task
                 else:
@@ -1818,12 +1274,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
             elif "closed" in event_type or "close" in event_type or "fermé" in event_type:
                 device.attributes["door_opened"] = False
-                _LOGGER.info("Device '%s': Door closed", device.name)
+                _LOGGER.debug("Device '%s': Door closed", device.name)
 
                 # Cancel fast polling if door closed
                 device_id = notification.device_id
                 if device_id in self._fast_poll_tasks:
-                    _LOGGER.info("Door closed, cancelling fast polling for device %s", device_id)
+                    _LOGGER.debug("Door closed, cancelling fast polling for device %s", device_id)
                     task = self._fast_poll_tasks[device_id]
                     task.cancel()
                     del self._fast_poll_tasks[device_id]
@@ -1832,10 +1288,10 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # Window sensor event (use same attribute as door)
             if "opened" in event_type or "open" in event_type:
                 device.attributes["door_opened"] = True
-                _LOGGER.info("Device '%s': Window opened", device.name)
+                _LOGGER.debug("Device '%s': Window opened", device.name)
             elif "closed" in event_type or "close" in event_type:
                 device.attributes["door_opened"] = False
-                _LOGGER.info("Device '%s': Window closed", device.name)
+                _LOGGER.debug("Device '%s': Window closed", device.name)
 
         elif "glass" in event_type or "verre" in event_type or "vitre" in event_type:
             # Glass break event
@@ -1843,7 +1299,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["glass_break_detected"] = True
                 device.attributes["glass_break_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.info("Device '%s': Glass break detected", device.name)
+                _LOGGER.debug("Device '%s': Glass break detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["glass_break_detected"] = False
 
@@ -1853,7 +1309,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["smoke_detected"] = True
                 device.attributes["smoke_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.info("Device '%s': Smoke detected", device.name)
+                _LOGGER.debug("Device '%s': Smoke detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["smoke_detected"] = False
 
@@ -1863,7 +1319,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["leak_detected"] = True
                 device.attributes["leak_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.info("Device '%s': Leak detected", device.name)
+                _LOGGER.debug("Device '%s': Leak detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["leak_detected"] = False
 
@@ -1875,12 +1331,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 # Contact lost = door/window opened or wire disconnected
                 device.attributes["door_opened"] = True
                 device.attributes["external_contact_state"] = "lost"
-                _LOGGER.info("Device '%s': External contact lost (opened)", device.name)
+                _LOGGER.debug("Device '%s': External contact lost (opened)", device.name)
             elif "ok" in event_type or "closed" in event_type:
                 # Contact OK = door/window closed or wire connected
                 device.attributes["door_opened"] = False
                 device.attributes["external_contact_state"] = "ok"
-                _LOGGER.info("Device '%s': External contact OK (closed)", device.name)
+                _LOGGER.debug("Device '%s': External contact OK (closed)", device.name)
             elif "short" in event_type or "circuit" in event_type:
                 # Short circuit fault
                 device.attributes["external_contact_state"] = "short_circuit"
@@ -1901,7 +1357,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 _LOGGER.warning("Hub '%s': Battery disconnected", device.name)
             elif "battery" in event_type and ("connect" in event_type or "reconnect" in event_type or "ok" in event_type):
                 device.attributes["battery_disconnected"] = False
-                _LOGGER.info("Hub '%s': Battery reconnected", device.name)
+                _LOGGER.debug("Hub '%s': Battery reconnected", device.name)
 
             # External power loss event
             elif "power" in event_type or "alimentation" in event_type:
@@ -1913,7 +1369,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 elif "restored" in event_type or "ok" in event_type or "rétabli" in event_type:
                     device.attributes["external_power_loss"] = False
                     device.attributes["externally_powered"] = True
-                    _LOGGER.info("Hub '%s': External power restored", device.name)
+                    _LOGGER.debug("Hub '%s': External power restored", device.name)
 
             # Cellular/GSM signal events
             elif "cellular" in event_type or "gsm" in event_type or "signal" in event_type or "cellulaire" in event_type:
@@ -1923,7 +1379,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     _LOGGER.warning("Hub '%s': Cellular signal low", device.name)
                 elif "ok" in event_type or "normal" in event_type or "restored" in event_type:
                     device.attributes["cellular_signal_low"] = False
-                    _LOGGER.info("Hub '%s': Cellular signal restored", device.name)
+                    _LOGGER.debug("Hub '%s': Cellular signal restored", device.name)
 
             # GSM antenna events
             elif "antenna" in event_type or "antenne" in event_type:
@@ -1939,7 +1395,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 elif "connect" in event_type or "ok" in event_type:
                     device.attributes["gsm_antenna_damaged"] = False
                     device.attributes["gsm_antenna_disconnected"] = False
-                    _LOGGER.info("Hub '%s': GSM antenna OK", device.name)
+                    _LOGGER.debug("Hub '%s': GSM antenna OK", device.name)
 
             # Jeweller/Wings noise events
             elif "noise" in event_type or "bruit" in event_type:
@@ -1955,10 +1411,10 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 elif "ok" in event_type or "normal" in event_type:
                     if "jeweller" in event_type:
                         device.attributes["jeweller_noise_high"] = False
-                        _LOGGER.info("Hub '%s': Jeweller noise normal", device.name)
+                        _LOGGER.debug("Hub '%s': Jeweller noise normal", device.name)
                     elif "wings" in event_type:
                         device.attributes["wings_noise_high"] = False
-                        _LOGGER.info("Hub '%s': Wings noise normal", device.name)
+                        _LOGGER.debug("Hub '%s': Wings noise normal", device.name)
 
             # Software/System fault events
             elif "software" in event_type or "system" in event_type or "logiciel" in event_type or "système" in event_type:
@@ -1969,7 +1425,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     _LOGGER.error("Hub '%s': System fault detected", device.name)
                 elif "ok" in event_type or "cleared" in event_type or "résolu" in event_type:
                     device.attributes["system_fault"] = False
-                    _LOGGER.info("Hub '%s': System fault cleared", device.name)
+                    _LOGGER.debug("Hub '%s': System fault cleared", device.name)
 
             # CMS connection loss events
             elif "cms" in event_type or "monitoring" in event_type or "télésurveillance" in event_type:
@@ -1979,7 +1435,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     _LOGGER.warning("Hub '%s': CMS connection loss", device.name)
                 elif "restored" in event_type or "ok" in event_type or "rétabli" in event_type:
                     device.attributes["cms_connection_loss"] = False
-                    _LOGGER.info("Hub '%s': CMS connection restored", device.name)
+                    _LOGGER.debug("Hub '%s': CMS connection restored", device.name)
 
     def _parse_security_state(self, state_value: Any) -> SecurityState:
         """Parse security state from API response."""
@@ -2162,7 +1618,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             await self.api.async_arm(space_id, force=force)
             # State will be updated via real-time stream to avoid race conditions
 
-        except AjaxApiError as err:
+        except AjaxRestApiError as err:
             _LOGGER.error("Failed to arm space %s: %s", space_id, err)
             raise
 
@@ -2174,7 +1630,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             await self.api.async_disarm(space_id)
             # State will be updated via real-time stream to avoid race conditions
 
-        except AjaxApiError as err:
+        except AjaxRestApiError as err:
             _LOGGER.error("Failed to disarm space %s: %s", space_id, err)
             raise
 
@@ -2191,7 +1647,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             await self.api.async_arm_night_mode(space_id, force=force)
             # State will be updated via real-time stream to avoid race conditions
 
-        except AjaxApiError as err:
+        except AjaxRestApiError as err:
             _LOGGER.error("Failed to activate night mode for space %s: %s", space_id, err)
             raise
 
@@ -2209,7 +1665,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             await self.api.async_arm_group(space_id, group_id, force=force)
             # State will be updated via real-time stream to avoid race conditions
 
-        except AjaxApiError as err:
+        except AjaxRestApiError as err:
             _LOGGER.error("Failed to arm group %s in space %s: %s", group_id, space_id, err)
             raise
 
@@ -2226,7 +1682,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             await self.api.async_disarm_group(space_id, group_id)
             # State will be updated via real-time stream to avoid race conditions
 
-        except AjaxApiError as err:
+        except AjaxRestApiError as err:
             _LOGGER.error("Failed to disarm group %s in space %s: %s", group_id, space_id, err)
             raise
 
@@ -2238,7 +1694,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             await self.api.async_press_panic_button(space_id)
             # No state update needed, panic is instantaneous
 
-        except AjaxApiError as err:
+        except AjaxRestApiError as err:
             _LOGGER.error("Failed to trigger panic for space %s: %s", space_id, err)
             raise
 
