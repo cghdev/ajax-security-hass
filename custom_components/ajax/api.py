@@ -79,6 +79,8 @@ class AjaxRestApi:
         url = f"{AJAX_REST_API_BASE_URL}/{endpoint}"
         session = await self._get_session()
 
+        _LOGGER.debug("Making %s request to %s", method, endpoint)
+
         try:
             async with session.request(
                 method,
@@ -87,19 +89,31 @@ class AjaxRestApi:
                 json=data,
                 timeout=aiohttp.ClientTimeout(total=AJAX_REST_API_TIMEOUT),
             ) as response:
+                _LOGGER.debug(
+                    "Response from %s: status=%s", endpoint, response.status
+                )
+
                 if response.status == 401:
+                    _LOGGER.error(
+                        "Authentication failed (401) - Check your integration_id and api_key"
+                    )
                     raise AjaxRestAuthError("Invalid API key or integration ID")
                 elif response.status == 403:
+                    _LOGGER.error(
+                        "Access denied (403) - API key may not have sufficient permissions"
+                    )
                     raise AjaxRestAuthError("Access denied")
 
                 response.raise_for_status()
-                return await response.json()
+                result = await response.json()
+                _LOGGER.debug("Successfully received data from %s", endpoint)
+                return result
 
         except aiohttp.ClientError as err:
-            _LOGGER.error(f"API request failed: {err}")
+            _LOGGER.error("API request to %s failed: %s", endpoint, err)
             raise AjaxRestApiError(f"API request failed: {err}") from err
         except asyncio.TimeoutError as err:
-            _LOGGER.error("API request timeout")
+            _LOGGER.error("API request to %s timed out after %ss", endpoint, AJAX_REST_API_TIMEOUT)
             raise AjaxRestApiError("API request timeout") from err
 
     # Hub methods
