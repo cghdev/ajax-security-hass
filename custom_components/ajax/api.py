@@ -1,7 +1,8 @@
-"""Ajax REST API client for official API."""
+"""Ajax REST API client based on official PDF documentation."""
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 from typing import Any
 
@@ -23,24 +24,55 @@ class AjaxRestAuthError(AjaxRestApiError):
     """Authentication error."""
 
 
+class AjaxRest2FARequiredError(AjaxRestApiError):
+    """2FA is required."""
+
+    def __init__(self, request_id: str):
+        """Initialize 2FA error with request ID."""
+        super().__init__("Two-factor authentication required")
+        self.request_id = request_id
+
+
 class AjaxRestApi:
-    """Ajax REST API client using integration_id and api_key."""
+    """Ajax REST API client.
+
+    Authentication as User (from PDF page 4-5):
+    - First login via Credentials: E-mail + SHA256(password)
+    - Generate a temporary token
+    - Use this token for subsequent API calls
+    """
 
     def __init__(
         self,
-        integration_id: str,
         api_key: str,
+        email: str,
+        password: str,
+        password_is_hashed: bool = False,
     ):
         """Initialize the API client.
 
         Args:
-            integration_id: Integration ID provided by Ajax
-            api_key: API Key provided by Ajax
+            api_key: API Key provided by Ajax Systems
+            email: User email address
+            password: User password (plain or SHA256 hashed)
+            password_is_hashed: True if password is already SHA256 hashed
         """
-        self.integration_id = integration_id
         self.api_key = api_key
+        self.email = email
+
+        # Hash password if not already hashed
+        if password_is_hashed:
+            self.password_hash = password
+        else:
+            self.password_hash = hashlib.sha256(password.encode()).hexdigest()
+
         self.session: aiohttp.ClientSession | None = None
-        self._headers = {
+        self.session_token: str | None = None  # Session token (15 min TTL)
+        self.refresh_token: str | None = None  # Refresh token (7 days TTL)
+        self.user_id: str | None = None  # User ID from login
+
+        # Base headers with API key
+        self._base_headers = {
             "X-Api-Key": api_key,
             "Content-Type": "application/json",
         }
@@ -56,18 +88,210 @@ class AjaxRestApi:
         if self.session and not self.session.closed:
             await self.session.close()
 
+    async def async_login(self) -> str:
+        """Login with email and SHA256(password) to get session token.
+
+        According to Swagger API 1.130.0:
+        - Authenticates with email + SHA256(password)
+        - Returns sessionToken (15 min TTL), refreshToken (7 days TTL), and userId
+        - POST body: {"login": email, "passwordHash": hash}
+
+        Returns:
+            Session token string
+
+        Raises:
+            AjaxRest2FARequiredError: If 2FA is required
+            AjaxRestAuthError: If authentication fails
+            AjaxRestApiError: For other API errors
+        """
+        _LOGGER.debug("Logging in with email: %s", self.email)
+
+        session = await self._get_session()
+        url = f"{AJAX_REST_API_BASE_URL}/login"
+
+        # Login request body according to Swagger
+        payload = {
+            "login": self.email,
+            "passwordHash": self.password_hash,
+        }
+
+        try:
+            async with session.post(
+                url,
+                headers=self._base_headers,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=AJAX_REST_API_TIMEOUT),
+            ) as response:
+                _LOGGER.debug("Login response status: %s", response.status)
+
+                if response.status == 401:
+                    raise AjaxRestAuthError("Invalid email or password")
+                elif response.status == 403:
+                    # 2FA required
+                    result = await response.json()
+                    request_id = result.get("requestId", "")
+                    _LOGGER.info("2FA required, request_id: %s", request_id)
+                    raise AjaxRest2FARequiredError(request_id)
+
+                response.raise_for_status()
+                result = await response.json()
+
+                # Extract tokens from response (Swagger format)
+                self.session_token = result.get("sessionToken")
+                self.refresh_token = result.get("refreshToken")
+                self.user_id = result.get("userId")
+
+                if not self.session_token:
+                    raise AjaxRestApiError("No sessionToken in login response")
+
+                _LOGGER.info(
+                    "Login successful, session token obtained (userId: %s)",
+                    self.user_id
+                )
+                return self.session_token
+
+        except aiohttp.ClientError as err:
+            _LOGGER.error("Login request failed: %s", err)
+            raise AjaxRestApiError(f"Login failed: {err}") from err
+        except asyncio.TimeoutError as err:
+            _LOGGER.error("Login request timeout")
+            raise AjaxRestApiError("Login timeout") from err
+
+    async def async_verify_2fa(self, request_id: str, code: str) -> str:
+        """Verify 2FA code and get temporary token.
+
+        Args:
+            request_id: Request ID from login response
+            code: 6-digit 2FA code
+
+        Returns:
+            Temporary token string
+
+        Raises:
+            AjaxRestAuthError: If 2FA verification fails
+            AjaxRestApiError: For other API errors
+        """
+        _LOGGER.debug("Verifying 2FA code")
+
+        session = await self._get_session()
+        url = f"{AJAX_REST_API_BASE_URL}/login/2fa"
+
+        headers = {
+            **self._base_headers,
+            "X-Request-Id": request_id,
+            "X-2FA-Code": code,
+        }
+
+        try:
+            async with session.post(
+                url,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=AJAX_REST_API_TIMEOUT),
+            ) as response:
+                if response.status == 401:
+                    raise AjaxRestAuthError("Invalid 2FA code")
+
+                response.raise_for_status()
+                result = await response.json()
+
+                # 2FA returns sessionToken like normal login
+                self.session_token = result.get("sessionToken")
+                if not self.session_token:
+                    raise AjaxRestApiError("No sessionToken in 2FA response")
+
+                _LOGGER.info("2FA verification successful")
+                return self.session_token
+
+        except aiohttp.ClientError as err:
+            _LOGGER.error("2FA verification failed: %s", err)
+            raise AjaxRestApiError(f"2FA verification failed: {err}") from err
+        except asyncio.TimeoutError as err:
+            _LOGGER.error("2FA verification timeout")
+            raise AjaxRestApiError("2FA verification timeout") from err
+
+    async def async_refresh_token(self) -> str:
+        """Refresh session token using refresh token.
+
+        According to Swagger API 1.130.0:
+        - Uses refreshToken to get a new sessionToken without re-authenticating
+        - Extends session without requiring email/password
+        - POST body: {"refreshToken": refresh_token, "userId": user_id}
+
+        Returns:
+            New session token string
+
+        Raises:
+            AjaxRestAuthError: If refresh token is invalid or expired
+            AjaxRestApiError: For other API errors
+        """
+        if not self.refresh_token or not self.user_id:
+            raise AjaxRestApiError(
+                "No refresh token available. Call async_login() first."
+            )
+
+        _LOGGER.debug("Refreshing session token for user: %s", self.user_id)
+
+        session = await self._get_session()
+        url = f"{AJAX_REST_API_BASE_URL}/refresh"
+
+        # Refresh request body according to Swagger
+        payload = {
+            "refreshToken": self.refresh_token,
+            "userId": self.user_id,
+        }
+
+        try:
+            async with session.post(
+                url,
+                headers=self._base_headers,
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=AJAX_REST_API_TIMEOUT),
+            ) as response:
+                _LOGGER.debug("Refresh response status: %s", response.status)
+
+                if response.status == 401:
+                    raise AjaxRestAuthError("Refresh token expired or invalid")
+
+                response.raise_for_status()
+                result = await response.json()
+
+                # Extract new tokens from response
+                self.session_token = result.get("sessionToken")
+                self.refresh_token = result.get("refreshToken")
+                # userId should remain the same
+
+                if not self.session_token:
+                    raise AjaxRestApiError("No sessionToken in refresh response")
+
+                _LOGGER.info(
+                    "Session token refreshed successfully (userId: %s)",
+                    self.user_id
+                )
+                return self.session_token
+
+        except aiohttp.ClientError as err:
+            _LOGGER.error("Token refresh request failed: %s", err)
+            raise AjaxRestApiError(f"Token refresh failed: {err}") from err
+        except asyncio.TimeoutError as err:
+            _LOGGER.error("Token refresh request timeout")
+            raise AjaxRestApiError("Token refresh timeout") from err
+
     async def _request(
         self,
         method: str,
         endpoint: str,
         data: dict[str, Any] | None = None,
+        _retry_on_auth_error: bool = True,
     ) -> Any:
-        """Make API request.
+        """Make API request with session token.
+
+        Automatically renews the token if it expires (401 error).
 
         Args:
             method: HTTP method (GET, POST, etc.)
             endpoint: API endpoint (without base URL)
             data: Optional JSON data for POST/PUT requests
+            _retry_on_auth_error: Internal flag to prevent infinite retry loop
 
         Returns:
             API response as dict
@@ -76,8 +300,17 @@ class AjaxRestApi:
             AjaxRestAuthError: If authentication fails
             AjaxRestApiError: For other API errors
         """
+        if not self.session_token:
+            raise AjaxRestApiError("Not logged in. Call async_login() first.")
+
         url = f"{AJAX_REST_API_BASE_URL}/{endpoint}"
         session = await self._get_session()
+
+        # Headers with session token (Swagger spec)
+        headers = {
+            **self._base_headers,
+            "X-Session-Token": self.session_token,
+        }
 
         _LOGGER.debug("Making %s request to %s", method, endpoint)
 
@@ -85,7 +318,7 @@ class AjaxRestApi:
             async with session.request(
                 method,
                 url,
-                headers=self._headers,
+                headers=headers,
                 json=data,
                 timeout=aiohttp.ClientTimeout(total=AJAX_REST_API_TIMEOUT),
             ) as response:
@@ -94,13 +327,43 @@ class AjaxRestApi:
                 )
 
                 if response.status == 401:
-                    _LOGGER.error(
-                        "Authentication failed (401) - Check your integration_id and api_key"
-                    )
-                    raise AjaxRestAuthError("Invalid API key or integration ID")
+                    if _retry_on_auth_error:
+                        # Token expired, try to refresh it first
+                        _LOGGER.warning(
+                            "Token expired (401), attempting token refresh"
+                        )
+                        try:
+                            # Try refresh token first (faster, no password needed)
+                            await self.async_refresh_token()
+                            _LOGGER.info("Token refreshed successfully, retrying request")
+                            # Retry the request with the new token (only once)
+                            return await self._request(
+                                method, endpoint, data, _retry_on_auth_error=False
+                            )
+                        except AjaxRestAuthError:
+                            # Refresh token expired or invalid, fallback to full login
+                            _LOGGER.warning(
+                                "Refresh token failed, falling back to full login"
+                            )
+                            try:
+                                await self.async_login()
+                                _LOGGER.info("Full login successful, retrying request")
+                                return await self._request(
+                                    method, endpoint, data, _retry_on_auth_error=False
+                                )
+                            except Exception as err:
+                                _LOGGER.error("Failed to renew token: %s", err)
+                                raise AjaxRestAuthError("Token renewal failed") from err
+                        except Exception as err:
+                            _LOGGER.error("Token refresh failed: %s", err)
+                            raise AjaxRestAuthError("Token refresh failed") from err
+                    else:
+                        # Already retried once, give up
+                        _LOGGER.error("Authentication failed after token renewal")
+                        raise AjaxRestAuthError("Invalid or expired token")
                 elif response.status == 403:
                     _LOGGER.error(
-                        "Access denied (403) - API key may not have sufficient permissions"
+                        "Access denied (403) - Insufficient permissions"
                     )
                     raise AjaxRestAuthError("Access denied")
 
@@ -123,7 +386,9 @@ class AjaxRestApi:
         Returns:
             List of hub dictionaries
         """
-        return await self._request("GET", "hubs")
+        if not self.user_id:
+            raise AjaxRestApiError("No user_id available. Call async_login() first.")
+        return await self._request("GET", f"users/{self.user_id}/hubs")
 
     async def async_get_hub(self, hub_id: str) -> dict[str, Any]:
         """Get hub details.
@@ -283,7 +548,12 @@ class AjaxRestApi:
         url = f"{AJAX_REST_API_BASE_URL}/cameras/{camera_id}/snapshot"
         session = await self._get_session()
 
-        async with session.get(url, headers=self._headers) as response:
+        headers = {
+            **self._base_headers,
+            "X-Session-Token": self.session_token,
+        }
+
+        async with session.get(url, headers=headers) as response:
             response.raise_for_status()
             return await response.read()
 

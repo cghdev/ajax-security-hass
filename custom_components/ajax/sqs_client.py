@@ -1,4 +1,14 @@
-"""AWS SQS client for Ajax real-time events."""
+"""AWS SQS client for Ajax event notifications.
+
+This module handles real-time event notifications from Ajax via Amazon SQS.
+Events are received from a FIFO queue and parsed to trigger immediate updates.
+
+Security:
+- AWS credentials are stored securely (never logged)
+- All logs mask sensitive information
+- Uses long polling for efficiency
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -7,232 +17,260 @@ import logging
 from typing import Any, Callable
 
 try:
-    import aiobotocore.session
-    from botocore.exceptions import ClientError
-    HAS_AIOBOTOCORE = True
+    from aiobotocore.session import get_session
+    from botocore.exceptions import BotoCoreError, ClientError
+    AIOBOTOCORE_AVAILABLE = True
 except ImportError:
-    HAS_AIOBOTOCORE = False
+    AIOBOTOCORE_AVAILABLE = False
+    get_session = None  # type: ignore
 
 _LOGGER = logging.getLogger(__name__)
 
+# AWS Region for Ajax (Ireland)
+AWS_REGION = "eu-west-1"
 
-class SQSClientError(Exception):
-    """Base exception for SQS client errors."""
+# SQS Configuration
+SQS_WAIT_TIME_SECONDS = 20  # Long polling (recommended)
+SQS_MAX_MESSAGES = 10  # Max messages per request
+SQS_VISIBILITY_TIMEOUT = 30  # Seconds before message becomes visible again
+
+
+def _mask_credentials(text: str) -> str:
+    """Mask AWS credentials in logs for security.
+
+    Examples:
+        AKIA3SFSAKBHLDDOCGFG -> AKIA****CGFG
+        ML5t0HFTPMzZ...nfC -> ML5t****nfC
+    """
+    if not text or len(text) < 8:
+        return "****"
+    return f"{text[:4]}****{text[-4:]}"
 
 
 class AjaxSQSClient:
-    """AWS SQS client for receiving Ajax events."""
+    """Client for receiving Ajax events via AWS SQS."""
 
     def __init__(
         self,
-        aws_access_key: str,
-        aws_secret_key: str,
+        aws_access_key_id: str,
+        aws_secret_access_key: str,
         queue_name: str,
-        region: str = "eu-central-1",
-    ):
-        """Initialize the SQS client.
+        event_callback: Callable[[dict[str, Any]], None] | None = None,
+    ) -> None:
+        """Initialize SQS client.
 
         Args:
-            aws_access_key: AWS access key ID
-            aws_secret_key: AWS secret access key
-            queue_name: SQS queue name (e.g., 'ajax-events-XXXXXXXX-prod.fifo')
-            region: AWS region (default: eu-central-1 for Frankfurt)
+            aws_access_key_id: AWS access key ID
+            aws_secret_access_key: AWS secret access key
+            queue_name: SQS queue name (e.g., ajax-events-V6WHbk3e-prod.fifo)
+            event_callback: Async callback function for received events
         """
-        if not HAS_AIOBOTOCORE:
-            raise SQSClientError(
-                "aiobotocore is required for SQS support. "
-                "Install with: pip install aiobotocore"
+        if not AIOBOTOCORE_AVAILABLE:
+            raise ImportError(
+                "aiobotocore is not installed. "
+                "Install with: pip install aiobotocore>=2.7.0"
             )
 
-        self.aws_access_key = aws_access_key
-        self.aws_secret_key = aws_secret_key
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
         self.queue_name = queue_name
-        self.region = region
+        self.event_callback = event_callback
 
+        self._session = get_session()
+        self._client = None
+        self._queue_url: str | None = None
         self._running = False
-        self._task: asyncio.Task | None = None
-        self._event_callback: Callable[[dict[str, Any]], None] | None = None
+        self._receive_task: asyncio.Task | None = None
 
-    def set_event_callback(self, callback: Callable[[dict[str, Any]], None]):
-        """Set callback function for incoming events.
+        # Security: Log with masked credentials
+        _LOGGER.debug(
+            "Initializing SQS client - Queue: %s, Key: %s",
+            queue_name,
+            _mask_credentials(aws_access_key_id),
+        )
 
-        Args:
-            callback: Async function to call with event data
-        """
-        self._event_callback = callback
-
-    async def start(self):
-        """Start listening to SQS queue."""
-        if self._running:
-            _LOGGER.warning("SQS listener already running")
-            return
-
-        if not self._event_callback:
-            raise SQSClientError("Event callback not set. Call set_event_callback() first.")
-
-        self._running = True
-        self._task = asyncio.create_task(self._listen_loop())
-        _LOGGER.info("Started SQS listener for queue: %s", self.queue_name)
-
-    async def stop(self):
-        """Stop listening to SQS queue."""
-        self._running = False
-
-        if self._task:
-            self._task.cancel()
-            try:
-                await self._task
-            except asyncio.CancelledError:
-                pass
-            self._task = None
-
-        _LOGGER.info("Stopped SQS listener")
-
-    async def _get_queue_url(self, sqs_client) -> str:
-        """Get queue URL from queue name.
-
-        Args:
-            sqs_client: Boto3 SQS client
+    async def connect(self) -> bool:
+        """Connect to SQS and get queue URL.
 
         Returns:
-            Queue URL
-
-        Raises:
-            SQSClientError: If queue not found
+            True if connection successful, False otherwise
         """
         try:
-            response = await sqs_client.get_queue_url(QueueName=self.queue_name)
-            return response["QueueUrl"]
+            self._client = self._session.create_client(
+                "sqs",
+                region_name=AWS_REGION,
+                aws_access_key_id=self.aws_access_key_id,
+                aws_secret_access_key=self.aws_secret_access_key,
+            )
+
+            # Get queue URL
+            async with self._client as client:
+                response = await client.get_queue_url(QueueName=self.queue_name)
+                self._queue_url = response["QueueUrl"]
+
+            _LOGGER.info(
+                "Successfully connected to SQS queue: %s",
+                self.queue_name,
+            )
+            return True
+
         except ClientError as err:
             error_code = err.response.get("Error", {}).get("Code", "Unknown")
-            if error_code == "AWS.SimpleQueueService.NonExistentQueue":
-                raise SQSClientError(
-                    f"Queue '{self.queue_name}' not found. "
-                    f"Please verify the queue name with Ajax Systems."
-                ) from err
-            _LOGGER.error("Failed to get queue URL: %s", err)
-            raise SQSClientError(f"Failed to get queue URL: {err}") from err
+            _LOGGER.error(
+                "Failed to connect to SQS queue %s: %s (Key: %s)",
+                self.queue_name,
+                error_code,
+                _mask_credentials(self.aws_access_key_id),
+            )
+            return False
+        except Exception as err:
+            _LOGGER.error(
+                "Unexpected error connecting to SQS: %s (Key: %s)",
+                err,
+                _mask_credentials(self.aws_access_key_id),
+            )
+            return False
 
-    async def _listen_loop(self):
-        """Main listening loop for SQS messages."""
-        session = aiobotocore.session.get_session()
+    async def start_receiving(self) -> None:
+        """Start receiving messages from SQS in background."""
+        if not self._queue_url:
+            _LOGGER.error("Cannot start receiving: not connected to SQS")
+            return
+
+        if self._running:
+            _LOGGER.warning("SQS receiver already running")
+            return
+
+        self._running = True
+        self._receive_task = asyncio.create_task(self._receive_loop())
+        _LOGGER.info("Started SQS message receiver")
+
+    async def stop_receiving(self) -> None:
+        """Stop receiving messages from SQS."""
+        self._running = False
+
+        if self._receive_task:
+            self._receive_task.cancel()
+            try:
+                await self._receive_task
+            except asyncio.CancelledError:
+                pass
+            self._receive_task = None
+
+        _LOGGER.info("Stopped SQS message receiver")
+
+    async def _receive_loop(self) -> None:
+        """Main loop for receiving messages from SQS."""
+        _LOGGER.debug("SQS receive loop started")
 
         while self._running:
             try:
-                async with session.create_client(
-                    "sqs",
-                    region_name=self.region,
-                    aws_access_key_id=self.aws_access_key,
-                    aws_secret_access_key=self.aws_secret_key,
-                ) as sqs_client:
-
-                    queue_url = await self._get_queue_url(sqs_client)
-                    _LOGGER.debug("Listening to queue: %s", queue_url)
-
-                    while self._running:
-                        try:
-                            # Long polling (wait up to 20 seconds for messages)
-                            response = await sqs_client.receive_message(
-                                QueueUrl=queue_url,
-                                MaxNumberOfMessages=10,  # Process up to 10 messages at once
-                                WaitTimeSeconds=20,  # Long polling
-                                AttributeNames=["All"],
-                                MessageAttributeNames=["All"],
-                            )
-
-                            messages = response.get("Messages", [])
-
-                            if messages:
-                                _LOGGER.debug("Received %d message(s) from SQS", len(messages))
-
-                                for message in messages:
-                                    await self._process_message(message, sqs_client, queue_url)
-                            else:
-                                _LOGGER.debug("No messages, continuing long polling...")
-
-                        except ClientError as err:
-                            _LOGGER.error("Error receiving messages: %s", err)
-                            await asyncio.sleep(5)
-                        except Exception as err:
-                            _LOGGER.exception("Unexpected error in receive loop: %s", err)
-                            await asyncio.sleep(5)
-
+                await self._receive_messages()
+            except asyncio.CancelledError:
+                break
             except Exception as err:
-                _LOGGER.error("SQS client error: %s", err)
-                if self._running:
-                    _LOGGER.info("Reconnecting in 10 seconds...")
-                    await asyncio.sleep(10)
+                _LOGGER.error("Error in SQS receive loop: %s", err)
+                # Wait before retry
+                await asyncio.sleep(5)
 
-    async def _process_message(
-        self,
-        message: dict[str, Any],
-        sqs_client,
-        queue_url: str,
-    ):
+        _LOGGER.debug("SQS receive loop stopped")
+
+    async def _receive_messages(self) -> None:
+        """Receive and process messages from SQS."""
+        if not self._client or not self._queue_url:
+            return
+
+        try:
+            async with self._client as client:
+                response = await client.receive_message(
+                    QueueUrl=self._queue_url,
+                    MaxNumberOfMessages=SQS_MAX_MESSAGES,
+                    WaitTimeSeconds=SQS_WAIT_TIME_SECONDS,
+                    VisibilityTimeout=SQS_VISIBILITY_TIMEOUT,
+                )
+
+                messages = response.get("Messages", [])
+                if not messages:
+                    return
+
+                _LOGGER.debug("Received %d messages from SQS", len(messages))
+
+                for message in messages:
+                    await self._process_message(message)
+
+        except ClientError as err:
+            error_code = err.response.get("Error", {}).get("Code", "Unknown")
+            _LOGGER.error("SQS receive error: %s", error_code)
+        except Exception as err:
+            _LOGGER.error("Unexpected error receiving SQS messages: %s", err)
+
+    async def _process_message(self, message: dict[str, Any]) -> None:
         """Process a single SQS message.
 
         Args:
-            message: SQS message
-            sqs_client: Boto3 SQS client
-            queue_url: Queue URL
+            message: SQS message dict
         """
+        receipt_handle = message.get("ReceiptHandle")
+        message_id = message.get("MessageId", "unknown")
+
         try:
-            # Parse message body
-            body = json.loads(message["Body"])
+            # Parse message body (JSON)
+            body = message.get("Body", "{}")
+            event_data = json.loads(body)
 
-            # Handle SNS wrapper if present
-            # (Ajax may wrap events in SNS notifications)
-            if "Message" in body:
-                event_data = json.loads(body["Message"])
-            else:
-                event_data = body
-
-            event_type = event_data.get("type", "unknown")
-            _LOGGER.debug("Processing event: %s", event_type)
-
-            # Call the event callback
-            if self._event_callback:
-                try:
-                    await self._event_callback(event_data)
-                except Exception as err:
-                    _LOGGER.error("Error in event callback: %s", err)
-
-            # Delete message from queue after successful processing
-            await sqs_client.delete_message(
-                QueueUrl=queue_url,
-                ReceiptHandle=message["ReceiptHandle"],
+            _LOGGER.debug(
+                "Processing Ajax event: %s (type: %s)",
+                message_id,
+                event_data.get("eventType", "unknown"),
             )
 
-            _LOGGER.debug("Successfully processed and deleted message")
+            # Call event callback
+            if self.event_callback:
+                await self.event_callback(event_data)
+
+            # Delete message from queue (acknowledge)
+            await self._delete_message(receipt_handle)
 
         except json.JSONDecodeError as err:
-            _LOGGER.error("Failed to parse message JSON: %s", err)
-            _LOGGER.debug("Message body: %s", message.get("Body"))
+            _LOGGER.error(
+                "Failed to parse SQS message %s: %s",
+                message_id,
+                err,
+            )
+            # Don't delete malformed messages
         except Exception as err:
-            _LOGGER.exception("Error processing message: %s", err)
+            _LOGGER.error(
+                "Error processing SQS message %s: %s",
+                message_id,
+                err,
+            )
+            # Don't delete messages that failed processing
 
+    async def _delete_message(self, receipt_handle: str) -> None:
+        """Delete message from SQS queue.
 
-class MockSQSClient:
-    """Mock SQS client for testing without AWS credentials.
+        Args:
+            receipt_handle: Message receipt handle
+        """
+        if not self._client or not self._queue_url:
+            return
 
-    This allows the integration to work without SQS (polling fallback).
-    """
+        try:
+            async with self._client as client:
+                await client.delete_message(
+                    QueueUrl=self._queue_url,
+                    ReceiptHandle=receipt_handle,
+                )
+            _LOGGER.debug("Deleted message from SQS queue")
+        except Exception as err:
+            _LOGGER.error("Failed to delete SQS message: %s", err)
 
-    def __init__(self, *args, **kwargs):
-        """Initialize mock client."""
-        _LOGGER.warning(
-            "Using mock SQS client. Real-time events will not work. "
-            "Configure AWS SQS credentials for instant event delivery."
-        )
+    async def close(self) -> None:
+        """Close SQS client and cleanup resources."""
+        await self.stop_receiving()
 
-    def set_event_callback(self, callback):
-        """Set event callback (no-op)."""
-        pass
+        if self._client:
+            await self._client.__aexit__(None, None, None)
+            self._client = None
 
-    async def start(self):
-        """Start (no-op)."""
-        _LOGGER.debug("Mock SQS client started (no-op)")
-
-    async def stop(self):
-        """Stop (no-op)."""
-        _LOGGER.debug("Mock SQS client stopped (no-op)")
+        _LOGGER.info("SQS client closed")

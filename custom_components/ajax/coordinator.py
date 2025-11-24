@@ -1,9 +1,15 @@
 """Ajax data coordinator for Home Assistant.
 
 This coordinator manages:
-- Real-time updates from AWS SQS (or polling fallback)
+- Periodic polling updates from Ajax REST API
+- Real-time event updates via AWS SQS (optional)
 - Space, Room, Device, and Notification data
 - State synchronization between Ajax and Home Assistant
+
+Architecture:
+- Hybrid Mode: SQS real-time events + REST polling fallback
+- SQS events trigger immediate REST refresh for instant state updates
+- REST polling continues every 30s as baseline
 """
 from __future__ import annotations
 
@@ -40,6 +46,16 @@ from .models import (
     SecurityState,
 )
 
+# Optional SQS support
+try:
+    from .sqs_manager import SQSManager
+    from .sqs_client import AjaxSQSClient
+    SQS_AVAILABLE = True
+except ImportError:
+    SQS_AVAILABLE = False
+    SQSManager = None
+    AjaxSQSClient = None
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -59,14 +75,35 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             └── Notifications (Events)
     """
 
-    def __init__(self, hass: HomeAssistant, api: AjaxRestApi) -> None:
-        """Initialize the coordinator."""
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        api: AjaxRestApi,
+        aws_access_key_id: str | None = None,
+        aws_secret_access_key: str | None = None,
+        queue_name: str | None = None,
+    ) -> None:
+        """Initialize the coordinator.
+
+        Args:
+            hass: Home Assistant instance
+            api: Ajax REST API instance
+            aws_access_key_id: AWS access key ID (optional, for SQS)
+            aws_secret_access_key: AWS secret access key (optional, for SQS)
+            queue_name: SQS queue name (optional, for SQS)
+        """
         self.api = api
         self.account: AjaxAccount | None = None
-        self.sqs_client = None  # Will be set by __init__.py if AWS SQS is configured
         self._fast_poll_tasks: dict[str, asyncio.Task] = {}  # device_id -> fast polling task for door sensors
         self._wire_input_polling_tasks: dict[str, asyncio.Task] = {}  # space_id -> wire_input polling task
         self._initial_load_done: bool = False  # Track if initial data load is complete
+
+        # SQS real-time events (optional)
+        self.sqs_manager: SQSManager | None = None
+        self._aws_access_key_id = aws_access_key_id
+        self._aws_secret_access_key = aws_secret_access_key
+        self._queue_name = queue_name
+        self._sqs_initialized = False
 
         super().__init__(
             hass,
@@ -78,19 +115,19 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
     async def _async_update_data(self) -> AjaxAccount:
         """Fetch data from Ajax REST API.
 
-        This is called periodically. If AWS SQS is configured, it provides real-time events.
-        Without SQS, we rely on this polling for updates (60s interval).
+        This is called periodically for updates.
         """
         try:
             # Initialize account if needed
             if self.account is None:
                 await self._async_init_account()
 
-            # Only do full data load on first run or manual reload
-            # After that, rely on SQS events (or periodic polling if no SQS)
-            if not self._initial_load_done:
-                _LOGGER.debug("Performing initial/full data load")
+            # Initialize SQS real-time events (if credentials provided)
+            if not self._sqs_initialized and self._aws_access_key_id:
+                await self._async_init_sqs()
 
+            # Only do full data load on first run or manual reload
+            if not self._initial_load_done:
                 # Update spaces
                 await self._async_update_spaces()
 
@@ -103,25 +140,15 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 # Execute all API calls in parallel for faster startup
                 await asyncio.gather(*tasks, return_exceptions=True)
 
-                # Start AWS SQS listener if configured
-                if self.sqs_client:
-                    _LOGGER.info("Starting AWS SQS listener for real-time events")
-                    self.sqs_client.set_event_callback(self._handle_sqs_event)
-                    await self.sqs_client.start()
-                else:
-                    _LOGGER.info("AWS SQS not configured, relying on polling (60s interval)")
-
                 # Mark initial load as complete
                 self._initial_load_done = True
-                _LOGGER.debug("Initial data load complete")
+                _LOGGER.info("Initial data load complete")
             else:
                 # Periodic update - reset expired motion detections and refresh devices
-                _LOGGER.debug("Periodic update - refreshing device states")
                 for space_id in self.account.spaces.keys():
                     space = self.account.spaces.get(space_id)
                     if space:
                         self._reset_expired_motion_detections(space)
-                        # Refresh devices periodically (important if no SQS)
                         await self._async_update_devices(space_id)
 
             return self.account
@@ -131,151 +158,74 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         except AjaxRestApiError as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
-    async def handle_event(self, event_data: dict[str, Any]) -> None:
-        """Public method to handle events from AWS SQS.
-
-        Args:
-            event_data: The event data from SQS
-        """
-        await self._handle_sqs_event(event_data)
-
-    async def _handle_sqs_event(self, event_data: dict[str, Any]) -> None:
-        """Handle an event received from AWS SQS.
-
-        Args:
-            event_data: The event data from SQS
-        """
-        try:
-            _LOGGER.debug("Received SQS event: %s", event_data.get("type", "unknown"))
-
-            # Extract event information
-            event_type = event_data.get("type")
-            space_id = event_data.get("space_id")
-
-            if not event_type or not space_id:
-                _LOGGER.warning("Invalid SQS event (missing type or space_id): %s", event_data)
-                return
-
-            # Handle different event types
-            if event_type == "device_status":
-                # Device state changed (door opened, motion detected, etc.)
-                await self._async_update_devices(space_id)
-            elif event_type == "security_mode":
-                # Security mode changed (armed, disarmed, etc.)
-                await self._async_update_spaces()
-            elif event_type == "notification":
-                # New notification/alarm
-                await self._async_update_notifications(space_id, limit=10)
-            else:
-                _LOGGER.debug("Unknown SQS event type: %s", event_type)
-
-            # Trigger coordinator update to notify all entities
-            self.async_set_updated_data(self.account)
-
-        except Exception as err:
-            _LOGGER.error("Error handling SQS event: %s", err)
-
     async def _async_fast_poll_door_sensor(self, space_id: str, device_id: str) -> None:
-        """Fast poll a door sensor after opening to quickly detect closure.
-
-        When a door opens (detected via stream), we start polling it every 3 seconds
-        for up to 2 minutes to quickly detect when it closes.
-        """
+        """Fast poll a door sensor after opening to quickly detect closure."""
         poll_interval = 3  # Poll every 3 seconds
         max_duration = 120  # Stop after 2 minutes
         start_time = asyncio.get_event_loop().time()
-
-        _LOGGER.info("Starting fast polling for door sensor %s", device_id)
 
         try:
             while True:
                 elapsed = asyncio.get_event_loop().time() - start_time
                 if elapsed > max_duration:
-                    _LOGGER.info("Fast polling timeout for door sensor %s after %d seconds", device_id, int(elapsed))
                     break
 
                 try:
-                    # Refresh device data from API
                     devices_data = await self.api.async_get_devices(space_id)
-
-                    # Update account with fresh data (similar to _async_update_data)
                     space = self.account.spaces.get(space_id)
                     if not space:
                         break
 
-                    # Find our device in the updated data
                     device_found = False
                     for device_data in devices_data:
                         if device_data.get("id") == device_id:
                             device_found = True
-                            door_opened = device_data.get("attributes", {}).get("door_opened", False)
-                            _LOGGER.debug(
-                                "Fast polling device %s: door_opened=%s, attributes=%s",
-                                device_id,
-                                door_opened,
-                                device_data.get("attributes", {})
-                            )
 
-                            # Update the device in our account
                             if device_id in space.devices:
                                 device = space.devices[device_id]
-                                device.attributes.update(device_data.get("attributes", {}))
+                                # Normalize attributes from API
+                                api_attrs = device_data.get("attributes", {})
+                                normalized_attrs = self._normalize_device_attributes(
+                                    api_attrs, device.type
+                                )
+                                device.attributes.update(normalized_attrs)
 
-                            # If door is now closed, stop polling
-                            if not door_opened:
-                                _LOGGER.info("🔄 POLLING: 🚪⬅️ Door '%s' CLOSED (detected via fast polling @ %dms) ✅",
-                                           device.name if device_id in space.devices else device_id,
-                                           poll_interval * 1000)
-                                # Notify HA of the change
-                                self.async_set_updated_data(self.account)
-                                # Remove from fast poll tasks
-                                if device_id in self._fast_poll_tasks:
-                                    del self._fast_poll_tasks[device_id]
-                                break
-                            else:
-                                _LOGGER.debug("🔄 POLLING: Door '%s' still OPENED (polling @ %dms)",
-                                            device.name if device_id in space.devices else device_id,
-                                            poll_interval * 1000)
+                                # Check door state (after normalization)
+                                door_opened = device.attributes.get("door_opened", False)
+
+                                if not door_opened:
+                                    self.async_set_updated_data(self.account)
+                                    if device_id in self._fast_poll_tasks:
+                                        del self._fast_poll_tasks[device_id]
+                                    break
 
                     if not device_found:
-                        _LOGGER.warning("Device %s not found in API response", device_id)
                         break
 
                 except Exception as err:
                     _LOGGER.error("Error in fast polling for door sensor %s: %s", device_id, err)
 
-                # Wait before next poll
                 await asyncio.sleep(poll_interval)
 
         except asyncio.CancelledError:
-            _LOGGER.info("Fast polling cancelled for door sensor %s", device_id)
             raise
         finally:
-            # Clean up task from dictionary
             if device_id in self._fast_poll_tasks:
                 del self._fast_poll_tasks[device_id]
 
     async def _async_poll_wire_inputs(self, space_id: str) -> None:
-        """Poll wire_input devices every 10 seconds to get their states.
-
-        Wire_input (EOL sensors) states are not transmitted via streaming API,
-        so we need to poll them periodically.
-        """
+        """Poll wire_input devices every 10 seconds to get their states."""
         poll_interval = 10  # seconds
-        _LOGGER.info("Starting wire_input polling for space %s (interval: %ds)", space_id, poll_interval)
 
         try:
             while True:
                 try:
-                    # Get fresh device data from API
                     devices_data = await self.api.async_get_devices(space_id)
 
                     if not devices_data:
-                        _LOGGER.debug("No devices returned from polling for space %s", space_id)
                         await asyncio.sleep(poll_interval)
                         continue
 
-                    # Update only wire_input devices
                     space = self.account.spaces.get(space_id)
                     if space:
                         updated_count = 0
@@ -283,158 +233,42 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                             device_id = device_data.get("id")
                             device_type = device_data.get("type")
 
-                            # Only process wire_input devices
                             if device_type != "wire_input" or not device_id:
                                 continue
 
-                            # Check if device exists in our data
                             existing_device = space.devices.get(device_id)
                             if not existing_device:
                                 continue
 
-                            # Log all attributes for debugging wire_input
-                            _LOGGER.debug(
-                                "Wire_input '%s' polling data: %s",
-                                device_data.get("name", "unknown"),
-                                device_data.get("attributes", {})
+                            # Normalize attributes from API
+                            api_attrs = device_data.get("attributes", {})
+                            normalized_attrs = self._normalize_device_attributes(
+                                api_attrs, existing_device.type
                             )
 
-                            # Check if door_opened state changed
-                            new_door_opened = device_data.get("attributes", {}).get("door_opened", False)
+                            new_door_opened = normalized_attrs.get("door_opened", False)
                             old_door_opened = existing_device.attributes.get("door_opened", False)
 
-                            # Also check external_contact_opened
-                            new_external_opened = device_data.get("attributes", {}).get("external_contact_opened")
+                            new_external_opened = normalized_attrs.get("external_contact_opened")
                             old_external_opened = existing_device.attributes.get("external_contact_opened")
 
                             if new_door_opened != old_door_opened or (new_external_opened is not None and new_external_opened != old_external_opened):
-                                _LOGGER.info(
-                                    "Wire_input '%s' state changed: %s -> %s",
-                                    existing_device.name,
-                                    "open" if old_door_opened else "closed",
-                                    "open" if new_door_opened else "closed"
-                                )
-                                # Update the device attributes
-                                existing_device.attributes["door_opened"] = new_door_opened
-                                if new_external_opened is not None:
-                                    existing_device.attributes["external_contact_opened"] = new_external_opened
+                                existing_device.attributes.update(normalized_attrs)
                                 updated_count += 1
 
-                        # Notify Home Assistant of changes if any updates occurred
                         if updated_count > 0:
-                            _LOGGER.debug("Updated %d wire_input device(s), notifying listeners", updated_count)
                             self.async_update_listeners()
 
                 except asyncio.CancelledError:
-                    _LOGGER.info("Wire_input polling cancelled for space %s", space_id)
                     raise
 
                 except Exception as err:
-                    _LOGGER.error("Error polling wire_input devices for space %s: %s", space_id, err, exc_info=True)
+                    _LOGGER.error("Error polling wire_input devices for space %s: %s", space_id, err)
 
-                # Wait before next poll
                 await asyncio.sleep(poll_interval)
 
         except asyncio.CancelledError:
-            _LOGGER.info("Wire_input polling stopped for space %s", space_id)
             raise
-
-    async def _async_process_device_update(self, space_id: str, update: dict) -> None:
-        """Process a device status update from the stream."""
-        try:
-            update_type = update.get("type")
-
-            # Process snapshot (full device state)
-            # Snapshots arrive périodiquement (~60s) avec l'état complet de tous les devices
-            # C'est le seul moyen de détecter la fermeture de porte en temps réel
-            if update_type == "snapshot":
-                _LOGGER.debug("Processing device snapshot for space %s", space_id)
-                devices = update.get("devices", [])
-
-                space = self.account.spaces.get(space_id)
-                if not space:
-                    return
-
-                # Update all devices from snapshot
-                for device_data in devices:
-                    device_id = device_data.get("id")
-                    if not device_id or device_id not in space.devices:
-                        continue
-
-                    device = space.devices[device_id]
-                    attributes = device_data.get("attributes", {})
-
-                    # Update door_opened state from snapshot
-                    # If door_opened is not in attributes, it means the door is closed
-                    old_door_state = device.attributes.get("door_opened", False)
-                    new_door_state = attributes.get("door_opened", False)
-
-                    if old_door_state != new_door_state:
-                        device.attributes["door_opened"] = new_door_state
-                        state_str = "opened" if new_door_state else "closed"
-                        _LOGGER.debug("Device '%s': Door %s (via snapshot)", device.name, state_str)
-                        # Notify Home Assistant of change
-                        self.async_set_updated_data(self.account)
-
-                return
-
-            # Process real-time update
-            if update_type == "update":
-                update_data = update.get("data", {})
-                device_id = update_data.get("device_id")
-                status_data = update_data.get("status", {})
-
-                if not device_id or not status_data:
-                    return
-
-                # Get the device
-                space = self.account.spaces.get(space_id)
-                if not space:
-                    return
-
-                device = space.devices.get(device_id)
-                if not device:
-                    return
-
-                # Update device attributes based on status data
-                updated = False
-
-                # Motion detected
-                if "motion_detected" in status_data:
-                    device.attributes["motion_detected"] = status_data["motion_detected"]
-                    if "motion_detected_at" in status_data:
-                        device.attributes["motion_detected_at"] = status_data["motion_detected_at"].isoformat()
-                    _LOGGER.debug("Device '%s': Motion status updated via stream: %s", device.name, status_data["motion_detected"])
-                    updated = True
-
-                # Door opened/closed
-                if "door_opened" in status_data:
-                    old_state = device.attributes.get("door_opened", False)
-                    new_state = status_data["door_opened"]
-                    if old_state != new_state:
-                        device.attributes["door_opened"] = new_state
-                        state_str = "opened" if new_state else "closed"
-                        _LOGGER.debug("Device '%s': Door %s (via stream)", device.name, state_str)
-                        updated = True
-
-                        # Start fast polling when door opens to quickly detect closure
-                        if new_state and device_id not in self._fast_poll_tasks:
-                            _LOGGER.info("🔄 POLLING: 🚪➡️ Door '%s' OPENED, starting fast polling @ 500ms", device.name)
-                            task = asyncio.create_task(self._async_fast_poll_door_sensor(space_id, device_id))
-                            self._fast_poll_tasks[device_id] = task
-                        # Cancel fast polling if door closed (detected via stream or snapshot)
-                        elif not new_state and device_id in self._fast_poll_tasks:
-                            _LOGGER.info("🔄 POLLING: 🚪⬅️ Door '%s' CLOSED (via stream), cancelling fast polling", device.name)
-                            task = self._fast_poll_tasks[device_id]
-                            task.cancel()
-                            del self._fast_poll_tasks[device_id]
-
-                # Notify Home Assistant of changes
-                if updated:
-                    self.async_set_updated_data(self.account)
-
-        except Exception as err:
-            _LOGGER.error("Error processing device update for space %s: %s", space_id, err, exc_info=True)
 
     async def _async_init_account(self) -> None:
         """Initialize the account data."""
@@ -448,6 +282,72 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         )
 
         _LOGGER.info("Initialized account for %s", self.account.name)
+
+    async def _async_init_sqs(self) -> None:
+        """Initialize AWS SQS for real-time events (optional).
+
+        SQS provides real-time event notifications (<1s latency) that trigger
+        immediate REST API updates. This creates a hybrid mode:
+        - SQS events: Real-time triggers for instant state updates
+        - REST polling: Baseline updates every 30s as fallback
+
+        Note:
+            Requires aiobotocore package and AWS credentials.
+            If SQS fails to initialize, integration falls back to REST-only mode.
+        """
+        # Check if SQS is available
+        if not SQS_AVAILABLE:
+            _LOGGER.info(
+                "AWS SQS not available (aiobotocore not installed). "
+                "Using REST API polling only."
+            )
+            self._sqs_initialized = True  # Mark as "initialized" to prevent retries
+            return
+
+        # Check if credentials are provided
+        if not self._aws_access_key_id or not self._aws_secret_access_key or not self._queue_name:
+            _LOGGER.debug("AWS credentials not configured. Using REST API polling only.")
+            self._sqs_initialized = True
+            return
+
+        try:
+            _LOGGER.info("Initializing AWS SQS for real-time events...")
+
+            # Create SQS client
+            sqs_client = AjaxSQSClient(
+                aws_access_key_id=self._aws_access_key_id,
+                aws_secret_access_key=self._aws_secret_access_key,
+                queue_name=self._queue_name,
+            )
+
+            # Create SQS manager
+            self.sqs_manager = SQSManager(
+                coordinator=self,
+                sqs_client=sqs_client,
+            )
+
+            # Start receiving events
+            success = await self.sqs_manager.start()
+
+            if success:
+                _LOGGER.info(
+                    "✓ AWS SQS initialized successfully - Real-time events enabled!"
+                )
+            else:
+                _LOGGER.warning(
+                    "Failed to start SQS - Falling back to REST API polling only"
+                )
+                self.sqs_manager = None
+
+        except Exception as err:
+            _LOGGER.warning(
+                "Failed to initialize AWS SQS: %s - Using REST API polling only",
+                err,
+            )
+            self.sqs_manager = None
+
+        finally:
+            self._sqs_initialized = True
 
     async def _async_update_spaces(self) -> None:
         """Update all spaces (hubs/systems)."""
@@ -535,8 +435,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                         device.name,
                         device_id,
                     )
-                else:
-                    _LOGGER.debug("Added new device: %s (%s)", device.name, device.type.value)
             else:
                 device = space.devices[device_id]
                 # Update raw_type in case it changed
@@ -560,7 +458,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
             # Update device attributes dict
             if "attributes" in device_data:
-                device.attributes.update(device_data["attributes"])
+                # Normalize API attributes to internal format
+                normalized_attrs = self._normalize_device_attributes(
+                    device_data["attributes"], device.type
+                )
+                device.attributes.update(normalized_attrs)
             # Update room association
             if device.room_id and device.room_id in space.rooms:
                 room = space.rooms[device.room_id]
@@ -570,7 +472,69 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         # Log summary of devices loaded
         if new_devices_count > 0:
             _LOGGER.info("Discovered %d new device(s) in space %s", new_devices_count, space_id)
-        _LOGGER.debug("Total devices in space %s: %d", space_id, len(space.devices))
+
+    def _normalize_device_attributes(
+        self, api_attributes: dict[str, Any], device_type: DeviceType
+    ) -> dict[str, Any]:
+        """Normalize Ajax API attributes to internal format.
+
+        The Ajax API uses specific attribute names (e.g., reedClosed) that we
+        normalize to more intuitive names (e.g., door_opened) for internal use.
+
+        Args:
+            api_attributes: Raw attributes from Ajax API
+            device_type: Type of device
+
+        Returns:
+            Normalized attributes dict
+        """
+        normalized = dict(api_attributes)  # Start with original attributes
+
+        # Log API attributes for debugging (only for door contacts initially)
+        if device_type in [DeviceType.DOOR_CONTACT, DeviceType.WIRE_INPUT]:
+            _LOGGER.debug(
+                "Normalizing %s attributes: %s",
+                device_type.value,
+                list(api_attributes.keys())
+            )
+
+        # Door contacts: Support both API formats
+        if device_type in [DeviceType.DOOR_CONTACT, DeviceType.WIRE_INPUT]:
+            # If API already provides door_opened, use it directly
+            if "door_opened" not in api_attributes and "reedClosed" in api_attributes:
+                # Convert reedClosed (False=open) to door_opened (True=open)
+                # Invert the logic: reedClosed=False means door is open
+                normalized["door_opened"] = not api_attributes["reedClosed"]
+
+            # External contact: Support both formats
+            if "external_contact_opened" not in api_attributes and "extraContactClosed" in api_attributes:
+                # Convert extraContactClosed to external_contact_opened
+                # extraContactClosed=False means contact is open (alarm state)
+                normalized["external_contact_opened"] = not api_attributes["extraContactClosed"]
+
+        # Motion detectors: Support both camelCase and snake_case
+        if device_type == DeviceType.MOTION_DETECTOR:
+            if "motion_detected" not in api_attributes and "motionDetected" in api_attributes:
+                normalized["motion_detected"] = api_attributes["motionDetected"]
+            if "motion_detected_at" not in api_attributes and "motionDetectedAt" in api_attributes:
+                normalized["motion_detected_at"] = api_attributes["motionDetectedAt"]
+
+        # Smoke detectors: Support both formats
+        if device_type == DeviceType.SMOKE_DETECTOR:
+            if "smoke_detected" not in api_attributes and "smokeDetected" in api_attributes:
+                normalized["smoke_detected"] = api_attributes["smokeDetected"]
+
+        # Flood detectors: Support both formats
+        if device_type == DeviceType.FLOOD_DETECTOR:
+            if "leak_detected" not in api_attributes and "leakDetected" in api_attributes:
+                normalized["leak_detected"] = api_attributes["leakDetected"]
+
+        # Glass break detectors: Support both formats
+        if device_type == DeviceType.GLASS_BREAK:
+            if "glass_break_detected" not in api_attributes and "glassBreakDetected" in api_attributes:
+                normalized["glass_break_detected"] = api_attributes["glassBreakDetected"]
+
+        return normalized
 
     def _reset_expired_motion_detections(self, space: AjaxSpace) -> None:
         """Reset motion_detected to False for motion detectors if no recent detection.
@@ -598,26 +562,17 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # Get last detection time
             last_detected_at = device.attributes.get("motion_detected_at")
             if not last_detected_at:
-                # No timestamp, reset immediately
                 device.attributes["motion_detected"] = False
-                _LOGGER.debug("Device '%s': Motion reset (no timestamp)", device.name)
                 continue
 
             # Parse timestamp
             try:
                 last_detected = datetime.fromisoformat(last_detected_at)
-                # Make timezone-aware if needed
                 if last_detected.tzinfo is None:
                     last_detected = last_detected.replace(tzinfo=timezone.utc)
 
-                # Check if expired
                 if (now - last_detected).total_seconds() > expiry_seconds:
                     device.attributes["motion_detected"] = False
-                    _LOGGER.debug(
-                        "Device '%s': Motion reset (expired after %d seconds)",
-                        device.name,
-                        expiry_seconds
-                    )
             except (ValueError, TypeError) as err:
                 _LOGGER.warning(
                     "Failed to parse motion_detected_at timestamp for %s: %s",
@@ -665,22 +620,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
                 space.notifications.append(notification)
 
-                # Note: We do NOT update device state from historical notifications
-                # Device state comes from the real-time device snapshot only
-                # Real-time notification updates happen via AWS SQS events
-
             # Update unread count
             space.unread_notifications = sum(1 for n in space.notifications if not n.read)
 
-            _LOGGER.info(
-                "Updated notifications for space %s: %d total, %d unread",
-                space_id,
-                len(space.notifications),
-                space.unread_notifications,
-            )
-
         except Exception as err:
-            _LOGGER.error("Error updating notifications for space %s: %s", space_id, err, exc_info=True)
+            _LOGGER.error("Error updating notifications for space %s: %s", space_id, err)
 
     def _parse_notification_type(self, event_type: str | None) -> NotificationType:
         """Parse notification type from event type string."""
@@ -839,13 +783,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         # Fire the event
         self.hass.bus.async_fire(ha_event_name, event_data)
 
-        _LOGGER.debug(
-            "Fired event '%s' for device %s in room %s",
-            ha_event_name,
-            device_name,
-            room_name or "unknown",
-        )
-
     def _fire_security_state_event(
         self,
         space: AjaxSpace,
@@ -894,14 +831,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         # Fire the event
         self.hass.bus.async_fire(event_name, event_data)
 
-        _LOGGER.debug(
-            "Fired event '%s' for space %s: %s -> %s",
-            event_name,
-            space.name,
-            old_state.value,
-            new_state.value,
-        )
-
     def _update_device_from_notification(self, space: AjaxSpace, notification: AjaxNotification) -> None:
         """Update device state based on notification event."""
 
@@ -913,7 +842,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             return
 
         event_type = notification.title.lower()
-        _LOGGER.debug("Updating device %s from notification: %s", device.name, event_type)
 
         # Update device attributes based on event type
         if "motion" in event_type or "mouvement" in event_type:
@@ -922,39 +850,29 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["motion_detected"] = True
                 device.attributes["motion_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.debug("Device '%s': Motion detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["motion_detected"] = False
-                _LOGGER.debug("Device '%s': Motion cleared", device.name)
 
         elif "door" in event_type or "porte" in event_type:
             # Door sensor event
             if "opened" in event_type or "open" in event_type or "ouvert" in event_type:
                 device.attributes["door_opened"] = True
-                _LOGGER.debug("Device '%s': Door opened", device.name)
 
                 # Start fast polling when door opens to quickly detect closure
                 device_id = notification.device_id
-                # Clean up any finished task first
                 if device_id in self._fast_poll_tasks and self._fast_poll_tasks[device_id].done():
-                    _LOGGER.debug("Removing finished fast poll task for device %s", device_id)
                     del self._fast_poll_tasks[device_id]
 
                 if device_id not in self._fast_poll_tasks:
-                    _LOGGER.debug("Door opened, starting fast polling for device %s", device_id)
                     task = asyncio.create_task(self._async_fast_poll_door_sensor(space.id, device_id))
                     self._fast_poll_tasks[device_id] = task
-                else:
-                    _LOGGER.debug("Fast polling already running for device %s", device_id)
 
             elif "closed" in event_type or "close" in event_type or "fermé" in event_type:
                 device.attributes["door_opened"] = False
-                _LOGGER.debug("Device '%s': Door closed", device.name)
 
                 # Cancel fast polling if door closed
                 device_id = notification.device_id
                 if device_id in self._fast_poll_tasks:
-                    _LOGGER.debug("Door closed, cancelling fast polling for device %s", device_id)
                     task = self._fast_poll_tasks[device_id]
                     task.cancel()
                     del self._fast_poll_tasks[device_id]
@@ -963,10 +881,8 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # Window sensor event (use same attribute as door)
             if "opened" in event_type or "open" in event_type:
                 device.attributes["door_opened"] = True
-                _LOGGER.debug("Device '%s': Window opened", device.name)
             elif "closed" in event_type or "close" in event_type:
                 device.attributes["door_opened"] = False
-                _LOGGER.debug("Device '%s': Window closed", device.name)
 
         elif "glass" in event_type or "verre" in event_type or "vitre" in event_type:
             # Glass break event
@@ -974,7 +890,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["glass_break_detected"] = True
                 device.attributes["glass_break_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.debug("Device '%s': Glass break detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["glass_break_detected"] = False
 
@@ -984,7 +899,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["smoke_detected"] = True
                 device.attributes["smoke_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.debug("Device '%s': Smoke detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["smoke_detected"] = False
 
@@ -994,31 +908,22 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device.attributes["leak_detected"] = True
                 device.attributes["leak_detected_at"] = notification.timestamp.isoformat()
                 device.last_trigger_time = notification.timestamp.isoformat()
-                _LOGGER.debug("Device '%s': Leak detected", device.name)
             elif "cleared" in event_type or "norm" in event_type:
                 device.attributes["leak_detected"] = False
-
-        # Tamper detection removed - was causing issues with buggy sensors
 
         elif "external_contact" in event_type or "external contact" in event_type:
             # External contact event (for EOL/wire_input sensors)
             if "lost" in event_type or "open" in event_type:
-                # Contact lost = door/window opened or wire disconnected
                 device.attributes["door_opened"] = True
                 device.attributes["external_contact_state"] = "lost"
-                _LOGGER.debug("Device '%s': External contact lost (opened)", device.name)
             elif "ok" in event_type or "closed" in event_type:
-                # Contact OK = door/window closed or wire connected
                 device.attributes["door_opened"] = False
                 device.attributes["external_contact_state"] = "ok"
-                _LOGGER.debug("Device '%s': External contact OK (closed)", device.name)
             elif "short" in event_type or "circuit" in event_type:
-                # Short circuit fault
                 device.attributes["external_contact_state"] = "short_circuit"
                 device.attributes["problem"] = True
                 _LOGGER.warning("Device '%s': External contact short circuit", device.name)
             elif "fault" in event_type or "resistance" in event_type:
-                # Resistance fault or hard fault
                 device.attributes["external_contact_state"] = "fault"
                 device.attributes["problem"] = True
                 _LOGGER.warning("Device '%s': External contact fault", device.name)
@@ -1032,7 +937,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 _LOGGER.warning("Hub '%s': Battery disconnected", device.name)
             elif "battery" in event_type and ("connect" in event_type or "reconnect" in event_type or "ok" in event_type):
                 device.attributes["battery_disconnected"] = False
-                _LOGGER.debug("Hub '%s': Battery reconnected", device.name)
 
             # External power loss event
             elif "power" in event_type or "alimentation" in event_type:
@@ -1044,7 +948,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 elif "restored" in event_type or "ok" in event_type or "rétabli" in event_type:
                     device.attributes["external_power_loss"] = False
                     device.attributes["externally_powered"] = True
-                    _LOGGER.debug("Hub '%s': External power restored", device.name)
 
             # Cellular/GSM signal events
             elif "cellular" in event_type or "gsm" in event_type or "signal" in event_type or "cellulaire" in event_type:
@@ -1054,7 +957,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     _LOGGER.warning("Hub '%s': Cellular signal low", device.name)
                 elif "ok" in event_type or "normal" in event_type or "restored" in event_type:
                     device.attributes["cellular_signal_low"] = False
-                    _LOGGER.debug("Hub '%s': Cellular signal restored", device.name)
 
             # GSM antenna events
             elif "antenna" in event_type or "antenne" in event_type:
@@ -1070,7 +972,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 elif "connect" in event_type or "ok" in event_type:
                     device.attributes["gsm_antenna_damaged"] = False
                     device.attributes["gsm_antenna_disconnected"] = False
-                    _LOGGER.debug("Hub '%s': GSM antenna OK", device.name)
 
             # Jeweller/Wings noise events
             elif "noise" in event_type or "bruit" in event_type:
@@ -1086,10 +987,8 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 elif "ok" in event_type or "normal" in event_type:
                     if "jeweller" in event_type:
                         device.attributes["jeweller_noise_high"] = False
-                        _LOGGER.debug("Hub '%s': Jeweller noise normal", device.name)
                     elif "wings" in event_type:
                         device.attributes["wings_noise_high"] = False
-                        _LOGGER.debug("Hub '%s': Wings noise normal", device.name)
 
             # Software/System fault events
             elif "software" in event_type or "system" in event_type or "logiciel" in event_type or "système" in event_type:
@@ -1100,7 +999,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     _LOGGER.error("Hub '%s': System fault detected", device.name)
                 elif "ok" in event_type or "cleared" in event_type or "résolu" in event_type:
                     device.attributes["system_fault"] = False
-                    _LOGGER.debug("Hub '%s': System fault cleared", device.name)
 
             # CMS connection loss events
             elif "cms" in event_type or "monitoring" in event_type or "télésurveillance" in event_type:
@@ -1110,7 +1008,6 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     _LOGGER.warning("Hub '%s': CMS connection loss", device.name)
                 elif "restored" in event_type or "ok" in event_type or "rétabli" in event_type:
                     device.attributes["cms_connection_loss"] = False
-                    _LOGGER.debug("Hub '%s': CMS connection restored", device.name)
 
     def _parse_security_state(self, state_value: Any) -> SecurityState:
         """Parse security state from API response."""
@@ -1392,52 +1289,16 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         return space.rooms.get(room_id) if space else None
 
     async def async_shutdown(self) -> None:
-        """Shutdown the coordinator."""
+        """Shutdown the coordinator and cleanup resources."""
         _LOGGER.info("Shutting down Ajax coordinator")
 
-        # Stop all streaming tasks
-        for space_id, task in self._streaming_tasks.items():
-            if not task.done():
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-
-        self._streaming_tasks.clear()
-
-        # Stop all notification streaming tasks
-        for space_id, task in self._notification_streaming_tasks.items():
-            if not task.done():
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-
-        self._notification_streaming_tasks.clear()
-
-        # Stop all device streaming tasks
-        for space_id, task in self._device_streaming_tasks.items():
-            if not task.done():
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-
-        self._device_streaming_tasks.clear()
-
-        # Stop all device-specific streaming tasks
-        for device_id, task in self._specific_device_streams.items():
-            if not task.done():
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-
-        self._specific_device_streams.clear()
+        # Stop SQS Manager (real-time events)
+        if self.sqs_manager:
+            try:
+                _LOGGER.debug("Stopping AWS SQS Manager...")
+                await self.sqs_manager.stop()
+            except Exception as err:
+                _LOGGER.error("Error stopping SQS Manager: %s", err)
 
         # Stop all wire_input polling tasks
         for space_id, task in self._wire_input_polling_tasks.items():
@@ -1449,6 +1310,17 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     pass
 
         self._wire_input_polling_tasks.clear()
+
+        # Stop all fast poll tasks
+        for device_id, task in self._fast_poll_tasks.items():
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+
+        self._fast_poll_tasks.clear()
 
         # Close API connection
         await self.api.close()
