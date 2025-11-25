@@ -132,6 +132,12 @@ class SQSManager:
         if should_fast_poll:
             _LOGGER.debug("Event triggers fast poll: %s", event["action"])
 
+        # Fire Home Assistant event for all Ajax events
+        await self._fire_ha_event(event)
+
+        # Update device state directly for real-time response
+        await self._update_device_state(event)
+
         # Always trigger an immediate coordinator refresh for real-time updates
         await self.coordinator.async_request_refresh()
 
@@ -184,11 +190,36 @@ class SQSManager:
         Args:
             event: Parsed arming event
         """
-        action = event["action"]
-        _LOGGER.info("Hub arming state changed: %s", action)
+        from .models import SecurityState
 
-        # Trigger hub state update
-        await self.coordinator.async_request_refresh()
+        action = event["action"]
+        hub_id = event.get("hub_id")
+
+        _LOGGER.info("Hub arming state changed: %s (hub: %s)", action, hub_id)
+
+        # Update space security state directly from SQS event
+        if hub_id and self.coordinator.account:
+            space = self.coordinator.account.spaces.get(hub_id)
+            if space:
+                old_state = space.security_state
+
+                # Map SQS action to SecurityState
+                action_lower = action.lower()
+                if "disarm" in action_lower:
+                    space.security_state = SecurityState.DISARMED
+                elif "night" in action_lower:
+                    space.security_state = SecurityState.NIGHT_MODE
+                elif "arm" in action_lower:
+                    space.security_state = SecurityState.ARMED
+
+                _LOGGER.info(
+                    "Updated security state from SQS: %s -> %s",
+                    old_state,
+                    space.security_state,
+                )
+
+                # Notify Home Assistant of the state change immediately
+                self.coordinator.async_set_updated_data(self.coordinator.account)
 
     async def _handle_malfunction_event(self, event: dict[str, Any]) -> None:
         """Handle malfunction event.
@@ -227,6 +258,109 @@ class SQSManager:
 
         # Trigger device update
         await self.coordinator.async_request_refresh()
+
+    async def _fire_ha_event(self, event: dict[str, Any]) -> None:
+        """Fire a Home Assistant event for Ajax events.
+
+        Args:
+            event: Parsed event dict
+        """
+        if not hasattr(self.coordinator, "hass"):
+            return
+
+        action = event.get("action", "unknown")
+        event_type = event.get("event_type", "unknown")
+
+        # Map action to HA event type
+        ha_event_type = "ajax_event"
+        if action in ["motion_detected"]:
+            ha_event_type = "ajax_motion"
+        elif action in ["door_opened", "external_contact_opened"]:
+            ha_event_type = "ajax_door"
+        elif action in ["smoke_detected", "temperature_alarm", "co_detected"]:
+            ha_event_type = "ajax_fire"
+        elif action in ["leak_detected"]:
+            ha_event_type = "ajax_water"
+        elif action in ["glass_break_detected"]:
+            ha_event_type = "ajax_glass_break"
+        elif self.parser.is_alarm_event(event):
+            ha_event_type = "ajax_alarm"
+        elif self.parser.is_arming_event(event):
+            ha_event_type = "ajax_arming"
+
+        event_data = {
+            "action": action,
+            "event_type": event_type,
+            "source_name": event.get("source_name"),
+            "hub_id": event.get("hub_id"),
+            "is_active": event.get("is_active", False),
+            "timestamp": event.get("timestamp"),
+        }
+
+        # Add device_id if available
+        device_id = self.parser.get_device_id_from_event(event)
+        if device_id:
+            event_data["device_id"] = device_id
+
+        self.coordinator.hass.bus.async_fire(ha_event_type, event_data)
+        _LOGGER.debug("Fired HA event: %s with data: %s", ha_event_type, event_data)
+
+    async def _update_device_state(self, event: dict[str, Any]) -> None:
+        """Update device state directly from SQS event for real-time response.
+
+        Args:
+            event: Parsed event dict
+        """
+        action = event.get("action", "")
+        source_name = event.get("source_name", "")
+        hub_id = event.get("hub_id")
+        is_active = event.get("is_active", False)
+
+        if not hub_id or not self.coordinator.account:
+            return
+
+        # Find the space
+        space = self.coordinator.account.spaces.get(hub_id)
+        if not space:
+            return
+
+        # Find device by name
+        device = None
+        for dev in space.devices.values():
+            if dev.name == source_name:
+                device = dev
+                break
+
+        if not device:
+            _LOGGER.debug("Device not found for SQS event: %s", source_name)
+            return
+
+        # Update device state based on action
+        from datetime import datetime, timezone
+        from .models import AjaxNotification, NotificationType
+
+        # Create a notification to track the event
+        notification = AjaxNotification(
+            id=event.get("event_id", ""),
+            space_id=hub_id,
+            type=NotificationType.ALARM if self.parser.is_alarm_event(event) else NotificationType.SECURITY_EVENT,
+            title=action,
+            message=f"{action} from {source_name}",
+            timestamp=datetime.fromtimestamp(event.get("timestamp", 0), tz=timezone.utc) if event.get("timestamp") else datetime.now(timezone.utc),
+            device_id=device.id,
+            device_name=device.name,
+        )
+
+        device.last_notification = notification
+        if is_active:
+            device.last_trigger_time = datetime.now(timezone.utc)
+
+        _LOGGER.info(
+            "Updated device %s state from SQS: %s (active=%s)",
+            device.name,
+            action,
+            is_active,
+        )
 
     @property
     def is_enabled(self) -> bool:

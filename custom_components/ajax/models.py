@@ -128,6 +128,7 @@ class AjaxDevice:
     hub_id: str
     raw_type: str | None = None  # Raw device type before parsing (for debugging unknown devices)
     room_id: str | None = None
+    room_name: str | None = None
     group_id: str | None = None
 
     # Status
@@ -159,7 +160,7 @@ class AjaxDevice:
     photo_urls: list[str] = field(default_factory=list)
 
     # Metadata
-    device_color: int | None = None
+    device_color: str | None = None
     device_label: str | None = None
     device_marketing_id: str | None = None
 

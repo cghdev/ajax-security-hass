@@ -77,7 +77,6 @@ class AjaxSQSClient:
         self.event_callback = event_callback
 
         self._session = get_session()
-        self._client = None
         self._queue_url: str | None = None
         self._running = False
         self._receive_task: asyncio.Task | None = None
@@ -89,6 +88,15 @@ class AjaxSQSClient:
             _mask_credentials(aws_access_key_id),
         )
 
+    def _create_client(self):
+        """Create a new SQS client context manager."""
+        return self._session.create_client(
+            "sqs",
+            region_name=AWS_REGION,
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+        )
+
     async def connect(self) -> bool:
         """Connect to SQS and get queue URL.
 
@@ -96,15 +104,8 @@ class AjaxSQSClient:
             True if connection successful, False otherwise
         """
         try:
-            self._client = self._session.create_client(
-                "sqs",
-                region_name=AWS_REGION,
-                aws_access_key_id=self.aws_access_key_id,
-                aws_secret_access_key=self.aws_secret_access_key,
-            )
-
-            # Get queue URL
-            async with self._client as client:
+            # Get queue URL using a fresh client
+            async with self._create_client() as client:
                 response = await client.get_queue_url(QueueName=self.queue_name)
                 self._queue_url = response["QueueUrl"]
 
@@ -177,11 +178,12 @@ class AjaxSQSClient:
 
     async def _receive_messages(self) -> None:
         """Receive and process messages from SQS."""
-        if not self._client or not self._queue_url:
+        if not self._queue_url:
             return
 
         try:
-            async with self._client as client:
+            # Create a fresh client for each receive operation
+            async with self._create_client() as client:
                 response = await client.receive_message(
                     QueueUrl=self._queue_url,
                     MaxNumberOfMessages=SQS_MAX_MESSAGES,
@@ -196,7 +198,7 @@ class AjaxSQSClient:
                 _LOGGER.debug("Received %d messages from SQS", len(messages))
 
                 for message in messages:
-                    await self._process_message(message)
+                    await self._process_message(client, message)
 
         except ClientError as err:
             error_code = err.response.get("Error", {}).get("Code", "Unknown")
@@ -204,10 +206,11 @@ class AjaxSQSClient:
         except Exception as err:
             _LOGGER.error("Unexpected error receiving SQS messages: %s", err)
 
-    async def _process_message(self, message: dict[str, Any]) -> None:
+    async def _process_message(self, client: Any, message: dict[str, Any]) -> None:
         """Process a single SQS message.
 
         Args:
+            client: SQS client instance
             message: SQS message dict
         """
         receipt_handle = message.get("ReceiptHandle")
@@ -218,10 +221,9 @@ class AjaxSQSClient:
             body = message.get("Body", "{}")
             event_data = json.loads(body)
 
-            _LOGGER.debug(
-                "Processing Ajax event: %s (type: %s)",
-                message_id,
-                event_data.get("eventType", "unknown"),
+            _LOGGER.info(
+                "SQS RAW EVENT: %s",
+                json.dumps(event_data, default=str),
             )
 
             # Call event callback
@@ -229,7 +231,7 @@ class AjaxSQSClient:
                 await self.event_callback(event_data)
 
             # Delete message from queue (acknowledge)
-            await self._delete_message(receipt_handle)
+            await self._delete_message(client, receipt_handle)
 
         except json.JSONDecodeError as err:
             _LOGGER.error(
@@ -246,21 +248,21 @@ class AjaxSQSClient:
             )
             # Don't delete messages that failed processing
 
-    async def _delete_message(self, receipt_handle: str) -> None:
+    async def _delete_message(self, client: Any, receipt_handle: str) -> None:
         """Delete message from SQS queue.
 
         Args:
+            client: SQS client instance
             receipt_handle: Message receipt handle
         """
-        if not self._client or not self._queue_url:
+        if not self._queue_url or not receipt_handle:
             return
 
         try:
-            async with self._client as client:
-                await client.delete_message(
-                    QueueUrl=self._queue_url,
-                    ReceiptHandle=receipt_handle,
-                )
+            await client.delete_message(
+                QueueUrl=self._queue_url,
+                ReceiptHandle=receipt_handle,
+            )
             _LOGGER.debug("Deleted message from SQS queue")
         except Exception as err:
             _LOGGER.error("Failed to delete SQS message: %s", err)
@@ -268,9 +270,5 @@ class AjaxSQSClient:
     async def close(self) -> None:
         """Close SQS client and cleanup resources."""
         await self.stop_receiving()
-
-        if self._client:
-            await self._client.__aexit__(None, None, None)
-            self._client = None
-
+        self._queue_url = None
         _LOGGER.info("SQS client closed")

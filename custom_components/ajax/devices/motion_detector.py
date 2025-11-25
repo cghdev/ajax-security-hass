@@ -4,6 +4,7 @@ Handles:
 - MotionProtect
 - MotionProtect Plus (with microwave sensor)
 - MotionProtect Outdoor (with dual motion detection)
+- MotionCam (with camera)
 - CombiProtect (motion + glass break)
 """
 
@@ -16,7 +17,6 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     PERCENTAGE,
-    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     UnitOfTemperature,
 )
 
@@ -36,25 +36,13 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                 "value_fn": lambda: self.device.attributes.get("motion_detected", False),
                 "enabled_by_default": True,
             },
+            # Note: "armed_in_night_mode" is now a switch, not a binary sensor
             {
-                "key": "always_active",
-                "translation_key": "always_active",
-                "icon": "mdi:moon-waning-crescent",
-                "value_fn": lambda: self.device.attributes.get("always_active", False),
-                "enabled_by_default": True,
-            },
-            {
-                "key": "armed_in_night_mode",
-                "translation_key": "armed_in_night_mode",
-                "icon": "mdi:shield-moon",
-                "value_fn": lambda: self.device.attributes.get("armed_in_night_mode", False),
-                "enabled_by_default": True,
-            },
-            {
-                "key": "problem",
-                "translation_key": "problem",
-                "device_class": BinarySensorDeviceClass.PROBLEM,
-                "value_fn": lambda: bool(self.device.malfunctions),
+                "key": "tamper",
+                "translation_key": "tamper",
+                "device_class": BinarySensorDeviceClass.TAMPER,
+                "icon": "mdi:lock-open-alert",
+                "value_fn": lambda: self.device.attributes.get("tampered", False),
                 "enabled_by_default": True,
             },
         ]
@@ -65,7 +53,8 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                 {
                     "key": "glass_break",
                     "translation_key": "glass_break",
-                    "device_class": BinarySensorDeviceClass.VIBRATION,
+                    "device_class": BinarySensorDeviceClass.SAFETY,
+                    "icon": "mdi:glass-fragile",
                     "value_fn": lambda: self.device.attributes.get("glass_break_detected", False),
                     "enabled_by_default": True,
                 }
@@ -77,35 +66,33 @@ class MotionDetectorHandler(AjaxDeviceHandler):
         """Return sensor entities for motion detectors."""
         sensors = []
 
-        # Battery level (all MotionProtect devices are battery-powered)
-        if "battery_level" in self.device.attributes:
-            sensors.append(
-                {
-                    "key": "battery",
-                    "translation_key": "battery",
-                    "device_class": SensorDeviceClass.BATTERY,
-                    "native_unit_of_measurement": PERCENTAGE,
-                    "state_class": SensorStateClass.MEASUREMENT,
-                    "value_fn": lambda: self.device.attributes.get("battery_level"),
-                    "enabled_by_default": True,
-                }
-            )
+        # Battery level - always create
+        sensors.append(
+            {
+                "key": "battery",
+                "translation_key": "battery",
+                "device_class": SensorDeviceClass.BATTERY,
+                "native_unit_of_measurement": PERCENTAGE,
+                "state_class": SensorStateClass.MEASUREMENT,
+                "value_fn": lambda: self.device.battery_level if self.device.battery_level is not None else None,
+                "enabled_by_default": True,
+            }
+        )
 
-        # Signal strength (Jeweller radio)
-        if "signal_strength" in self.device.attributes:
-            sensors.append(
-                {
-                    "key": "signal_strength",
-                    "translation_key": "signal_strength",
-                    "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
-                    "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
-                    "state_class": SensorStateClass.MEASUREMENT,
-                    "value_fn": lambda: self.device.attributes.get("signal_strength"),
-                    "enabled_by_default": True,
-                }
-            )
+        # Signal strength - always create
+        sensors.append(
+            {
+                "key": "signal_strength",
+                "translation_key": "signal_strength",
+                "icon": "mdi:signal",
+                "native_unit_of_measurement": PERCENTAGE,
+                "state_class": SensorStateClass.MEASUREMENT,
+                "value_fn": lambda: self.device.signal_strength if self.device.signal_strength is not None else None,
+                "enabled_by_default": True,
+            }
+        )
 
-        # Temperature (MotionProtect Plus has temperature sensor)
+        # Temperature
         if "temperature" in self.device.attributes:
             sensors.append(
                 {
@@ -119,39 +106,18 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                 }
             )
 
-        # Malfunctions list
-        if self.device.malfunctions:
+        # Sensitivity
+        if "sensitivity" in self.device.attributes:
             sensors.append(
                 {
-                    "key": "malfunctions",
-                    "translation_key": "malfunctions",
-                    "icon": "mdi:alert-circle",
-                    "value_fn": lambda: ", ".join(self.device.malfunctions) if self.device.malfunctions else "None",
+                    "key": "sensitivity",
+                    "translation_key": "sensitivity",
+                    "icon": "mdi:tune",
+                    "value_fn": lambda: {0: "Faible", 1: "Normal", 2: "Élevé"}.get(
+                        self.device.attributes.get("sensitivity"),
+                        self.device.attributes.get("sensitivity")
+                    ),
                     "enabled_by_default": True,
-                }
-            )
-
-        # Firmware version
-        if "firmware_version" in self.device.attributes:
-            sensors.append(
-                {
-                    "key": "firmware_version",
-                    "translation_key": "firmware_version",
-                    "icon": "mdi:chip",
-                    "value_fn": lambda: self.device.attributes.get("firmware_version"),
-                    "enabled_by_default": False,
-                }
-            )
-
-        # Noise level (MotionProtect Plus with microwave sensor)
-        if "noise_level_avg" in self.device.attributes:
-            sensors.append(
-                {
-                    "key": "noise_level_avg",
-                    "translation_key": "noise_level_avg",
-                    "icon": "mdi:waveform",
-                    "value_fn": lambda: self.device.attributes.get("noise_level_avg"),
-                    "enabled_by_default": False,
                 }
             )
 

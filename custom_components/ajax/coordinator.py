@@ -144,7 +144,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 self._initial_load_done = True
                 _LOGGER.info("Initial data load complete")
             else:
-                # Periodic update - reset expired motion detections and refresh devices
+                # Periodic update - refresh hub state and devices
+                await self._async_update_spaces_from_hubs()
+
                 for space_id in self.account.spaces.keys():
                     space = self.account.spaces.get(space_id)
                     if space:
@@ -272,22 +274,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
     async def _async_init_account(self) -> None:
         """Initialize the account data."""
-        # Get account info from GET /user endpoint
-        try:
-            account_data = await self.api.async_get_account()
-            # Swagger returns: phone, firstName, language, etc.
-            user_name = account_data.get("firstName", "Unknown")
-            user_email = account_data.get("email", self.api.email or "")
-        except Exception as err:
-            _LOGGER.warning("Could not fetch account details: %s, using login info", err)
-            account_data = {}
-            user_name = "Unknown"
-            user_email = self.api.email or ""
-
+        # Use login info directly (no /user endpoint available)
         self.account = AjaxAccount(
-            user_id=self.api.user_id or "",  # Use user_id from login response
-            name=user_name,
-            email=user_email,
+            user_id=self.api.user_id or "",
+            name=self.api.email.split("@")[0] if self.api.email else "Unknown",
+            email=self.api.email or "",
         )
 
         _LOGGER.info("Initialized account for %s (user_id: %s)", self.account.name, self.account.user_id)
@@ -403,6 +394,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
     async def _async_update_spaces_from_hubs(self) -> None:
         """Update spaces by fetching hubs directly (use hub_id as space_id)."""
         hubs_data = await self.api.async_get_hubs()
+        _LOGGER.debug("Hubs list from API: %s", hubs_data)
 
         for hub_data in hubs_data:
             hub_id = hub_data.get("hubId")
@@ -412,6 +404,15 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # Get hub details to get the name and state
             try:
                 hub_details = await self.api.async_get_hub(hub_id)
+                # Get rooms for this hub
+                try:
+                    rooms_data = await self.api.async_get_rooms(hub_id)
+                    _LOGGER.debug("Rooms for hub %s: %s", hub_id, rooms_data)
+                    # Build room_id -> room_name mapping
+                    rooms_map = {room.get("id"): room.get("roomName") for room in rooms_data if room.get("id")}
+                except Exception as room_err:
+                    _LOGGER.debug("Could not get rooms: %s", room_err)
+                    rooms_map = {}
                 # Try to get hub name from multiple possible fields
                 hub_name = (
                     hub_details.get("name")
@@ -452,26 +453,38 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 space.hub_id = hub_id
                 space.hub_details = hub_details  # Update hub information
 
-                # Update state from API unless SQS has recent activity (< 5 min)
-                should_update_from_api = True
-                if self.sqs_manager and self.sqs_manager.is_enabled:
-                    import time
-                    time_since_last_sqs = time.time() - self.sqs_manager.last_event_time
-                    _LOGGER.debug("Hub %s: time_since_last_sqs=%.0fs, should_update=%s",
-                                 hub_id, time_since_last_sqs, time_since_last_sqs >= 300)
-                    if time_since_last_sqs < 300:  # 5 minutes
-                        should_update_from_api = False
-                        _LOGGER.debug("Skipping API state update for hub %s (SQS active, last event %.0fs ago)",
-                                     hub_id, time_since_last_sqs)
+            # Store rooms mapping in space for device room name lookup
+            space._rooms_map = rooms_map  # type: ignore
 
-                if should_update_from_api:
-                    old_state = space.security_state
-                    _LOGGER.debug("Updating state from API: old=%s, new=%s", old_state, security_state)
-                    space.security_state = security_state
-                    if old_state != security_state:
-                        _LOGGER.info("Hub %s state updated from API: %s -> %s", hub_id, old_state, security_state)
-                    else:
-                        _LOGGER.debug("Hub %s state unchanged: %s", hub_id, security_state)
+            # Fetch users for this hub
+            try:
+                users_data = await self.api.async_get_users(hub_id)
+                space._users = users_data  # type: ignore
+                _LOGGER.debug("Fetched %d users for hub %s", len(users_data), hub_id)
+            except Exception as user_err:
+                _LOGGER.debug("Could not get users: %s", user_err)
+                space._users = []  # type: ignore
+
+            # Update state from API unless SQS has recent activity (< 5 min)
+            should_update_from_api = True
+            if self.sqs_manager and self.sqs_manager.is_enabled:
+                import time
+                time_since_last_sqs = time.time() - self.sqs_manager.last_event_time
+                _LOGGER.debug("Hub %s: time_since_last_sqs=%.0fs, should_update=%s",
+                             hub_id, time_since_last_sqs, time_since_last_sqs >= 300)
+                if time_since_last_sqs < 300:  # 5 minutes
+                    should_update_from_api = False
+                    _LOGGER.debug("Skipping API state update for hub %s (SQS active, last event %.0fs ago)",
+                                 hub_id, time_since_last_sqs)
+
+            if should_update_from_api:
+                old_state = space.security_state
+                _LOGGER.debug("Updating state from API: old=%s, new=%s", old_state, security_state)
+                space.security_state = security_state
+                if old_state != security_state:
+                    _LOGGER.info("Hub %s state updated from API: %s -> %s", hub_id, old_state, security_state)
+                else:
+                    _LOGGER.debug("Hub %s state unchanged: %s", hub_id, security_state)
 
     async def _async_update_devices(self, space_id: str) -> None:
         """Update devices for a specific space."""
@@ -493,6 +506,11 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             raw_device_type = device_data.get("deviceType", device_data.get("type", "unknown"))
             device_type = self._parse_device_type(raw_device_type)
 
+            # Get room_id and room_name
+            room_id = device_data.get("roomId", device_data.get("room_id"))
+            rooms_map = getattr(space, "_rooms_map", {})
+            room_name = rooms_map.get(room_id) if room_id else None
+
             # Create or update device
             if device_id not in space.devices:
                 device = AjaxDevice(
@@ -502,7 +520,8 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     space_id=space_id,
                     hub_id=device_data.get("hub_id", space.hub_id or ""),
                     raw_type=raw_device_type,
-                    room_id=device_data.get("roomId", device_data.get("room_id")),
+                    room_id=room_id,
+                    room_name=room_name,
                     group_id=device_data.get("groupId", device_data.get("group_id")),
                 )
                 space.devices[device_id] = device
@@ -521,6 +540,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 device = space.devices[device_id]
                 # Update raw_type in case it changed
                 device.raw_type = raw_device_type
+                # Update room info
+                device.room_id = room_id
+                device.room_name = room_name
 
             # Update basic device attributes from list endpoint
             device.online = device_data.get("online", True)
@@ -582,15 +604,53 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                         device.attributes["shock_sensor_aware"] = device_details.get("shockSensorAware", False)
                     if "accelerometerAware" in device_details:
                         device.attributes["accelerometer_aware"] = device_details.get("accelerometerAware", False)
+                    if "shockSensorSensitivity" in device_details:
+                        device.attributes["shock_sensor_sensitivity"] = device_details.get("shockSensorSensitivity", 0)
+                    if "accelerometerTiltDegrees" in device_details:
+                        device.attributes["accelerometer_tilt_degrees"] = device_details.get("accelerometerTiltDegrees", 5)
+                    if "ignoreSimpleImpact" in device_details:
+                        device.attributes["ignore_simple_impact"] = device_details.get("ignoreSimpleImpact", False)
+                    if "sirenTriggers" in device_details:
+                        device.attributes["siren_triggers"] = device_details.get("sirenTriggers", [])
 
                     # Sensitivity (GlassProtect, MotionProtect, etc.)
                     if "sensitivity" in device_details:
                         device.attributes["sensitivity"] = device_details.get("sensitivity")
+
+                    # Device color
+                    if "color" in device_details:
+                        device.attributes["color"] = device_details.get("color")
+
+                    # Siren specific attributes
+                    if "sirenVolumeLevel" in device_details:
+                        device.attributes["siren_volume_level"] = device_details.get("sirenVolumeLevel")
+                    if "beepVolumeLevel" in device_details:
+                        device.attributes["beep_volume_level"] = device_details.get("beepVolumeLevel")
+                    if "alarmDuration" in device_details:
+                        device.attributes["alarm_duration"] = device_details.get("alarmDuration")
+                    if "v2sirenIndicatorLightMode" in device_details:
+                        device.attributes["led_indication"] = device_details.get("v2sirenIndicatorLightMode")
+                    elif "blinkWhileArmed" in device_details:
+                        device.attributes["led_indication"] = device_details.get("blinkWhileArmed")
+
+                    # LED indicator mode (all devices)
+                    if "indicatorLightMode" in device_details:
+                        device.attributes["indicatorLightMode"] = device_details.get("indicatorLightMode")
+
+                    # Alerts by sirens setting
+                    if "alertsBySirens" in device_details:
+                        device.attributes["alertsBySirens"] = device_details.get("alertsBySirens", False)
+
+                    # MotionCam specific attributes
+                    if "imageResolution" in device_details:
+                        device.attributes["imageResolution"] = device_details.get("imageResolution")
+                    if "photosPerAlarm" in device_details:
+                        device.attributes["photosPerAlarm"] = device_details.get("photosPerAlarm")
             except Exception as err:
                 _LOGGER.debug("Could not fetch device details for %s: %s", device.name, err)
 
-            # Update device metadata
-            device.device_color = device_data.get("device_color")
+            # Update device metadata (API uses "color" not "device_color")
+            device.device_color = device_data.get("color") or device_details.get("color")
             device.device_label = device_data.get("device_label")
             device.device_marketing_id = device_data.get("device_marketing_id")
 
@@ -1317,17 +1377,17 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
     # Control methods
     # ============================================================================
 
-    async def async_arm_space(self, space_id: str, force: bool = False) -> None:
+    async def async_arm_space(self, space_id: str, force: bool = True) -> None:
         """Arm a space.
 
         Args:
             space_id: The space ID to arm
-            force: If True, ignore alarms and force arm even with open sensors or problems
+            force: If True, ignore problems and force arm even with open sensors
         """
         _LOGGER.info("Arming space %s (force=%s)", space_id, force)
 
         try:
-            await self.api.async_arm(space_id, force=force)
+            await self.api.async_arm(space_id, ignore_problems=force)
             # State will be updated via real-time stream to avoid race conditions
 
         except AjaxRestApiError as err:
@@ -1356,7 +1416,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         _LOGGER.info("Activating night mode for space %s (force=%s)", space_id, force)
 
         try:
-            await self.api.async_arm_night_mode(space_id, force=force)
+            await self.api.async_night_mode(space_id, enabled=True)
             # State will be updated via real-time stream to avoid race conditions
 
         except AjaxRestApiError as err:

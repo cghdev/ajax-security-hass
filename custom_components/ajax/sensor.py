@@ -38,19 +38,6 @@ _LOGGER = logging.getLogger(__name__)
 # ==============================================================================
 
 
-def get_device_color_name(color_code: int | None) -> str | None:
-    """Convert Ajax device color code to human-readable name."""
-    if color_code is None:
-        return None
-
-    color_map = {
-        1: "White",
-        2: "Black",
-    }
-
-    return color_map.get(color_code, f"Unknown ({color_code})")
-
-
 def format_timezone(tz_string: str | None) -> str | None:
     """Format timezone string to be more readable.
 
@@ -108,6 +95,72 @@ def format_signal_level(signal: str | None) -> str | None:
     }
 
     return signal_map.get(signal.upper(), signal.title())
+
+
+def format_event_text(event: dict) -> str:
+    """Format an SQS event into readable French text.
+
+    Args:
+        event: Event dictionary from SQS
+
+    Returns:
+        Human-readable event text like on Ajax mobile app
+    """
+    event_type = event.get("event_type", "")
+    action = event.get("action", "")
+    device_name = event.get("device_name")
+    user_name = event.get("user_name")
+    room_name = event.get("room_name")
+
+    # Event translations
+    event_messages = {
+        # Arming/Disarming
+        ("arm", "ARM"): "Armement",
+        ("arm", "DISARM"): "Désarmement",
+        ("arm", "NIGHT_MODE"): "Mode nuit activé",
+        ("arm", "PARTIAL"): "Armement partiel",
+        # Alarms
+        ("alarm", "MOTION"): "Mouvement détecté",
+        ("alarm", "OPEN"): "Ouverture détectée",
+        ("alarm", "TAMPER"): "Sabotage détecté",
+        ("alarm", "GLASS_BREAK"): "Bris de glace détecté",
+        ("alarm", "SMOKE"): "Fumée détectée",
+        ("alarm", "FLOOD"): "Inondation détectée",
+        ("alarm", "PANIC"): "Alarme panique",
+        # Device events
+        ("device", "ONLINE"): "Appareil en ligne",
+        ("device", "OFFLINE"): "Appareil hors ligne",
+        ("device", "LOW_BATTERY"): "Batterie faible",
+        ("device", "TAMPER_OPEN"): "Couvercle ouvert",
+        ("device", "TAMPER_CLOSE"): "Couvercle fermé",
+        # Hub events
+        ("hub", "POWER_ON"): "Alimentation connectée",
+        ("hub", "POWER_OFF"): "Alimentation déconnectée",
+        ("hub", "TAMPER_OPEN"): "Couvercle Hub ouvert",
+        ("hub", "TAMPER_CLOSE"): "Couvercle Hub fermé",
+    }
+
+    # Get base message
+    key = (event_type.lower(), action.upper()) if event_type and action else None
+    message = event_messages.get(key, action or event_type or "Événement")
+
+    # Add context
+    parts = [message]
+    if device_name:
+        parts.append(f"- {device_name}")
+    if room_name:
+        parts.append(f"({room_name})")
+    if user_name:
+        parts.append(f"par {user_name}")
+
+    return " ".join(parts)
+
+
+def get_last_event_text(space) -> str:
+    """Get the last event formatted as text."""
+    if not space.recent_events:
+        return "Aucun événement"
+    return format_event_text(space.recent_events[0])
 
 
 # ==============================================================================
@@ -168,12 +221,12 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda space: len(space.get_bypassed_devices()),
     ),
+    # Recent events (from SQS)
     AjaxSpaceSensorDescription(
         key="recent_events",
         translation_key="recent_events",
         icon="mdi:history",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: len(space.recent_events),
+        value_fn=lambda space: get_last_event_text(space),
     ),
     # Hub hardware information
     AjaxSpaceSensorDescription(
@@ -206,44 +259,20 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
     ),
     # Network - WiFi
     AjaxSpaceSensorDescription(
-        key="hub_wifi_ssid",
-        translation_key="hub_wifi_ssid",
+        key="hub_wifi",
+        translation_key="hub_wifi",
         icon="mdi:wifi",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("wifi", {}).get("ssid") if space.hub_details and space.hub_details.get("wifi", {}).get("enabled") else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("wifi", {}).get("enabled", False),
-    ),
-    AjaxSpaceSensorDescription(
-        key="hub_wifi_signal",
-        translation_key="hub_wifi_signal",
-        icon="mdi:wifi-strength-3",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda space: format_signal_level(space.hub_details.get("wifi", {}).get("signalLevel")) if space.hub_details and space.hub_details.get("wifi", {}).get("enabled") else None,
         should_create=lambda space: space.hub_details and space.hub_details.get("wifi", {}).get("enabled", False),
     ),
-    AjaxSpaceSensorDescription(
-        key="hub_wifi_ip",
-        translation_key="hub_wifi_ip",
-        icon="mdi:wifi",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("wifi", {}).get("ip") if space.hub_details and space.hub_details.get("wifi", {}).get("enabled") else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("wifi", {}).get("enabled", False),
-    ),
     # Network - GSM
     AjaxSpaceSensorDescription(
-        key="hub_gsm_signal",
-        translation_key="hub_gsm_signal",
-        icon="mdi:signal",
+        key="hub_gsm",
+        translation_key="hub_gsm",
+        icon="mdi:sim",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda space: format_signal_level(space.hub_details.get("gsm", {}).get("signalLevel")) if space.hub_details else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("gsm") is not None,
-    ),
-    AjaxSpaceSensorDescription(
-        key="hub_gsm_network",
-        translation_key="hub_gsm_network",
-        icon="mdi:signal-cellular-3",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("gsm", {}).get("networkStatus") if space.hub_details else None,
         should_create=lambda space: space.hub_details and space.hub_details.get("gsm") is not None,
     ),
     # System info
@@ -261,92 +290,90 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda space: format_timezone(space.hub_details.get("timeZone")) if space.hub_details else None,
     ),
-    # SIM Cards
     AjaxSpaceSensorDescription(
-        key="hub_active_sim",
-        translation_key="hub_active_sim",
-        icon="mdi:sim",
+        key="hub_rooms",
+        translation_key="hub_rooms",
+        icon="mdi:door",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: (
-            f"SIM {space.hub_details.get('gsm', {}).get('activeSimCard', 0) + 1}/{len(space.hub_details.get('gsm', {}).get('simCards', []))}"
-            if space.hub_details and space.hub_details.get('gsm') and space.hub_details.get('gsm', {}).get('simCards')
-            else None
-        ),
-        should_create=lambda space: space.hub_details and space.hub_details.get('gsm') and space.hub_details.get('gsm', {}).get('simCards'),
+        value_fn=lambda space: len(getattr(space, "_rooms_map", {})),
+        should_create=lambda space: hasattr(space, "_rooms_map") and len(getattr(space, "_rooms_map", {})) > 0,
     ),
+    # Limits
     AjaxSpaceSensorDescription(
-        key="hub_sim1_apn",
-        translation_key="hub_sim1_apn",
-        icon="mdi:sim",
+        key="hub_limits",
+        translation_key="hub_limits",
+        icon="mdi:counter",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: (
-            f"{space.hub_details.get('gsm', {}).get('simCards', [{}])[0].get('apn') or 'Non configuré'}{' (actif)' if space.hub_details.get('gsm', {}).get('activeSimCard', 0) == 0 else ''}"
-            if space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 0
-            else None
-        ),
-        should_create=lambda space: (
-            space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 0
-        ),
+        value_fn=lambda space: space.hub_details.get('limits', {}).get('sensors', 0) if space.hub_details else None,
+        should_create=lambda space: space.hub_details and space.hub_details.get('limits'),
     ),
+    # Noise Level (radio interference)
     AjaxSpaceSensorDescription(
-        key="hub_sim2_apn",
-        translation_key="hub_sim2_apn",
-        icon="mdi:sim",
+        key="hub_noise_level",
+        translation_key="hub_noise_level",
+        icon="mdi:signal-off",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda space: (
-            f"{space.hub_details.get('gsm', {}).get('simCards', [{}, {}])[1].get('apn') or 'Non configuré'}{' (actif)' if space.hub_details.get('gsm', {}).get('activeSimCard', 0) == 1 else ''}"
-            if space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 1
+            "Élevé" if space.hub_details.get('noiseLevel', {}).get('high', False) else "Normal"
+            if space.hub_details and space.hub_details.get('noiseLevel')
             else None
         ),
-        should_create=lambda space: (
-            space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 1
-            and space.hub_details.get('gsm', {}).get('simCards', [{}, {}])[1].get('lastTrafficResetTimestamp', 0) > 0  # Only if SIM card has been used
-        ),
+        should_create=lambda space: space.hub_details and space.hub_details.get('noiseLevel'),
     ),
+    # Grade Mode (security level)
     AjaxSpaceSensorDescription(
-        key="hub_sim1_traffic",
-        translation_key="hub_sim1_traffic",
-        icon="mdi:swap-vertical",
+        key="hub_grade_mode",
+        translation_key="hub_grade_mode",
+        icon="mdi:shield-check",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: (
-            f"↑{space.hub_details.get('gsm', {}).get('simCards', [{}])[0].get('trafficTxKb', 0)} Ko / ↓{space.hub_details.get('gsm', {}).get('simCards', [{}])[0].get('trafficRxKb', 0)} Ko"
-            if space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 0
-            else None
-        ),
-        should_create=lambda space: (
-            space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 0
-        ),
+        value_fn=lambda space: {
+            "GRADE_1": "Grade 1",
+            "GRADE_2": "Grade 2",
+            "GRADE_3": "Grade 3",
+        }.get(space.hub_details.get('gradeMode'), space.hub_details.get('gradeMode')) if space.hub_details else None,
+        should_create=lambda space: space.hub_details and space.hub_details.get('gradeMode'),
     ),
+    # Active Channels (WiFi, Ethernet, GSM)
     AjaxSpaceSensorDescription(
-        key="hub_sim2_traffic",
-        translation_key="hub_sim2_traffic",
-        icon="mdi:swap-vertical",
+        key="hub_active_channels",
+        translation_key="hub_active_channels",
+        icon="mdi:access-point-network",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda space: (
-            f"↑{space.hub_details.get('gsm', {}).get('simCards', [{}, {}])[1].get('trafficTxKb', 0)} Ko / ↓{space.hub_details.get('gsm', {}).get('simCards', [{}, {}])[1].get('trafficRxKb', 0)} Ko"
-            if space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 1
+            ", ".join(space.hub_details.get('activeChannels', []))
+            if space.hub_details and space.hub_details.get('activeChannels')
             else None
         ),
-        should_create=lambda space: (
-            space.hub_details
-            and space.hub_details.get('gsm', {}).get('simCards')
-            and len(space.hub_details.get('gsm', {}).get('simCards', [])) > 1
-            and space.hub_details.get('gsm', {}).get('simCards', [{}, {}])[1].get('lastTrafficResetTimestamp', 0) > 0  # Only if SIM card has been used
-        ),
+        should_create=lambda space: space.hub_details and space.hub_details.get('activeChannels'),
+    ),
+    # Ping Period
+    AjaxSpaceSensorDescription(
+        key="hub_ping_period",
+        translation_key="hub_ping_period",
+        icon="mdi:timer-outline",
+        native_unit_of_measurement="s",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda space: space.hub_details.get('pingPeriodSeconds') if space.hub_details else None,
+        should_create=lambda space: space.hub_details and space.hub_details.get('pingPeriodSeconds'),
+    ),
+    # Offline Alarm Delay
+    AjaxSpaceSensorDescription(
+        key="hub_offline_delay",
+        translation_key="hub_offline_delay",
+        icon="mdi:timer-alert-outline",
+        native_unit_of_measurement="s",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda space: space.hub_details.get('offlineAlarmSeconds') if space.hub_details else None,
+        should_create=lambda space: space.hub_details and space.hub_details.get('offlineAlarmSeconds'),
+    ),
+    # Users count
+    AjaxSpaceSensorDescription(
+        key="hub_users",
+        translation_key="hub_users",
+        icon="mdi:account-group",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda space: len(getattr(space, "_users", [])),
+        should_create=lambda space: hasattr(space, "_users") and len(getattr(space, "_users", [])) > 0,
     ),
 )
 
@@ -413,8 +440,45 @@ DEVICE_SENSORS: tuple[AjaxDeviceSensorDescription, ...] = (
         should_create=lambda device: "sensitivity" in device.attributes,
         enabled_by_default=True,
     ),
-    # Note: firmware_version and hardware_version are available in device_info (sw_version)
-    # so we don't create separate sensors for them
+    AjaxDeviceSensorDescription(
+        key="room",
+        translation_key="room",
+        icon="mdi:door",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.room_name,
+        should_create=lambda device: device.room_name is not None,
+        enabled_by_default=True,
+    ),
+    # LED indicator mode
+    AjaxDeviceSensorDescription(
+        key="indicator_light_mode",
+        translation_key="indicator_light_mode",
+        icon="mdi:led-on",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.attributes.get("indicatorLightMode"),
+        should_create=lambda device: "indicatorLightMode" in device.attributes,
+        enabled_by_default=False,
+    ),
+    # MotionCam image resolution
+    AjaxDeviceSensorDescription(
+        key="image_resolution",
+        translation_key="image_resolution",
+        icon="mdi:camera",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.attributes.get("imageResolution"),
+        should_create=lambda device: "imageResolution" in device.attributes,
+        enabled_by_default=True,
+    ),
+    # MotionCam photos per alarm
+    AjaxDeviceSensorDescription(
+        key="photos_per_alarm",
+        translation_key="photos_per_alarm",
+        icon="mdi:camera-burst",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        value_fn=lambda device: device.attributes.get("photosPerAlarm"),
+        should_create=lambda device: "photosPerAlarm" in device.attributes,
+        enabled_by_default=True,
+    ),
 )
 
 # Hub-specific sensor descriptions
@@ -463,17 +527,100 @@ HUB_SENSORS: tuple[AjaxDeviceSensorDescription, ...] = (
     ),
 )
 
+
+def _format_volume(volume: str | None) -> str | None:
+    """Format volume level to French."""
+    if volume is None:
+        return None
+    volume_map = {
+        "OFF": "Désactivé",
+        "QUIET": "Silencieux",
+        "NORMAL": "Normal",
+        "LOUD": "Fort",
+        "VERY_LOUD": "Très fort",
+    }
+    return volume_map.get(volume, volume)
+
+
+def _format_duration(duration: int | str | None) -> str | None:
+    """Format alarm duration to French."""
+    if duration is None:
+        return None
+    if isinstance(duration, (int, float)):
+        minutes = int(duration)
+        if minutes == 1:
+            return "1 minute"
+        return f"{minutes} minutes"
+    duration_map = {
+        "1_MINUTE": "1 minute",
+        "2_MINUTES": "2 minutes",
+        "3_MINUTES": "3 minutes",
+        "5_MINUTES": "5 minutes",
+        "10_MINUTES": "10 minutes",
+        "15_MINUTES": "15 minutes",
+        "CONTINUOUS": "Continue",
+    }
+    return duration_map.get(str(duration), str(duration))
+
+
+def _format_led(led: bool | str | None) -> str | None:
+    """Format LED indication to French."""
+    if led is None:
+        return None
+    if isinstance(led, bool):
+        return "Activé" if led else "Désactivé"
+    led_map = {
+        "ON": "Activé",
+        "OFF": "Désactivé",
+        "ENABLED": "Activé",
+        "DISABLED": "Désactivé",
+        "TRUE": "Activé",
+        "FALSE": "Désactivé",
+        "BLINK_WHILE_ARMED": "Clignote en armé",
+        "ALWAYS_ON": "Toujours allumé",
+        "ALWAYS_OFF": "Toujours éteint",
+    }
+    return led_map.get(str(led).upper(), str(led))
+
+
+# Siren-specific sensor descriptions
+SIREN_SENSORS: tuple[AjaxDeviceSensorDescription, ...] = (
+    AjaxDeviceSensorDescription(
+        key="alarm_volume_level",
+        translation_key="alarm_volume_level",
+        icon="mdi:volume-high",
+        value_fn=lambda device: _format_volume(device.attributes.get("siren_volume_level")),
+        should_create=lambda device: "siren_volume_level" in device.attributes,
+        enabled_by_default=True,
+    ),
+    AjaxDeviceSensorDescription(
+        key="beep_volume_level",
+        translation_key="beep_volume_level",
+        icon="mdi:volume-medium",
+        value_fn=lambda device: _format_volume(device.attributes.get("beep_volume_level")),
+        should_create=lambda device: "beep_volume_level" in device.attributes,
+        enabled_by_default=True,
+    ),
+    AjaxDeviceSensorDescription(
+        key="alarm_duration",
+        translation_key="alarm_duration",
+        icon="mdi:timer-outline",
+        value_fn=lambda device: _format_duration(device.attributes.get("alarm_duration")),
+        should_create=lambda device: "alarm_duration" in device.attributes,
+        enabled_by_default=True,
+    ),
+    AjaxDeviceSensorDescription(
+        key="led_indication",
+        translation_key="led_indication",
+        icon="mdi:led-on",
+        value_fn=lambda device: _format_led(device.attributes.get("led_indication")),
+        should_create=lambda device: "led_indication" in device.attributes,
+        enabled_by_default=True,
+    ),
+)
+
 # Additional device sensor descriptions (metadata, etc.)
 DEVICE_METADATA_SENSORS: tuple[AjaxDeviceSensorDescription, ...] = (
-    AjaxDeviceSensorDescription(
-        key="device_color",
-        translation_key="device_color",
-        icon="mdi:palette",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda device: get_device_color_name(device.device_color),
-        should_create=lambda device: device.device_color is not None,
-        enabled_by_default=False,
-    ),
     AjaxDeviceSensorDescription(
         key="device_label",
         translation_key="device_label",
@@ -493,21 +640,12 @@ DEVICE_METADATA_SENSORS: tuple[AjaxDeviceSensorDescription, ...] = (
         enabled_by_default=False,
     ),
     AjaxDeviceSensorDescription(
-        key="device_state",
-        translation_key="device_state",
-        icon="mdi:state-machine",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda device: device.states[0] if device.states else "PASSIVE",
-        should_create=lambda device: True,
-        enabled_by_default=False,
-    ),
-    AjaxDeviceSensorDescription(
         key="malfunctions",
         translation_key="malfunctions",
         icon="mdi:alert-circle",
         entity_category=EntityCategory.DIAGNOSTIC,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda device: device.malfunctions,
+        value_fn=lambda device: len(device.malfunctions) if isinstance(device.malfunctions, list) else (device.malfunctions if isinstance(device.malfunctions, int) else 0),
         should_create=lambda device: True,
         enabled_by_default=True,
     ),
@@ -533,12 +671,18 @@ async def async_setup_entry(
         _LOGGER.warning("No Ajax account found, no sensors created")
         return
 
+    # Check if SQS is configured
+    sqs_configured = coordinator.sqs_manager is not None
+
     # Create space-level sensors for each space (hub)
     for space_id, space in coordinator.account.spaces.items():
         space_sensor_count = 0
         for description in SPACE_SENSORS:
             # Check if sensor should be created
             if description.should_create and not description.should_create(space):
+                continue
+            # Skip recent_events sensor if SQS is not configured
+            if description.key == "recent_events" and not sqs_configured:
                 continue
             entities.append(
                 AjaxSpaceSensor(coordinator, entry, space_id, description)
@@ -565,6 +709,16 @@ async def async_setup_entry(
             # Hub-specific sensors
             if device.type == DeviceType.HUB:
                 for description in HUB_SENSORS:
+                    if description.should_create and description.should_create(device):
+                        entities.append(
+                            AjaxDeviceSensor(
+                                coordinator, entry, space_id, device_id, description
+                            )
+                        )
+
+            # Siren-specific sensors
+            if device.type == DeviceType.SIREN:
+                for description in SIREN_SENSORS:
                     if description.should_create and description.should_create(device):
                         entities.append(
                             AjaxDeviceSensor(
@@ -647,9 +801,11 @@ class AjaxSpaceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
         if not space:
             return {}
 
+        # Avoid redundant name like "Ajax Hub - Hub" when space.name is already "Hub"
+        hub_display_name = "Ajax Hub" if space.name == "Hub" else f"Ajax Hub - {space.name}"
         device_info = {
             "identifiers": {(DOMAIN, self._space_id)},
-            "name": f"Ajax Hub - {space.name}",
+            "name": hub_display_name,
             "manufacturer": "Ajax Systems",
             "model": format_hub_type(space.hub_details.get("hubSubtype")) if space.hub_details else "Security Hub",
         }
@@ -722,26 +878,183 @@ class AjaxSpaceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
                 for room_id, room in space.rooms.items()
             }
 
-        # Add recent events details for recent_events sensor
-        if self.entity_description.key == "recent_events" and space.recent_events:
-            attributes["events"] = []
-            for event in space.recent_events:
-                event_data = {
-                    "type": event.get("event_type", "unknown"),
-                    "action": event.get("action", "unknown"),
-                    "source": event.get("source_name", "unknown"),
-                    "timestamp": event.get("timestamp", 0),
-                }
-                # Add device info if available
-                if event.get("device_id"):
-                    event_data["device_id"] = event["device_id"]
-                if event.get("device_name"):
-                    event_data["device_name"] = event["device_name"]
-                # Add user info if available
-                if event.get("user_name"):
-                    event_data["user_name"] = event["user_name"]
+        # Add list of devices with malfunctions
+        if self.entity_description.key == "devices_with_malfunctions":
+            problem_list = []
 
-                attributes["events"].append(event_data)
+            # Check hub for issues (tampered, warnings, etc.)
+            if space.hub_details:
+                hub_issues = []
+                if space.hub_details.get("tampered"):
+                    hub_issues.append("Couvercle ouvert")
+                if not space.hub_details.get("externallyPowered", True):
+                    hub_issues.append("Alimentation externe déconnectée")
+                if space.hub_details.get("battery", {}).get("chargeLevelPercentage", 100) < 20:
+                    hub_issues.append("Batterie faible")
+
+                if hub_issues:
+                    problem_list.append({
+                        "name": "Hub",
+                        "type": "hub",
+                        "issues": hub_issues,
+                    })
+
+            # Add devices with malfunctions
+            problem_devices = space.get_devices_with_malfunctions()
+            for device in problem_devices:
+                problem_list.append({
+                    "name": device.name,
+                    "type": device.type.value,
+                    "room": device.room_name,
+                    "malfunctions": device.malfunctions if isinstance(device.malfunctions, int) else len(device.malfunctions),
+                })
+
+            if problem_list:
+                attributes["devices"] = problem_list
+                attributes["device_names"] = [d["name"] for d in problem_list]
+
+        # Add list of bypassed devices
+        if self.entity_description.key == "bypassed_devices":
+            bypassed = space.get_bypassed_devices()
+            if bypassed:
+                attributes["devices"] = [
+                    {
+                        "name": device.name,
+                        "type": device.type.value,
+                        "room": device.room_name,
+                    }
+                    for device in bypassed
+                ]
+                attributes["device_names"] = [device.name for device in bypassed]
+
+        # Add recent events details (from SQS)
+        if self.entity_description.key == "recent_events":
+            attributes["event_count"] = len(space.recent_events)
+            if space.recent_events:
+                # List of formatted event texts
+                attributes["events"] = [
+                    format_event_text(event) for event in space.recent_events[:10]
+                ]
+                # Raw event data for automations
+                attributes["events_raw"] = [
+                    {
+                        "type": event.get("event_type"),
+                        "action": event.get("action"),
+                        "device": event.get("device_name"),
+                        "user": event.get("user_name"),
+                        "timestamp": event.get("timestamp"),
+                    }
+                    for event in space.recent_events[:10]
+                ]
+
+        # Add WiFi details for hub_wifi sensor
+        if self.entity_description.key == "hub_wifi" and space.hub_details:
+            wifi = space.hub_details.get("wifi", {})
+            if wifi and wifi.get("enabled"):
+                attributes["ssid"] = wifi.get("ssid")
+                attributes["ip"] = wifi.get("ip")
+                attributes["signal_level"] = format_signal_level(wifi.get("signalLevel"))
+                attributes["security"] = wifi.get("securityProtocol")
+                attributes["channel"] = wifi.get("channel")
+
+        # Add GSM/SIM details for hub_gsm sensor
+        if self.entity_description.key == "hub_gsm" and space.hub_details:
+            gsm = space.hub_details.get("gsm", {})
+            if gsm:
+                attributes["network_status"] = gsm.get("networkStatus")
+                attributes["signal_level"] = format_signal_level(gsm.get("signalLevel"))
+
+                # Modem IMEI
+                if space.hub_details.get("modemImei"):
+                    attributes["modem_imei"] = space.hub_details.get("modemImei")
+
+                # SIM cards info
+                sim_cards = gsm.get("simCards", [])
+                active_sim = gsm.get("activeSimCard", 0)
+                attributes["active_sim"] = active_sim + 1 if sim_cards else None
+                attributes["total_sims"] = len(sim_cards)
+
+                # SIM 1 details
+                if len(sim_cards) > 0:
+                    sim1 = sim_cards[0]
+                    attributes["sim1_apn"] = sim1.get("apn") or "Non configuré"
+                    attributes["sim1_active"] = active_sim == 0
+                    attributes["sim1_traffic_tx_kb"] = sim1.get("trafficTxKb", 0)
+                    attributes["sim1_traffic_rx_kb"] = sim1.get("trafficRxKb", 0)
+
+                # SIM 2 details
+                if len(sim_cards) > 1:
+                    sim2 = sim_cards[1]
+                    attributes["sim2_apn"] = sim2.get("apn") or "Non configuré"
+                    attributes["sim2_active"] = active_sim == 1
+                    attributes["sim2_traffic_tx_kb"] = sim2.get("trafficTxKb", 0)
+                    attributes["sim2_traffic_rx_kb"] = sim2.get("trafficRxKb", 0)
+
+        # Add rooms list for hub_rooms sensor
+        if self.entity_description.key == "hub_rooms":
+            rooms_map = getattr(space, "_rooms_map", {})
+            if rooms_map:
+                # List of room names
+                attributes["room_names"] = list(rooms_map.values())
+                # Detailed room info with IDs
+                attributes["rooms"] = {
+                    room_id: room_name
+                    for room_id, room_name in rooms_map.items()
+                }
+
+        # Add limits details
+        if self.entity_description.key == "hub_limits" and space.hub_details:
+            limits = space.hub_details.get("limits", {})
+            if limits:
+                attributes["max_rooms"] = limits.get("rooms")
+                attributes["max_groups"] = limits.get("groups")
+                attributes["max_cameras"] = limits.get("cameras")
+                attributes["max_sensors"] = limits.get("sensors")
+                attributes["max_users"] = limits.get("users")
+
+        # Add noise level details
+        if self.entity_description.key == "hub_noise_level" and space.hub_details:
+            noise = space.hub_details.get("noiseLevel", {})
+            if noise:
+                attributes["channel_1_dbm"] = noise.get("avgValueChannel1")
+                attributes["channel_2_dbm"] = noise.get("avgValueChannel2")
+                attributes["data_channel_dbm"] = noise.get("avgValueDataChannel")
+                attributes["high"] = noise.get("high", False)
+
+        # Add active channels as list
+        if self.entity_description.key == "hub_active_channels" and space.hub_details:
+            channels = space.hub_details.get("activeChannels", [])
+            if channels:
+                attributes["channels"] = channels
+                attributes["ethernet"] = "ETHERNET" in channels
+                attributes["wifi"] = "WIFI" in channels
+                attributes["gsm"] = "GSM" in channels
+
+        # Add hardware versions details
+        if self.entity_description.key == "hub_hardware_version" and space.hub_details:
+            hw = space.hub_details.get("hardwareVersions", {})
+            if hw:
+                attributes["cpu"] = hw.get("cpu")
+                attributes["wifi"] = hw.get("wifi")
+                attributes["ethernet"] = hw.get("ethernet")
+                attributes["flash"] = hw.get("flash")
+                attributes["pcb"] = hw.get("pcb")
+                attributes["rfm"] = hw.get("rfm")
+                attributes["modem"] = hw.get("modem")
+
+        # Add users details
+        if self.entity_description.key == "hub_users":
+            users = getattr(space, "_users", [])
+            if users:
+                attributes["user_names"] = [u.get("firstName", "Unknown") for u in users]
+                attributes["users"] = [
+                    {
+                        "name": u.get("firstName"),
+                        "role": u.get("hubBindingRole"),
+                        "keypad_prefix": u.get("keypadPrefix"),
+                    }
+                    for u in users
+                ]
 
         return attributes
 
@@ -825,7 +1138,40 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
+        # Update device registry once on first update (for existing entities)
+        if not getattr(self, "_device_info_updated", False):
+            self._device_info_updated = True
+            self._update_device_registry()
         self.async_write_ha_state()
+
+    def _update_device_registry(self) -> None:
+        """Update device info in registry with model, firmware, and color."""
+        device = self.coordinator.get_device(self._space_id, self._device_id)
+        if not device:
+            return
+
+        device_registry = dr.async_get(self.hass)
+        device_entry = device_registry.async_get_device(
+            identifiers={(DOMAIN, self._device_id)}
+        )
+        if not device_entry:
+            return
+
+        # Get model name with color
+        model_name = self._get_device_model_name(device.type.value)
+        if device.device_color:
+            color_name = {
+                "WHITE": "Blanc", "White": "Blanc",
+                "BLACK": "Noir", "Black": "Noir"
+            }.get(str(device.device_color), str(device.device_color))
+            model_name = f"{model_name} ({color_name})"
+
+        device_registry.async_update_device(
+            device_entry.id,
+            model=model_name,
+            sw_version=device.firmware_version,
+            hw_version=device.hardware_version,
+        )
 
     def _get_device_model_name(self, device_type_value: str) -> str:
         """Get translated device model name.
@@ -869,6 +1215,15 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
         if not device:
             return {}
 
+        # Get model name with color
+        model_name = self._get_device_model_name(device.type.value)
+        if device.device_color:
+            color_name = {
+                "WHITE": "Blanc", "White": "Blanc",
+                "BLACK": "Noir", "Black": "Noir"
+            }.get(str(device.device_color), str(device.device_color))
+            model_name = f"{model_name} ({color_name})"
+
         # For hub devices, use the space identifier to merge with space-level sensors
         # This prevents duplicate hub devices in Home Assistant
         if device.type == DeviceType.HUB:
@@ -878,7 +1233,7 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
                 "identifiers": {(DOMAIN, self._space_id)},
                 "name": hub_name,
                 "manufacturer": "Ajax Systems",
-                "model": self._get_device_model_name(device.type.value),
+                "model": model_name,
                 "sw_version": device.firmware_version,
                 "hw_version": device.hardware_version,
             }
@@ -898,7 +1253,7 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
             "identifiers": {(DOMAIN, self._device_id)},
             "name": f"Ajax {device_display_name}",
             "manufacturer": "Ajax Systems",
-            "model": self._get_device_model_name(device.type.value),
+            "model": model_name,
             "via_device": (DOMAIN, self._space_id),
             "sw_version": device.firmware_version,
             "hw_version": device.hardware_version,

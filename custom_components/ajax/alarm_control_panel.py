@@ -76,11 +76,25 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
         if not space:
             return {}
 
+        # Get hub subtype and color for model name
+        hub_subtype = space.hub_details.get("hubSubtype", "Security Hub") if space.hub_details else "Security Hub"
+        # Format hub subtype: HUB_2_PLUS -> Hub 2 Plus
+        hub_subtype_formatted = hub_subtype.replace("_", " ").title()
+
+        hub_color = space.hub_details.get("color", "") if space.hub_details else ""
+        # Handle uppercase color values (WHITE, BLACK)
+        color_name = {
+            "WHITE": "Blanc", "White": "Blanc",
+            "BLACK": "Noir", "Black": "Noir"
+        }.get(hub_color, hub_color)
+
+        model_name = f"{hub_subtype_formatted} ({color_name})" if color_name else hub_subtype_formatted
+
         device_info = {
             "identifiers": {(DOMAIN, self._space_id)},
             "name": f"Ajax Hub - {space.name}",
             "manufacturer": "Ajax Systems",
-            "model": space.hub_details.get("hubSubtype", "Security Hub") if space.hub_details else "Security Hub",
+            "model": model_name,
         }
 
         # Add firmware version if available
@@ -88,6 +102,13 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
             firmware = space.hub_details["firmware"]
             if firmware.get("version"):
                 device_info["sw_version"] = firmware["version"]
+
+        # Add hardware version - just PCB version for simplicity
+        if space.hub_details and space.hub_details.get("hardwareVersions"):
+            hw_versions = space.hub_details["hardwareVersions"]
+            pcb_version = hw_versions.get("pcb")
+            if pcb_version:
+                device_info["hw_version"] = f"PCB rev.{pcb_version}"
 
         return device_info
 
@@ -115,30 +136,54 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
         """Send disarm command."""
         _LOGGER.info("Disarming Ajax alarm for space %s", self._space_id)
 
+        # Optimistic update - change state immediately
+        space = self.coordinator.get_space(self._space_id)
+        if space:
+            space.security_state = SecurityState.DISARMED
+            self.async_write_ha_state()
+
         try:
             await self.coordinator.async_disarm_space(self._space_id)
         except Exception as err:
             _LOGGER.error("Failed to disarm: %s", err)
+            # Revert on error - refresh from API
+            await self.coordinator.async_request_refresh()
             raise
 
     async def async_alarm_arm_away(self, code: str | None = None) -> None:
         """Send arm away command."""
         _LOGGER.info("Arming Ajax alarm (away) for space %s", self._space_id)
 
+        # Optimistic update - change state immediately
+        space = self.coordinator.get_space(self._space_id)
+        if space:
+            space.security_state = SecurityState.ARMED
+            self.async_write_ha_state()
+
         try:
             await self.coordinator.async_arm_space(self._space_id)
         except Exception as err:
             _LOGGER.error("Failed to arm: %s", err)
+            # Revert on error - refresh from API
+            await self.coordinator.async_request_refresh()
             raise
 
     async def async_alarm_arm_night(self, code: str | None = None) -> None:
         """Send arm night command."""
         _LOGGER.info("Arming Ajax alarm (night) for space %s", self._space_id)
 
+        # Optimistic update - change state immediately
+        space = self.coordinator.get_space(self._space_id)
+        if space:
+            space.security_state = SecurityState.NIGHT_MODE
+            self.async_write_ha_state()
+
         try:
             await self.coordinator.async_arm_night_mode(self._space_id)
         except Exception as err:
             _LOGGER.error("Failed to arm night mode: %s", err)
+            # Revert on error - refresh from API
+            await self.coordinator.async_request_refresh()
             raise
 
     async def async_added_to_hass(self) -> None:
@@ -153,20 +198,89 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
                 identifiers={(DOMAIN, self._space_id)}
             )
             if device_entry:
+                # Get firmware version
                 firmware_version = None
                 if space.hub_details.get("firmware"):
                     firmware_version = space.hub_details["firmware"].get("version")
 
+                # Get hardware version (PCB)
+                hw_version = None
+                if space.hub_details.get("hardwareVersions"):
+                    pcb = space.hub_details["hardwareVersions"].get("pcb")
+                    if pcb:
+                        hw_version = f"PCB rev.{pcb}"
+
+                # Get model name with color
+                hub_subtype = space.hub_details.get("hubSubtype", "Security Hub")
+                hub_subtype_formatted = hub_subtype.replace("_", " ").title()
+                hub_color = space.hub_details.get("color", "")
+                color_name = {
+                    "WHITE": "Blanc", "White": "Blanc",
+                    "BLACK": "Noir", "Black": "Noir"
+                }.get(hub_color, hub_color)
+                model_name = f"{hub_subtype_formatted} ({color_name})" if color_name else hub_subtype_formatted
+
                 device_registry.async_update_device(
                     device_entry.id,
-                    model=space.hub_details.get("hubSubtype", "Security Hub"),
+                    model=model_name,
                     sw_version=firmware_version,
+                    hw_version=hw_version,
                 )
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
+        # Update device registry once on first update (for existing entities)
+        if not getattr(self, "_device_info_updated", False):
+            self._device_info_updated = True
+            self._update_device_registry()
         self.async_write_ha_state()
+
+    def _update_device_registry(self) -> None:
+        """Update hub device info in registry."""
+        space = self.coordinator.get_space(self._space_id)
+        if not space or not space.hub_details:
+            _LOGGER.debug("No space or hub_details for %s", self._space_id)
+            return
+
+        device_registry = dr.async_get(self.hass)
+        device_entry = device_registry.async_get_device(
+            identifiers={(DOMAIN, self._space_id)}
+        )
+        if not device_entry:
+            _LOGGER.debug("No device entry found for %s", self._space_id)
+            return
+
+        # Get firmware version
+        firmware_version = None
+        if space.hub_details.get("firmware"):
+            firmware_version = space.hub_details["firmware"].get("version")
+
+        # Get hardware version (PCB)
+        hw_version = None
+        if space.hub_details.get("hardwareVersions"):
+            pcb = space.hub_details["hardwareVersions"].get("pcb")
+            if pcb:
+                hw_version = f"PCB rev.{pcb}"
+
+        # Get model name with color
+        hub_subtype = space.hub_details.get("hubSubtype", "Security Hub")
+        hub_subtype_formatted = hub_subtype.replace("_", " ").title()
+        hub_color = space.hub_details.get("color", "")
+        color_name = {
+            "WHITE": "Blanc", "White": "Blanc",
+            "BLACK": "Noir", "Black": "Noir"
+        }.get(hub_color, hub_color)
+        model_name = f"{hub_subtype_formatted} ({color_name})" if color_name else hub_subtype_formatted
+
+        _LOGGER.info("Updating hub device: model=%s, hw=%s, color=%s", model_name, hw_version, hub_color)
+
+        device_registry.async_update_device(
+            device_entry.id,
+            model=model_name,
+            sw_version=firmware_version,
+            hw_version=hw_version,
+        )
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

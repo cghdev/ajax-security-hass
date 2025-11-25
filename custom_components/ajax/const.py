@@ -10,6 +10,7 @@ CONF_EMAIL = "email"
 CONF_PASSWORD = "password"
 CONF_NOTIFICATION_FILTER = "notification_filter"
 CONF_PERSISTENT_NOTIFICATION = "persistent_notification"
+CONF_MONITORED_SPACES = "monitored_spaces"
 
 # AWS SQS configuration (optional - for real-time events)
 CONF_AWS_ACCESS_KEY_ID = "aws_access_key_id"
@@ -27,7 +28,7 @@ AJAX_REST_API_BASE_URL = "https://api.ajax.systems/api"
 AJAX_REST_API_TIMEOUT = 30  # seconds
 
 # Update intervals (seconds)
-UPDATE_INTERVAL = 30  # Poll every 30 seconds
+UPDATE_INTERVAL = 15  # Poll every 15 seconds
 
 
 # ==============================================================================

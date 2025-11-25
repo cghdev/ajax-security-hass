@@ -379,15 +379,6 @@ class AjaxRestApi:
             _LOGGER.error("API request to %s timed out after %ss", endpoint, AJAX_REST_API_TIMEOUT)
             raise AjaxRestApiError("API request timeout") from err
 
-    # User methods
-    async def async_get_account(self) -> dict[str, Any]:
-        """Get current user account information.
-
-        Returns:
-            User account dictionary with phone, firstName, language, etc.
-        """
-        return await self._request("GET", "user")
-
     # Hub methods
     async def async_get_hubs(self) -> list[dict[str, Any]]:
         """Get all hubs.
@@ -411,6 +402,32 @@ class AjaxRestApi:
         if not self.user_id:
             raise AjaxRestApiError("No user_id available. Call async_login() first.")
         return await self._request("GET", f"user/{self.user_id}/hubs/{hub_id}")
+
+    async def async_get_rooms(self, hub_id: str) -> list[dict[str, Any]]:
+        """Get rooms for a hub.
+
+        Args:
+            hub_id: Hub ID
+
+        Returns:
+            List of room dictionaries
+        """
+        if not self.user_id:
+            raise AjaxRestApiError("No user_id available. Call async_login() first.")
+        return await self._request("GET", f"user/{self.user_id}/hubs/{hub_id}/rooms")
+
+    async def async_get_users(self, hub_id: str) -> list[dict[str, Any]]:
+        """Get users for a hub.
+
+        Args:
+            hub_id: Hub ID
+
+        Returns:
+            List of user dictionaries
+        """
+        if not self.user_id:
+            raise AjaxRestApiError("No user_id available. Call async_login() first.")
+        return await self._request("GET", f"user/{self.user_id}/hubs/{hub_id}/users")
 
     async def async_get_hub_mode(self, hub_id: str) -> dict[str, Any]:
         """Get hub alarm mode.
@@ -683,4 +700,160 @@ class AjaxRestApi:
         return await self._request(
             "GET",
             f"devices/{nvr_id}/recordings?cameraId={camera_id}&start={start}&end={end}"
+        )
+
+    # Device settings methods
+    async def async_update_device(
+        self,
+        hub_id: str,
+        device_id: str,
+        settings: dict[str, Any],
+    ) -> None:
+        """Update device settings.
+
+        Args:
+            hub_id: Hub ID
+            device_id: Device ID
+            settings: Dictionary of settings to update (e.g., {"alwaysActive": true})
+
+        Raises:
+            AjaxRestApiError: If the update fails
+        """
+        if not self.user_id:
+            raise AjaxRestApiError("No user_id available. Call async_login() first.")
+
+        # First get current device data
+        current_device = await self.async_get_device(hub_id, device_id)
+
+        # Merge settings with current device data
+        updated_device = {**current_device, **settings}
+
+        await self._request_no_response(
+            "PUT",
+            f"user/{self.user_id}/hubs/{hub_id}/devices/{device_id}",
+            updated_device
+        )
+
+    async def _request_no_response(
+        self,
+        method: str,
+        endpoint: str,
+        data: dict[str, Any] | None = None,
+        _retry_on_auth_error: bool = True,
+    ) -> None:
+        """Make API request that returns no content (204).
+
+        Args:
+            method: HTTP method (PUT, DELETE, etc.)
+            endpoint: API endpoint (without base URL)
+            data: Optional JSON data for request body
+            _retry_on_auth_error: Internal flag to prevent infinite retry loop
+
+        Raises:
+            AjaxRestAuthError: If authentication fails
+            AjaxRestApiError: For other API errors
+        """
+        if not self.session_token:
+            raise AjaxRestApiError("Not logged in. Call async_login() first.")
+
+        url = f"{AJAX_REST_API_BASE_URL}/{endpoint}"
+        session = await self._get_session()
+
+        headers = {
+            **self._base_headers,
+            "X-Session-Token": self.session_token,
+        }
+
+        _LOGGER.debug("Making %s request to %s", method, endpoint)
+
+        try:
+            async with session.request(
+                method,
+                url,
+                headers=headers,
+                json=data,
+                timeout=aiohttp.ClientTimeout(total=AJAX_REST_API_TIMEOUT),
+            ) as response:
+                _LOGGER.debug(
+                    "Response from %s: status=%s", endpoint, response.status
+                )
+
+                if response.status == 401:
+                    if _retry_on_auth_error:
+                        _LOGGER.warning("Token expired (401), attempting refresh")
+                        try:
+                            await self.async_refresh_token()
+                            return await self._request_no_response(
+                                method, endpoint, data, _retry_on_auth_error=False
+                            )
+                        except AjaxRestAuthError:
+                            await self.async_login()
+                            return await self._request_no_response(
+                                method, endpoint, data, _retry_on_auth_error=False
+                            )
+                    else:
+                        raise AjaxRestAuthError("Invalid or expired token")
+
+                if response.status not in (200, 202, 204):
+                    error_text = await response.text()
+                    _LOGGER.error("API error %s: %s", response.status, error_text)
+                    raise AjaxRestApiError(f"API error {response.status}: {error_text}")
+
+                _LOGGER.debug("Request to %s successful (status=%s)", endpoint, response.status)
+
+        except aiohttp.ClientError as err:
+            _LOGGER.error("API request to %s failed: %s", endpoint, err)
+            raise AjaxRestApiError(f"API request failed: {err}") from err
+        except asyncio.TimeoutError as err:
+            _LOGGER.error("API request to %s timed out", endpoint)
+            raise AjaxRestApiError("API request timeout") from err
+
+    # Arming commands
+    async def async_arm(self, hub_id: str, ignore_problems: bool = True) -> None:
+        """Arm the hub.
+
+        Args:
+            hub_id: Hub ID
+            ignore_problems: Whether to ignore sensor problems when arming
+        """
+        if not self.user_id:
+            raise AjaxRestApiError("No user_id available. Call async_login() first.")
+
+        await self._request_no_response(
+            "PUT",
+            f"user/{self.user_id}/hubs/{hub_id}/commands/arming",
+            {"command": "ARM", "ignoreProblems": ignore_problems}
+        )
+
+    async def async_disarm(self, hub_id: str, ignore_problems: bool = True) -> None:
+        """Disarm the hub.
+
+        Args:
+            hub_id: Hub ID
+            ignore_problems: Whether to ignore sensor problems
+        """
+        if not self.user_id:
+            raise AjaxRestApiError("No user_id available. Call async_login() first.")
+
+        await self._request_no_response(
+            "PUT",
+            f"user/{self.user_id}/hubs/{hub_id}/commands/arming",
+            {"command": "DISARM", "ignoreProblems": ignore_problems}
+        )
+
+    async def async_night_mode(self, hub_id: str, enabled: bool = True) -> None:
+        """Set night mode on/off.
+
+        Args:
+            hub_id: Hub ID
+            enabled: True for night mode on, False for off
+        """
+        if not self.user_id:
+            raise AjaxRestApiError("No user_id available. Call async_login() first.")
+
+        command = "NIGHT_MODE_ON" if enabled else "NIGHT_MODE_OFF"
+        await self._request_no_response(
+            "PUT",
+            f"user/{self.user_id}/hubs/{hub_id}/commands/arming",
+            {"command": command, "ignoreProblems": True}
         )

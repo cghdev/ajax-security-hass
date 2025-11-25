@@ -100,10 +100,15 @@ class AjaxEventParser:
             Parsed event dict or None if invalid
         """
         try:
+            # SQS wraps the event in {"recipient": ..., "event": {...}}
+            if "event" in event_data:
+                event_data = event_data["event"]
+
             event_id = event_data.get("eventId")
             hub_id = event_data.get("hubId")
             event_type = event_data.get("eventType") or event_data.get("eventTypeV2")
             event_code = event_data.get("eventCode", "")
+            event_tag = event_data.get("eventTag", "")  # Arm, Disarm, NightModeOn
             source_type = event_data.get("sourceObjectType", "")
             source_name = event_data.get("sourceObjectName", "")
             timestamp = event_data.get("timestamp", 0)
@@ -114,14 +119,19 @@ class AjaxEventParser:
                 _LOGGER.warning("Invalid event: missing eventId or hubId")
                 return None
 
-            # Parse event code to action
-            action = EVENT_CODES.get(event_code, f"unknown_{event_code}")
+            # Parse event code to action, prefer eventTag for arming events
+            if event_tag:
+                # Use eventTag directly: Arm, Disarm, NightModeOn
+                action = event_tag.lower()
+            else:
+                action = EVENT_CODES.get(event_code, f"unknown_{event_code}")
 
-            # Convert timestamp to datetime
+            # Convert timestamp to datetime (timestamp is in milliseconds)
             event_time = None
             if timestamp:
                 try:
-                    event_time = datetime.fromtimestamp(timestamp)
+                    # Ajax timestamps are in milliseconds
+                    event_time = datetime.fromtimestamp(timestamp / 1000)
                 except (ValueError, OSError):
                     _LOGGER.warning("Invalid timestamp: %s", timestamp)
 
@@ -131,24 +141,25 @@ class AjaxEventParser:
             parsed = {
                 "event_id": event_id,
                 "hub_id": hub_id,
+                "space_id": hub_id,  # hub_id is the space_id
                 "event_type": event_type,
                 "event_code": event_code,
+                "event_tag": event_tag,
                 "action": action,
                 "source_type": source_type,
                 "source_name": source_name,
-                "timestamp": timestamp,
+                "timestamp": timestamp / 1000 if timestamp else 0,  # Convert to seconds
                 "event_time": event_time,
                 "transition": transition,
                 "is_active": is_active,
                 "additional_data": additional_data,
             }
 
-            _LOGGER.debug(
-                "Parsed event: %s - %s (%s) - %s",
-                event_type,
+            _LOGGER.info(
+                "Parsed SQS event: %s - %s (%s)",
+                event_tag or event_type,
                 action,
                 source_name,
-                "ACTIVE" if is_active else "CLEARED",
             )
 
             return parsed
@@ -179,6 +190,12 @@ class AjaxEventParser:
         Returns:
             True if arming event
         """
+        # Check eventTag first (arm, disarm, nightmodeon)
+        action = event.get("action", "").lower()
+        if action in ["arm", "disarm", "nightmodeon"]:
+            return True
+
+        # Fallback to event_type
         event_type = event.get("event_type", "")
         return event_type in [EVENT_TYPE_ARM, EVENT_TYPE_DISARM]
 

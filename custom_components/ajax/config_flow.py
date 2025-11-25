@@ -11,6 +11,11 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from .api import AjaxRestApi, AjaxRestApiError, AjaxRestAuthError, AjaxRest2FARequiredError
 from .const import (
@@ -18,9 +23,16 @@ from .const import (
     CONF_AWS_ACCESS_KEY_ID,
     CONF_AWS_SECRET_ACCESS_KEY,
     CONF_EMAIL,
+    CONF_MONITORED_SPACES,
+    CONF_NOTIFICATION_FILTER,
     CONF_PASSWORD,
+    CONF_PERSISTENT_NOTIFICATION,
     CONF_QUEUE_NAME,
     DOMAIN,
+    NOTIFICATION_FILTER_NONE,
+    NOTIFICATION_FILTER_ALARMS_ONLY,
+    NOTIFICATION_FILTER_SECURITY_EVENTS,
+    NOTIFICATION_FILTER_ALL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,6 +42,14 @@ class AjaxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Ajax Security Systems."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
+        """Get the options flow for this handler."""
+        return AjaxOptionsFlow(config_entry)
 
     def __init__(self):
         """Initialize the config flow."""
@@ -190,4 +210,83 @@ class AjaxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders={
                 "email": self._user_input.get(CONF_EMAIL, ""),
             },
+        )
+
+
+class AjaxOptionsFlow(config_entries.OptionsFlow):
+    """Handle Ajax options."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        # Get current options
+        current_filter = self.config_entry.options.get(
+            CONF_NOTIFICATION_FILTER, NOTIFICATION_FILTER_NONE
+        )
+        current_persistent = self.config_entry.options.get(
+            CONF_PERSISTENT_NOTIFICATION, False
+        )
+        current_spaces = self.config_entry.options.get(
+            CONF_MONITORED_SPACES, []
+        )
+
+        # Get available spaces from coordinator
+        space_options = []
+        coordinator = self.hass.data.get(DOMAIN, {}).get(self.config_entry.entry_id)
+        if coordinator and hasattr(coordinator, "account") and coordinator.account:
+            for space_id, space in coordinator.account.spaces.items():
+                space_options.append({
+                    "value": space_id,
+                    "label": space.name,
+                })
+            # If no spaces selected, select all by default
+            if not current_spaces:
+                current_spaces = list(coordinator.account.spaces.keys())
+
+        # Build options schema
+        schema_dict = {
+            vol.Optional(
+                CONF_PERSISTENT_NOTIFICATION,
+                default=current_persistent,
+            ): bool,
+            vol.Optional(
+                CONF_NOTIFICATION_FILTER,
+                default=current_filter,
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        {"value": NOTIFICATION_FILTER_NONE, "label": "Aucune"},
+                        {"value": NOTIFICATION_FILTER_ALARMS_ONLY, "label": "Alarmes uniquement"},
+                        {"value": NOTIFICATION_FILTER_SECURITY_EVENTS, "label": "Événements de sécurité (alarmes + armement)"},
+                        {"value": NOTIFICATION_FILTER_ALL, "label": "Toutes les notifications"},
+                    ],
+                    mode=SelectSelectorMode.DROPDOWN,
+                )
+            ),
+        }
+
+        # Add spaces selector only if spaces are available
+        if space_options:
+            schema_dict[vol.Optional(
+                CONF_MONITORED_SPACES,
+                default=current_spaces,
+            )] = SelectSelector(
+                SelectSelectorConfig(
+                    options=space_options,
+                    mode=SelectSelectorMode.DROPDOWN,
+                    multiple=True,
+                )
+            )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(schema_dict),
         )

@@ -34,20 +34,7 @@ class FloodDetectorHandler(AjaxDeviceHandler):
                 "value_fn": lambda: self.device.attributes.get("leak_detected", False),
                 "enabled_by_default": True,
             },
-            {
-                "key": "always_active",
-                "translation_key": "always_active",
-                "icon": "mdi:moon-waning-crescent",
-                "value_fn": lambda: self.device.attributes.get("always_active", False),
-                "enabled_by_default": True,
-            },
-            {
-                "key": "armed_in_night_mode",
-                "translation_key": "armed_in_night_mode",
-                "icon": "mdi:shield-moon",
-                "value_fn": lambda: self.device.attributes.get("armed_in_night_mode", False),
-                "enabled_by_default": True,
-            },
+            # Note: "armed_in_night_mode" is now a switch, not a binary sensor
             {
                 "key": "problem",
                 "translation_key": "problem",

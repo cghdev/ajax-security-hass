@@ -51,27 +51,7 @@ class GlassBreakHandler(AjaxDeviceHandler):
                 }
             )
 
-        # Always active mode
-        sensors.append(
-            {
-                "key": "always_active",
-                "translation_key": "always_active",
-                "icon": "mdi:moon-waning-crescent",
-                "value_fn": lambda: self.device.attributes.get("always_active", False),
-                "enabled_by_default": True,
-            }
-        )
-
-        # Armed in night mode
-        sensors.append(
-            {
-                "key": "armed_in_night_mode",
-                "translation_key": "armed_in_night_mode",
-                "icon": "mdi:shield-moon",
-                "value_fn": lambda: self.device.attributes.get("armed_in_night_mode", False),
-                "enabled_by_default": True,
-            }
-        )
+        # Note: "armed_in_night_mode" is now a switch, not a binary sensor
 
         # Tamper / Couvercle
         sensors.append(
@@ -79,6 +59,7 @@ class GlassBreakHandler(AjaxDeviceHandler):
                 "key": "tamper",
                 "translation_key": "tamper",
                 "device_class": BinarySensorDeviceClass.TAMPER,
+                "icon": "mdi:lock-open-alert",
                 "value_fn": lambda: self.device.attributes.get("tampered", False),
                 "enabled_by_default": True,
             }

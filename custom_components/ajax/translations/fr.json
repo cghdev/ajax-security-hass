@@ -42,6 +42,19 @@
       "already_configured": "Cette intégration Ajax est déjà configurée."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options Ajax",
+        "description": "Configurez les options de votre intégration Ajax",
+        "data": {
+          "persistent_notification": "Afficher les notifications persistantes",
+          "notification_filter": "Filtre de notifications",
+          "monitored_spaces": "Espaces à surveiller"
+        }
+      }
+    }
+  },
   "entity": {
     "alarm_control_panel": {
       "ajax": {
@@ -204,6 +217,12 @@
       "sensitivity": {
         "name": "Sensibilité"
       },
+      "color": {
+        "name": "Couleur"
+      },
+      "room": {
+        "name": "Pièce"
+      },
       "sim_status": {
         "name": "État des cartes SIM",
         "state_attributes": {
@@ -265,9 +284,6 @@
       "device_marketing_id": {
         "name": "ID marketing du dispositif"
       },
-      "device_state": {
-        "name": "État du dispositif"
-      },
       "gsm_signal_level": {
         "name": "Signal cellulaire (GSM)"
       },
@@ -301,7 +317,18 @@
         }
       },
       "recent_events": {
-        "name": "Événements récents"
+        "name": "Dernier événement",
+        "state_attributes": {
+          "event_count": {
+            "name": "Nombre d'événements"
+          },
+          "events": {
+            "name": "Événements récents"
+          },
+          "events_raw": {
+            "name": "Données brutes"
+          }
+        }
       },
       "hub_battery": {
         "name": "Batterie Hub"
@@ -315,20 +342,69 @@
       "hub_ethernet_ip": {
         "name": "IP Ethernet Hub"
       },
-      "hub_wifi_ssid": {
-        "name": "Réseau WiFi Hub"
+      "hub_wifi": {
+        "name": "WiFi",
+        "state_attributes": {
+          "ssid": {
+            "name": "Réseau"
+          },
+          "ip": {
+            "name": "Adresse IP"
+          },
+          "signal_level": {
+            "name": "Niveau signal"
+          },
+          "security": {
+            "name": "Sécurité"
+          },
+          "channel": {
+            "name": "Canal"
+          }
+        }
       },
-      "hub_wifi_signal": {
-        "name": "Signal WiFi Hub"
-      },
-      "hub_wifi_ip": {
-        "name": "IP WiFi Hub"
-      },
-      "hub_gsm_signal": {
-        "name": "Signal GSM Hub"
-      },
-      "hub_gsm_network": {
-        "name": "Réseau GSM Hub"
+      "hub_gsm": {
+        "name": "GSM / SIM",
+        "state_attributes": {
+          "network_status": {
+            "name": "État réseau"
+          },
+          "signal_level": {
+            "name": "Niveau signal"
+          },
+          "modem_imei": {
+            "name": "IMEI Modem"
+          },
+          "active_sim": {
+            "name": "SIM active"
+          },
+          "total_sims": {
+            "name": "Nombre de SIM"
+          },
+          "sim1_apn": {
+            "name": "SIM 1 APN"
+          },
+          "sim1_active": {
+            "name": "SIM 1 active"
+          },
+          "sim1_traffic_tx_kb": {
+            "name": "SIM 1 envoyé (Ko)"
+          },
+          "sim1_traffic_rx_kb": {
+            "name": "SIM 1 reçu (Ko)"
+          },
+          "sim2_apn": {
+            "name": "SIM 2 APN"
+          },
+          "sim2_active": {
+            "name": "SIM 2 active"
+          },
+          "sim2_traffic_tx_kb": {
+            "name": "SIM 2 envoyé (Ko)"
+          },
+          "sim2_traffic_rx_kb": {
+            "name": "SIM 2 reçu (Ko)"
+          }
+        }
       },
       "hub_led_brightness": {
         "name": "Luminosité LED Hub"
@@ -336,20 +412,151 @@
       "hub_timezone": {
         "name": "Fuseau horaire Hub"
       },
-      "hub_active_sim": {
-        "name": "SIM active"
+      "hub_rooms": {
+        "name": "Pièces",
+        "state_attributes": {
+          "room_names": {
+            "name": "Liste des pièces"
+          },
+          "rooms": {
+            "name": "Détail des pièces"
+          }
+        }
       },
-      "hub_sim1_apn": {
-        "name": "SIM 1 APN"
+      "hub_geofence": {
+        "name": "Position GPS",
+        "state_attributes": {
+          "latitude": {
+            "name": "Latitude"
+          },
+          "longitude": {
+            "name": "Longitude"
+          },
+          "radius_meters": {
+            "name": "Rayon (mètres)"
+          }
+        }
       },
-      "hub_sim2_apn": {
-        "name": "SIM 2 APN"
+      "hub_limits": {
+        "name": "Limites du système",
+        "state_attributes": {
+          "max_rooms": {
+            "name": "Pièces max"
+          },
+          "max_groups": {
+            "name": "Groupes max"
+          },
+          "max_cameras": {
+            "name": "Caméras max"
+          },
+          "max_sensors": {
+            "name": "Capteurs max"
+          },
+          "max_users": {
+            "name": "Utilisateurs max"
+          }
+        }
       },
-      "hub_sim1_traffic": {
-        "name": "SIM 1 Trafic"
+      "hub_noise_level": {
+        "name": "Niveau de bruit radio",
+        "state_attributes": {
+          "channel_1_dbm": {
+            "name": "Canal 1 (dBm)"
+          },
+          "channel_2_dbm": {
+            "name": "Canal 2 (dBm)"
+          },
+          "data_channel_dbm": {
+            "name": "Canal données (dBm)"
+          },
+          "high": {
+            "name": "Bruit élevé"
+          }
+        }
       },
-      "hub_sim2_traffic": {
-        "name": "SIM 2 Trafic"
+      "hub_grade_mode": {
+        "name": "Grade de sécurité"
+      },
+      "hub_active_channels": {
+        "name": "Canaux actifs",
+        "state_attributes": {
+          "channels": {
+            "name": "Liste des canaux"
+          },
+          "ethernet": {
+            "name": "Ethernet"
+          },
+          "wifi": {
+            "name": "WiFi"
+          },
+          "gsm": {
+            "name": "GSM"
+          }
+        }
+      },
+      "hub_ping_period": {
+        "name": "Intervalle de ping"
+      },
+      "hub_offline_delay": {
+        "name": "Délai alarme hors ligne"
+      },
+      "hub_hardware_version": {
+        "name": "Version matérielle",
+        "state_attributes": {
+          "cpu": {
+            "name": "CPU"
+          },
+          "wifi": {
+            "name": "WiFi"
+          },
+          "ethernet": {
+            "name": "Ethernet"
+          },
+          "flash": {
+            "name": "Flash"
+          },
+          "pcb": {
+            "name": "PCB"
+          },
+          "rfm": {
+            "name": "RFM"
+          },
+          "modem": {
+            "name": "Modem"
+          }
+        }
+      },
+      "hub_users": {
+        "name": "Utilisateurs",
+        "state_attributes": {
+          "user_names": {
+            "name": "Noms des utilisateurs"
+          },
+          "users": {
+            "name": "Détail des utilisateurs"
+          }
+        }
+      },
+      "indicator_light_mode": {
+        "name": "Mode LED"
+      },
+      "image_resolution": {
+        "name": "Résolution photo"
+      },
+      "photos_per_alarm": {
+        "name": "Photos par alarme"
+      },
+      "beep_volume_level": {
+        "name": "Volume du bip"
+      },
+      "alarm_volume_level": {
+        "name": "Volume de l'alarme"
+      },
+      "alarm_duration": {
+        "name": "Durée de l'alarme"
+      },
+      "led_indication": {
+        "name": "Indication LED"
       }
     },
     "binary_sensor": {
@@ -432,6 +639,21 @@
       }
     },
     "switch": {
+      "always_active": {
+        "name": "Toujours actif",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        },
+        "state_attributes": {
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "device_id": {
+            "name": "ID de l'appareil"
+          }
+        }
+      },
       "socket": {
         "name": "Prise",
         "state_attributes": {
@@ -473,6 +695,118 @@
           "device_count": {
             "name": "Nombre d'appareils"
           }
+        }
+      },
+      "indicator_light": {
+        "name": "Indication LED",
+        "state": {
+          "on": "Activée",
+          "off": "Désactivée"
+        },
+        "state_attributes": {
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "device_id": {
+            "name": "ID de l'appareil"
+          },
+          "mode": {
+            "name": "Mode"
+          }
+        }
+      },
+      "alerts_by_sirens": {
+        "name": "Alertes par sirènes",
+        "state": {
+          "on": "Activées",
+          "off": "Désactivées"
+        },
+        "state_attributes": {
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "device_id": {
+            "name": "ID de l'appareil"
+          }
+        }
+      },
+      "night_mode": {
+        "name": "Armé en mode nuit",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        },
+        "state_attributes": {
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "device_id": {
+            "name": "ID de l'appareil"
+          }
+        }
+      },
+      "external_contact": {
+        "name": "Contact externe",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        }
+      },
+      "shock_sensor": {
+        "name": "Capteur de choc",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        }
+      },
+      "ignore_impact": {
+        "name": "Ignorer les impacts simples",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        }
+      },
+      "tilt_sensor": {
+        "name": "Capteur d'inclinaison",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        }
+      },
+      "siren_trigger_reed": {
+        "name": "Sirène si ouverture",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        }
+      },
+      "siren_trigger_shock": {
+        "name": "Sirène si choc",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        }
+      },
+      "siren_trigger_tilt": {
+        "name": "Sirène si inclinaison",
+        "state": {
+          "on": "Activé",
+          "off": "Désactivé"
+        }
+      }
+    },
+    "number": {
+      "tilt_degrees": {
+        "name": "Seuil d'inclinaison"
+      }
+    },
+    "select": {
+      "shock_sensitivity": {
+        "name": "Sensibilité choc",
+        "state": {
+          "faible": "Faible",
+          "normal": "Normal",
+          "élevé": "Élevé"
         }
       }
     }

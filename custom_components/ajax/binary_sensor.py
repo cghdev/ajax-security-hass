@@ -27,6 +27,7 @@ from .devices import (
     GlassBreakHandler,
     HubHandler,
     MotionDetectorHandler,
+    SirenHandler,
     SmokeDetectorHandler,
     SocketHandler,
 )
@@ -45,6 +46,7 @@ DEVICE_HANDLERS = {
     DeviceType.GLASS_BREAK: GlassBreakHandler,
     DeviceType.SOCKET: SocketHandler,
     DeviceType.RELAY: SocketHandler,
+    DeviceType.SIREN: SirenHandler,
     DeviceType.HUB: HubHandler,
 }
 
@@ -161,26 +163,45 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass, update device info in registry."""
         await super().async_added_to_hass()
-
-        # Update device info in registry to reflect current model, firmware, etc.
-        device = self._get_device()
-        if device and device.firmware_version:
-            device_registry = dr.async_get(self.hass)
-            device_entry = device_registry.async_get_device(
-                identifiers={(DOMAIN, self._device_id)}
-            )
-            if device_entry:
-                device_registry.async_update_device(
-                    device_entry.id,
-                    model=self._get_device_model_name(device.type.value),
-                    sw_version=device.firmware_version,
-                    hw_version=device.hardware_version,
-                )
+        self._update_device_registry()
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
+        # Update device registry once on first update (for existing entities)
+        if not getattr(self, "_device_info_updated", False):
+            self._device_info_updated = True
+            self._update_device_registry()
         self.async_write_ha_state()
+
+    def _update_device_registry(self) -> None:
+        """Update device info in registry with model, firmware, and color."""
+        device = self._get_device()
+        if not device:
+            return
+
+        device_registry = dr.async_get(self.hass)
+        device_entry = device_registry.async_get_device(
+            identifiers={(DOMAIN, self._device_id)}
+        )
+        if not device_entry:
+            return
+
+        # Get model name with color
+        model_name = self._get_device_model_name(device.type.value)
+        if device.device_color:
+            color_name = {
+                "WHITE": "Blanc", "White": "Blanc",
+                "BLACK": "Noir", "Black": "Noir"
+            }.get(str(device.device_color), str(device.device_color))
+            model_name = f"{model_name} ({color_name})"
+
+        device_registry.async_update_device(
+            device_entry.id,
+            model=model_name,
+            sw_version=device.firmware_version,
+            hw_version=device.hardware_version,
+        )
 
     def _get_device_model_name(self, device_type_value: str) -> str:
         """Get translated device model name.
@@ -234,11 +255,20 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
         # Include room name in device name if available
         device_display_name = f"{room_name} - {device.name}" if room_name else device.name
 
+        # Get model name with color
+        model_name = self._get_device_model_name(device.type.value)
+        if device.device_color:
+            color_name = {
+                "WHITE": "Blanc", "White": "Blanc",
+                "BLACK": "Noir", "Black": "Noir"
+            }.get(str(device.device_color), str(device.device_color))
+            model_name = f"{model_name} ({color_name})"
+
         return {
             "identifiers": {(DOMAIN, self._device_id)},
             "name": f"Ajax {device_display_name}",
             "manufacturer": "Ajax Systems",
-            "model": self._get_device_model_name(device.type.value),
+            "model": model_name,
             "via_device": (DOMAIN, self._space_id),
             "sw_version": device.firmware_version,
             "hw_version": device.hardware_version,

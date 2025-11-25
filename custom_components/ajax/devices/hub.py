@@ -48,6 +48,7 @@ class HubHandler(AjaxDeviceHandler):
                 "key": "tamper",
                 "translation_key": "tamper",
                 "device_class": BinarySensorDeviceClass.TAMPER,
+                "icon": "mdi:lock-open-alert",
                 "value_fn": lambda: self.device.attributes.get("tampered", False),
                 "enabled_by_default": True,
             },
