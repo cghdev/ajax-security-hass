@@ -376,8 +376,8 @@ async def async_setup_entry(
         for description in SPACE_SENSORS:
             if description.should_create and not description.should_create(space):
                 continue
-            if description.key == "recent_events" and not sqs_configured:
-                continue
+            # recent_events is now created from REST API state changes, not just SQS
+            # So we always create it
             entities.append(
                 AjaxSpaceSensor(coordinator, entry, space_id, description)
             )
