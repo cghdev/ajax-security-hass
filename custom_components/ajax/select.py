@@ -3,6 +3,7 @@
 This module creates select entities for Ajax device settings like:
 - shockSensorSensitivity: Shock sensor sensitivity (Désactivé, Faible, Normal, Élevé)
 """
+
 from __future__ import annotations
 
 import logging
@@ -71,7 +72,9 @@ class AjaxDoorPlusBaseSelect(CoordinatorEntity[AjaxDataCoordinator], SelectEntit
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str) -> None:
+    def __init__(
+        self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str
+    ) -> None:
         super().__init__(coordinator)
         self._space_id = space_id
         self._device_id = device_id
@@ -99,7 +102,9 @@ class AjaxShockSensitivitySelect(AjaxDoorPlusBaseSelect):
 
     _attr_options = list(SHOCK_SENSITIVITY_OPTIONS.values())
 
-    def __init__(self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str) -> None:
+    def __init__(
+        self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str
+    ) -> None:
         super().__init__(coordinator, space_id, device_id)
         self._attr_unique_id = f"{device_id}_shock_sensitivity"
         self._attr_translation_key = "shock_sensitivity"
@@ -123,11 +128,14 @@ class AjaxShockSensitivitySelect(AjaxDoorPlusBaseSelect):
 
         try:
             await self.coordinator.api.async_update_device(
-                space.hub_id,
-                self._device_id,
-                {"shockSensorSensitivity": value}
+                space.hub_id, self._device_id, {"shockSensorSensitivity": value}
             )
-            _LOGGER.info("Set shockSensorSensitivity=%d (%s) for device %s", value, option, self._device_id)
+            _LOGGER.info(
+                "Set shockSensorSensitivity=%d (%s) for device %s",
+                value,
+                option,
+                self._device_id,
+            )
             await self.coordinator.async_request_refresh()
         except Exception as err:
             _LOGGER.error("Failed to set shockSensorSensitivity: %s", err)

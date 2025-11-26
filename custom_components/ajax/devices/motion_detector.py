@@ -58,7 +58,9 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                     "translation_key": "glass_break",
                     "device_class": BinarySensorDeviceClass.SAFETY,
                     "icon": "mdi:glass-fragile",
-                    "value_fn": lambda: self.device.attributes.get("glass_break_detected", False),
+                    "value_fn": lambda: self.device.attributes.get(
+                        "glass_break_detected", False
+                    ),
                     "enabled_by_default": True,
                 }
             )
@@ -77,7 +79,9 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                 "device_class": SensorDeviceClass.BATTERY,
                 "native_unit_of_measurement": PERCENTAGE,
                 "state_class": SensorStateClass.MEASUREMENT,
-                "value_fn": lambda: self.device.battery_level if self.device.battery_level is not None else None,
+                "value_fn": lambda: self.device.battery_level
+                if self.device.battery_level is not None
+                else None,
                 "enabled_by_default": True,
             }
         )
@@ -90,7 +94,9 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                 "icon": "mdi:signal",
                 "native_unit_of_measurement": PERCENTAGE,
                 "state_class": SensorStateClass.MEASUREMENT,
-                "value_fn": lambda: self.device.signal_strength if self.device.signal_strength is not None else None,
+                "value_fn": lambda: self.device.signal_strength
+                if self.device.signal_strength is not None
+                else None,
                 "enabled_by_default": True,
             }
         )
@@ -118,7 +124,7 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                     "icon": "mdi:tune",
                     "value_fn": lambda: {0: "Faible", 1: "Normal", 2: "Élevé"}.get(
                         self.device.attributes.get("sensitivity"),
-                        self.device.attributes.get("sensitivity")
+                        self.device.attributes.get("sensitivity"),
                     ),
                     "enabled_by_default": True,
                 }
@@ -151,7 +157,8 @@ class MotionDetectorHandler(AjaxDeviceHandler):
                     "translation_key": "indicator_light",
                     "name": "Indication LED",
                     "icon": "mdi:led-on",
-                    "value_fn": lambda: self.device.attributes.get("indicatorLightMode") == "STANDARD",
+                    "value_fn": lambda: self.device.attributes.get("indicatorLightMode")
+                    == "STANDARD",
                     "api_key": "indicatorLightMode",
                     "api_value_on": "STANDARD",
                     "api_value_off": "DONT_BLINK_ON_ALARM",

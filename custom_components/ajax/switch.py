@@ -3,6 +3,7 @@
 This module creates switches for Ajax device settings using the device handler architecture.
 Each device type has its own handler that defines which switches to create.
 """
+
 from __future__ import annotations
 
 import logging
@@ -116,7 +117,9 @@ class AjaxSwitch(CoordinatorEntity[AjaxDataCoordinator], SwitchEntity):
 
         # Set enabled by default
         if "enabled_by_default" in switch_desc:
-            self._attr_entity_registry_enabled_default = switch_desc["enabled_by_default"]
+            self._attr_entity_registry_enabled_default = switch_desc[
+                "enabled_by_default"
+            ]
 
     @property
     def is_on(self) -> bool | None:
@@ -188,9 +191,7 @@ class AjaxSwitch(CoordinatorEntity[AjaxDataCoordinator], SwitchEntity):
 
         try:
             await self.coordinator.api.async_update_device(
-                space.hub_id,
-                self._device_id,
-                payload
+                space.hub_id, self._device_id, payload
             )
             _LOGGER.info(
                 "Set %s=%s for device %s",
@@ -207,7 +208,9 @@ class AjaxSwitch(CoordinatorEntity[AjaxDataCoordinator], SwitchEntity):
                 err,
             )
 
-    async def _set_trigger_value(self, space, device, trigger_key: str, enabled: bool) -> None:
+    async def _set_trigger_value(
+        self, space, device, trigger_key: str, enabled: bool
+    ) -> None:
         """Set a trigger value in the sirenTriggers list."""
         current_triggers = list(device.attributes.get("siren_triggers", []))
 
@@ -222,9 +225,7 @@ class AjaxSwitch(CoordinatorEntity[AjaxDataCoordinator], SwitchEntity):
 
         try:
             await self.coordinator.api.async_update_device(
-                space.hub_id,
-                self._device_id,
-                {"sirenTriggers": current_triggers}
+                space.hub_id, self._device_id, {"sirenTriggers": current_triggers}
             )
             _LOGGER.info(
                 "Set sirenTriggers=%s for device %s",
@@ -262,7 +263,9 @@ class AjaxSwitch(CoordinatorEntity[AjaxDataCoordinator], SwitchEntity):
                 room_name = space.rooms[device.room_id].name
 
         # Include room name in device name if available
-        device_display_name = f"{room_name} - {device.name}" if room_name else device.name
+        device_display_name = (
+            f"{room_name} - {device.name}" if room_name else device.name
+        )
 
         return {
             "identifiers": {(DOMAIN, self._device_id)},

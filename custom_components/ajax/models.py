@@ -6,6 +6,7 @@ This module defines the data models that mirror the Ajax app structure:
 - Device (Capteur/Detecteur)
 - Notification (Event/Alerte)
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -46,14 +47,18 @@ class DeviceType(Enum):
     SIREN = "siren"
     TRANSMITTER = "transmitter"
     REPEATER = "repeater"
-    WIRE_INPUT = "wire_input"  # Wired input modules for connecting third-party detectors
+    WIRE_INPUT = (
+        "wire_input"  # Wired input modules for connecting third-party detectors
+    )
     LINE_SPLITTER = "line_splitter"  # Fibra line splitter/multiplexer
 
     # Smart Devices
     SOCKET = "socket"
     RELAY = "relay"
     THERMOSTAT = "thermostat"
-    LIFE_QUALITY = "life_quality"  # LifeQuality air quality sensor (CO2, temperature, humidity)
+    LIFE_QUALITY = (
+        "life_quality"  # LifeQuality air quality sensor (CO2, temperature, humidity)
+    )
 
     # Cameras
     CAMERA = "camera"
@@ -126,7 +131,9 @@ class AjaxDevice:
     type: DeviceType
     space_id: str
     hub_id: str
-    raw_type: str | None = None  # Raw device type before parsing (for debugging unknown devices)
+    raw_type: str | None = (
+        None  # Raw device type before parsing (for debugging unknown devices)
+    )
     room_id: str | None = None
     room_name: str | None = None
     group_id: str | None = None
@@ -199,11 +206,26 @@ class AjaxDevice:
                 return False
 
         # Check notification message for trigger keywords
-        message = self.last_notification.message.lower() if self.last_notification.message else ""
-        title = self.last_notification.title.lower() if self.last_notification.title else ""
+        message = (
+            self.last_notification.message.lower()
+            if self.last_notification.message
+            else ""
+        )
+        title = (
+            self.last_notification.title.lower() if self.last_notification.title else ""
+        )
 
-        trigger_keywords = ["motion", "detected", "triggered", "opened", "alarm", "movement"]
-        return any(keyword in message or keyword in title for keyword in trigger_keywords)
+        trigger_keywords = [
+            "motion",
+            "detected",
+            "triggered",
+            "opened",
+            "alarm",
+            "movement",
+        ]
+        return any(
+            keyword in message or keyword in title for keyword in trigger_keywords
+        )
 
 
 @dataclass
@@ -285,12 +307,13 @@ class AjaxSpace:
         result = []
         for d in self.devices.values():
             # malfunctions can be a list or an int
-            if isinstance(d.malfunctions, list):
-                if len(d.malfunctions) > 0:
-                    result.append(d)
-            elif isinstance(d.malfunctions, int):
-                if d.malfunctions > 0:
-                    result.append(d)
+            if (
+                isinstance(d.malfunctions, list)
+                and len(d.malfunctions) > 0
+                or isinstance(d.malfunctions, int)
+                and d.malfunctions > 0
+            ):
+                result.append(d)
         return result
 
     def get_bypassed_devices(self) -> list[AjaxDevice]:

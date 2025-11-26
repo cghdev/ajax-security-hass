@@ -93,7 +93,9 @@ class SQSManager:
 
             _LOGGER.debug(
                 "SQS event data: tag=%s, source=%s (%s)",
-                event_tag, source_name, source_type
+                event_tag,
+                source_name,
+                source_type,
             )
 
             if not hub_id or not event_tag:
@@ -131,12 +133,13 @@ class SQSManager:
                 if source_name:
                     _LOGGER.info(
                         "SQS instant: %s -> %s par %s",
-                        old_state.value, new_state.value, source_name
+                        old_state.value,
+                        new_state.value,
+                        source_name,
                     )
                 else:
                     _LOGGER.info(
-                        "SQS instant: %s -> %s",
-                        old_state.value, new_state.value
+                        "SQS instant: %s -> %s", old_state.value, new_state.value
                     )
 
                 # Create event for the sensor (with source info)
@@ -164,8 +167,7 @@ class SQSManager:
         is_protected = elapsed < self.STATE_PROTECTION_SECONDS
         if is_protected:
             _LOGGER.debug(
-                "Hub %s state protected (%.1fs since SQS update)",
-                hub_id, elapsed
+                "Hub %s state protected (%.1fs since SQS update)", hub_id, elapsed
             )
         return is_protected
 

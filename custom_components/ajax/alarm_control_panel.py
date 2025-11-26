@@ -1,4 +1,5 @@
 """Ajax alarm control panel platform."""
+
 from __future__ import annotations
 
 import logging
@@ -33,7 +34,7 @@ async def async_setup_entry(
     entities = []
 
     if coordinator.account:
-        for space_id, space in coordinator.account.spaces.items():
+        for space_id, _space in coordinator.account.spaces.items():
             # Create main alarm control panel for the space (hub)
             # Note: Groups/zones are now handled as switches in switch.py
             entities.append(AjaxAlarmControlPanel(coordinator, entry, space_id))
@@ -45,7 +46,9 @@ async def async_setup_entry(
         _LOGGER.info("No Ajax spaces found, no alarm panels created (yet)")
 
 
-class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControlPanelEntity):
+class AjaxAlarmControlPanel(
+    CoordinatorEntity[AjaxDataCoordinator], AlarmControlPanelEntity
+):
     """Representation of an Ajax alarm control panel (one per space/hub)."""
 
     _attr_supported_features = (
@@ -77,18 +80,28 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
             return {}
 
         # Get hub subtype and color for model name
-        hub_subtype = space.hub_details.get("hubSubtype", "Security Hub") if space.hub_details else "Security Hub"
+        hub_subtype = (
+            space.hub_details.get("hubSubtype", "Security Hub")
+            if space.hub_details
+            else "Security Hub"
+        )
         # Format hub subtype: HUB_2_PLUS -> Hub 2 Plus
         hub_subtype_formatted = hub_subtype.replace("_", " ").title()
 
         hub_color = space.hub_details.get("color", "") if space.hub_details else ""
         # Handle uppercase color values (WHITE, BLACK)
         color_name = {
-            "WHITE": "Blanc", "White": "Blanc",
-            "BLACK": "Noir", "Black": "Noir"
+            "WHITE": "Blanc",
+            "White": "Blanc",
+            "BLACK": "Noir",
+            "Black": "Noir",
         }.get(hub_color, hub_color)
 
-        model_name = f"{hub_subtype_formatted} ({color_name})" if color_name else hub_subtype_formatted
+        model_name = (
+            f"{hub_subtype_formatted} ({color_name})"
+            if color_name
+            else hub_subtype_formatted
+        )
 
         device_info = {
             "identifiers": {(DOMAIN, self._space_id)},
@@ -215,10 +228,16 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
                 hub_subtype_formatted = hub_subtype.replace("_", " ").title()
                 hub_color = space.hub_details.get("color", "")
                 color_name = {
-                    "WHITE": "Blanc", "White": "Blanc",
-                    "BLACK": "Noir", "Black": "Noir"
+                    "WHITE": "Blanc",
+                    "White": "Blanc",
+                    "BLACK": "Noir",
+                    "Black": "Noir",
                 }.get(hub_color, hub_color)
-                model_name = f"{hub_subtype_formatted} ({color_name})" if color_name else hub_subtype_formatted
+                model_name = (
+                    f"{hub_subtype_formatted} ({color_name})"
+                    if color_name
+                    else hub_subtype_formatted
+                )
 
                 device_registry.async_update_device(
                     device_entry.id,
@@ -268,12 +287,23 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
         hub_subtype_formatted = hub_subtype.replace("_", " ").title()
         hub_color = space.hub_details.get("color", "")
         color_name = {
-            "WHITE": "Blanc", "White": "Blanc",
-            "BLACK": "Noir", "Black": "Noir"
+            "WHITE": "Blanc",
+            "White": "Blanc",
+            "BLACK": "Noir",
+            "Black": "Noir",
         }.get(hub_color, hub_color)
-        model_name = f"{hub_subtype_formatted} ({color_name})" if color_name else hub_subtype_formatted
+        model_name = (
+            f"{hub_subtype_formatted} ({color_name})"
+            if color_name
+            else hub_subtype_formatted
+        )
 
-        _LOGGER.info("Updating hub device: model=%s, hw=%s, color=%s", model_name, hw_version, hub_color)
+        _LOGGER.info(
+            "Updating hub device: model=%s, hw=%s, color=%s",
+            model_name,
+            hw_version,
+            hub_color,
+        )
 
         device_registry.async_update_device(
             device_entry.id,
@@ -304,7 +334,12 @@ class AjaxAlarmControlPanel(CoordinatorEntity[AjaxDataCoordinator], AlarmControl
         if space.notifications:
             for notification in space.notifications:
                 # Check for arm/disarm events
-                if notification.title in ["armed", "disarmed", "night_mode_on", "partially_armed"]:
+                if notification.title in [
+                    "armed",
+                    "disarmed",
+                    "night_mode_on",
+                    "partially_armed",
+                ]:
                     if notification.user_name:
                         attributes["changed_by"] = notification.user_name
                     break

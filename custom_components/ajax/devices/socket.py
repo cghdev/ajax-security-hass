@@ -46,7 +46,9 @@ class SocketHandler(AjaxDeviceHandler):
                     "key": "external_power",
                     "translation_key": "external_power",
                     "device_class": BinarySensorDeviceClass.POWER,
-                    "value_fn": lambda: self.device.attributes.get("external_power", False),
+                    "value_fn": lambda: self.device.attributes.get(
+                        "external_power", False
+                    ),
                     "enabled_by_default": True,
                 }
             )
@@ -134,7 +136,9 @@ class SocketHandler(AjaxDeviceHandler):
                     "key": "malfunctions",
                     "translation_key": "malfunctions",
                     "icon": "mdi:alert-circle",
-                    "value_fn": lambda: ", ".join(self.device.malfunctions) if self.device.malfunctions else "None",
+                    "value_fn": lambda: ", ".join(self.device.malfunctions)
+                    if self.device.malfunctions
+                    else "None",
                     "enabled_by_default": True,
                 }
             )

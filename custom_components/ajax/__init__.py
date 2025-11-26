@@ -1,4 +1,5 @@
 """The Ajax Security System integration."""
+
 from __future__ import annotations
 
 import json
@@ -7,7 +8,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -150,7 +150,9 @@ async def _async_setup_services(
                     await coordinator.async_request_refresh()
                     _LOGGER.info("Force armed night mode hub %s", hub_id)
                 except Exception as err:
-                    _LOGGER.error("Failed to force arm night mode hub %s: %s", hub_id, err)
+                    _LOGGER.error(
+                        "Failed to force arm night mode hub %s: %s", hub_id, err
+                    )
 
     async def handle_generate_device_info(call: ServiceCall) -> None:
         """Handle generate device info service call."""
@@ -163,8 +165,8 @@ async def _async_setup_services(
         }
 
         if coordinator.account:
-            for space_id, space in coordinator.account.spaces.items():
-                for device_id, device in space.devices.items():
+            for _space_id, space in coordinator.account.spaces.items():
+                for _device_id, device in space.devices.items():
                     device_type = device.device_type
                     if device_type not in device_info["device_types"]:
                         device_info["device_types"][device_type] = {
@@ -212,9 +214,7 @@ async def _async_setup_services(
             DOMAIN,
             SERVICE_FORCE_ARM,
             handle_force_arm,
-            schema=vol.Schema(
-                {vol.Optional("entity_id"): cv.entity_ids}
-            ),
+            schema=vol.Schema({vol.Optional("entity_id"): cv.entity_ids}),
         )
 
     if not hass.services.has_service(DOMAIN, SERVICE_FORCE_ARM_NIGHT):
@@ -222,9 +222,7 @@ async def _async_setup_services(
             DOMAIN,
             SERVICE_FORCE_ARM_NIGHT,
             handle_force_arm_night,
-            schema=vol.Schema(
-                {vol.Optional("entity_id"): cv.entity_ids}
-            ),
+            schema=vol.Schema({vol.Optional("entity_id"): cv.entity_ids}),
         )
 
     if not hass.services.has_service(DOMAIN, SERVICE_GENERATE_DEVICE_INFO):
@@ -237,9 +235,7 @@ async def _async_setup_services(
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    if unload_ok := await hass.config_entries.async_unload_platforms(
-        entry, PLATFORMS
-    ):
+    if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):
         coordinator: AjaxDataCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
 
         # Shutdown coordinator (closes SQS manager, API connection, and all tasks)

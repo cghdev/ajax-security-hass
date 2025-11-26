@@ -3,6 +3,7 @@
 This module creates device trackers for Ajax hubs with GPS geofence data,
 allowing them to be displayed on the Home Assistant map.
 """
+
 from __future__ import annotations
 
 import logging

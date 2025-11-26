@@ -1,4 +1,5 @@
 """Config flow for Ajax integration."""
+
 from __future__ import annotations
 
 import hashlib
@@ -6,7 +7,6 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
@@ -16,7 +16,12 @@ from homeassistant.helpers.selector import (
     SelectSelectorMode,
 )
 
-from .api import AjaxRestApi, AjaxRestApiError, AjaxRestAuthError, AjaxRest2FARequiredError
+from .api import (
+    AjaxRest2FARequiredError,
+    AjaxRestApi,
+    AjaxRestApiError,
+    AjaxRestAuthError,
+)
 from .const import (
     CONF_API_KEY,
     CONF_AWS_ACCESS_KEY_ID,
@@ -28,10 +33,10 @@ from .const import (
     CONF_PERSISTENT_NOTIFICATION,
     CONF_QUEUE_NAME,
     DOMAIN,
-    NOTIFICATION_FILTER_NONE,
     NOTIFICATION_FILTER_ALARMS_ONLY,
-    NOTIFICATION_FILTER_SECURITY_EVENTS,
     NOTIFICATION_FILTER_ALL,
+    NOTIFICATION_FILTER_NONE,
+    NOTIFICATION_FILTER_SECURITY_EVENTS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -95,9 +100,13 @@ class AjaxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 # Add optional AWS SQS credentials if provided
                 if user_input.get(CONF_AWS_ACCESS_KEY_ID):
-                    entry_data[CONF_AWS_ACCESS_KEY_ID] = user_input[CONF_AWS_ACCESS_KEY_ID]
+                    entry_data[CONF_AWS_ACCESS_KEY_ID] = user_input[
+                        CONF_AWS_ACCESS_KEY_ID
+                    ]
                 if user_input.get(CONF_AWS_SECRET_ACCESS_KEY):
-                    entry_data[CONF_AWS_SECRET_ACCESS_KEY] = user_input[CONF_AWS_SECRET_ACCESS_KEY]
+                    entry_data[CONF_AWS_SECRET_ACCESS_KEY] = user_input[
+                        CONF_AWS_SECRET_ACCESS_KEY
+                    ]
                 if user_input.get(CONF_QUEUE_NAME):
                     entry_data[CONF_QUEUE_NAME] = user_input[CONF_QUEUE_NAME]
 
@@ -173,9 +182,13 @@ class AjaxConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 # Add optional AWS SQS credentials if provided
                 if self._user_input.get(CONF_AWS_ACCESS_KEY_ID):
-                    entry_data[CONF_AWS_ACCESS_KEY_ID] = self._user_input[CONF_AWS_ACCESS_KEY_ID]
+                    entry_data[CONF_AWS_ACCESS_KEY_ID] = self._user_input[
+                        CONF_AWS_ACCESS_KEY_ID
+                    ]
                 if self._user_input.get(CONF_AWS_SECRET_ACCESS_KEY):
-                    entry_data[CONF_AWS_SECRET_ACCESS_KEY] = self._user_input[CONF_AWS_SECRET_ACCESS_KEY]
+                    entry_data[CONF_AWS_SECRET_ACCESS_KEY] = self._user_input[
+                        CONF_AWS_SECRET_ACCESS_KEY
+                    ]
                 if self._user_input.get(CONF_QUEUE_NAME):
                     entry_data[CONF_QUEUE_NAME] = self._user_input[CONF_QUEUE_NAME]
 
@@ -250,19 +263,19 @@ class AjaxOptionsFlow(config_entries.OptionsFlow):
         current_persistent = self.config_entry.options.get(
             CONF_PERSISTENT_NOTIFICATION, False
         )
-        current_spaces = self.config_entry.options.get(
-            CONF_MONITORED_SPACES, []
-        )
+        current_spaces = self.config_entry.options.get(CONF_MONITORED_SPACES, [])
 
         # Get available spaces from coordinator
         space_options = []
         coordinator = self.hass.data.get(DOMAIN, {}).get(self.config_entry.entry_id)
         if coordinator and hasattr(coordinator, "account") and coordinator.account:
             for space_id, space in coordinator.account.spaces.items():
-                space_options.append({
-                    "value": space_id,
-                    "label": space.name,
-                })
+                space_options.append(
+                    {
+                        "value": space_id,
+                        "label": space.name,
+                    }
+                )
             # If no spaces selected, select all by default
             if not current_spaces:
                 current_spaces = list(coordinator.account.spaces.keys())
@@ -280,9 +293,18 @@ class AjaxOptionsFlow(config_entries.OptionsFlow):
                 SelectSelectorConfig(
                     options=[
                         {"value": NOTIFICATION_FILTER_NONE, "label": "Aucune"},
-                        {"value": NOTIFICATION_FILTER_ALARMS_ONLY, "label": "Alarmes uniquement"},
-                        {"value": NOTIFICATION_FILTER_SECURITY_EVENTS, "label": "Événements de sécurité (alarmes + armement)"},
-                        {"value": NOTIFICATION_FILTER_ALL, "label": "Toutes les notifications"},
+                        {
+                            "value": NOTIFICATION_FILTER_ALARMS_ONLY,
+                            "label": "Alarmes uniquement",
+                        },
+                        {
+                            "value": NOTIFICATION_FILTER_SECURITY_EVENTS,
+                            "label": "Événements de sécurité (alarmes + armement)",
+                        },
+                        {
+                            "value": NOTIFICATION_FILTER_ALL,
+                            "label": "Toutes les notifications",
+                        },
                     ],
                     mode=SelectSelectorMode.DROPDOWN,
                 )
@@ -291,10 +313,12 @@ class AjaxOptionsFlow(config_entries.OptionsFlow):
 
         # Add spaces selector only if spaces are available
         if space_options:
-            schema_dict[vol.Optional(
-                CONF_MONITORED_SPACES,
-                default=current_spaces,
-            )] = SelectSelector(
+            schema_dict[
+                vol.Optional(
+                    CONF_MONITORED_SPACES,
+                    default=current_spaces,
+                )
+            ] = SelectSelector(
                 SelectSelectorConfig(
                     options=space_options,
                     mode=SelectSelectorMode.DROPDOWN,
@@ -321,7 +345,9 @@ class AjaxOptionsFlow(config_entries.OptionsFlow):
             if user_input.get(CONF_AWS_ACCESS_KEY_ID):
                 new_data[CONF_AWS_ACCESS_KEY_ID] = user_input[CONF_AWS_ACCESS_KEY_ID]
             if user_input.get(CONF_AWS_SECRET_ACCESS_KEY):
-                new_data[CONF_AWS_SECRET_ACCESS_KEY] = user_input[CONF_AWS_SECRET_ACCESS_KEY]
+                new_data[CONF_AWS_SECRET_ACCESS_KEY] = user_input[
+                    CONF_AWS_SECRET_ACCESS_KEY
+                ]
             if user_input.get(CONF_QUEUE_NAME):
                 new_data[CONF_QUEUE_NAME] = user_input[CONF_QUEUE_NAME]
 
@@ -347,7 +373,9 @@ class AjaxOptionsFlow(config_entries.OptionsFlow):
                 ): str,
                 vol.Optional(
                     CONF_AWS_SECRET_ACCESS_KEY,
-                    description={"suggested_value": ""},  # Don't show secret, let user re-enter
+                    description={
+                        "suggested_value": ""
+                    },  # Don't show secret, let user re-enter
                 ): str,
                 vol.Optional(
                     CONF_QUEUE_NAME,

@@ -5,13 +5,14 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import time
 import threading
+import time
 from typing import Any, Callable
 
 try:
     from aiobotocore.session import get_session
     from botocore.exceptions import ClientError
+
     HAS_AIOBOTOCORE = True
 except ImportError:
     HAS_AIOBOTOCORE = False
@@ -74,9 +75,7 @@ class AjaxSQSClient:
         try:
             # Run in executor to avoid blocking
             loop = asyncio.get_event_loop()
-            self._queue_url = await loop.run_in_executor(
-                None, self._get_queue_url_sync
-            )
+            self._queue_url = await loop.run_in_executor(None, self._get_queue_url_sync)
             _LOGGER.info("Connected to SQS: %s", self._queue_name)
             return True
         except Exception as err:
@@ -85,10 +84,12 @@ class AjaxSQSClient:
 
     def _get_queue_url_sync(self) -> str:
         """Synchronously get queue URL (runs in executor)."""
+
         async def _fetch():
             async with self._make_client() as client:
                 resp = await client.get_queue_url(QueueName=self._queue_name)
                 return resp["QueueUrl"]
+
         return asyncio.run(_fetch())
 
     async def start_receiving(self) -> None:
@@ -101,9 +102,7 @@ class AjaxSQSClient:
 
         self._running = True
         self._thread = threading.Thread(
-            target=self._receive_loop,
-            name="SQS-Receiver",
-            daemon=True
+            target=self._receive_loop, name="SQS-Receiver", daemon=True
         )
         self._thread.start()
         _LOGGER.info("SQS receiver started")
@@ -180,8 +179,7 @@ class AjaxSQSClient:
             # Call the callback in Home Assistant's event loop
             if self._callback and self._hass_loop:
                 future = asyncio.run_coroutine_threadsafe(
-                    self._callback(body),
-                    self._hass_loop
+                    self._callback(body), self._hass_loop
                 )
                 # Wait for callback to complete (with timeout)
                 try:

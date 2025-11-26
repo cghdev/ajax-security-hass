@@ -4,6 +4,7 @@ This module creates binary sensors for Ajax devices using the device handler arc
 Each device type (MotionProtect, DoorProtect, etc.) has its own handler that defines
 which binary sensors to create.
 """
+
 from __future__ import annotations
 
 import logging
@@ -124,7 +125,9 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
 
         # Set enabled by default
         if "enabled_by_default" in sensor_desc:
-            self._attr_entity_registry_enabled_default = sensor_desc["enabled_by_default"]
+            self._attr_entity_registry_enabled_default = sensor_desc[
+                "enabled_by_default"
+            ]
 
     @property
     def is_on(self) -> bool | None:
@@ -188,8 +191,10 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
         model_name = self._get_device_model_name(device.type.value)
         if device.device_color:
             color_name = {
-                "WHITE": "Blanc", "White": "Blanc",
-                "BLACK": "Noir", "Black": "Noir"
+                "WHITE": "Blanc",
+                "White": "Blanc",
+                "BLACK": "Noir",
+                "Black": "Noir",
             }.get(str(device.device_color), str(device.device_color))
             model_name = f"{model_name} ({color_name})"
 
@@ -233,7 +238,9 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
             "hub": "Hub",
             "unknown": "Appareil inconnu",
         }
-        return translations.get(device_type_value, device_type_value.replace("_", " ").title())
+        return translations.get(
+            device_type_value, device_type_value.replace("_", " ").title()
+        )
 
     @property
     def device_info(self) -> dict[str, Any]:
@@ -250,14 +257,18 @@ class AjaxBinarySensor(CoordinatorEntity[AjaxDataCoordinator], BinarySensorEntit
                 room_name = space.rooms[device.room_id].name
 
         # Include room name in device name if available
-        device_display_name = f"{room_name} - {device.name}" if room_name else device.name
+        device_display_name = (
+            f"{room_name} - {device.name}" if room_name else device.name
+        )
 
         # Get model name with color
         model_name = self._get_device_model_name(device.type.value)
         if device.device_color:
             color_name = {
-                "WHITE": "Blanc", "White": "Blanc",
-                "BLACK": "Noir", "Black": "Noir"
+                "WHITE": "Blanc",
+                "White": "Blanc",
+                "BLACK": "Noir",
+                "Black": "Noir",
             }.get(str(device.device_color), str(device.device_color))
             model_name = f"{model_name} ({color_name})"
 

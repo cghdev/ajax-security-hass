@@ -4,11 +4,12 @@ This module creates sensors for:
 - Space-level statistics (device counts, notifications, etc.)
 - Device-level measurements using the handler architecture
 """
+
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
-import logging
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -17,10 +18,10 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -149,6 +150,7 @@ def get_last_event_text(space) -> str:
 @dataclass
 class AjaxSpaceSensorDescription(SensorEntityDescription):
     """Description for Ajax space-level sensors."""
+
     value_fn: Callable[[AjaxSpace], Any] | None = None
     should_create: Callable[[AjaxSpace], bool] | None = None
     entity_category: EntityCategory | None = None
@@ -177,7 +179,11 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         icon="mdi:alert-circle",
         state_class=SensorStateClass.MEASUREMENT,
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("warnings", {}).get("allDevices", 0) if space.hub_details else len(space.get_devices_with_malfunctions()),
+        value_fn=lambda space: space.hub_details.get("warnings", {}).get(
+            "allDevices", 0
+        )
+        if space.hub_details
+        else len(space.get_devices_with_malfunctions()),
     ),
     AjaxSpaceSensorDescription(
         key="bypassed_devices",
@@ -199,56 +205,84 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         device_class=SensorDeviceClass.BATTERY,
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        value_fn=lambda space: space.hub_details.get("battery", {}).get("chargeLevelPercentage") if space.hub_details else None,
+        value_fn=lambda space: space.hub_details.get("battery", {}).get(
+            "chargeLevelPercentage"
+        )
+        if space.hub_details
+        else None,
     ),
     AjaxSpaceSensorDescription(
         key="hub_tamper",
         translation_key="hub_tamper",
         icon="mdi:lock-open-alert",
-        value_fn=lambda space: "Ouvert" if space.hub_details.get("tampered") else "Fermé" if space.hub_details else None,
+        value_fn=lambda space: "Ouvert"
+        if space.hub_details.get("tampered")
+        else "Fermé"
+        if space.hub_details
+        else None,
     ),
     AjaxSpaceSensorDescription(
         key="hub_external_power",
         translation_key="hub_external_power",
         icon="mdi:power-plug",
-        value_fn=lambda space: "Connecté" if space.hub_details.get("externallyPowered") else "Déconnecté" if space.hub_details else None,
+        value_fn=lambda space: "Connecté"
+        if space.hub_details.get("externallyPowered")
+        else "Déconnecté"
+        if space.hub_details
+        else None,
     ),
     AjaxSpaceSensorDescription(
         key="hub_ethernet_ip",
         translation_key="hub_ethernet_ip",
         icon="mdi:ethernet",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("ethernet", {}).get("ip") if space.hub_details and space.hub_details.get("ethernet", {}).get("enabled") else None,
+        value_fn=lambda space: space.hub_details.get("ethernet", {}).get("ip")
+        if space.hub_details and space.hub_details.get("ethernet", {}).get("enabled")
+        else None,
     ),
     AjaxSpaceSensorDescription(
         key="hub_wifi",
         translation_key="hub_wifi",
         icon="mdi:wifi",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: format_signal_level(space.hub_details.get("wifi", {}).get("signalLevel")) if space.hub_details and space.hub_details.get("wifi", {}).get("enabled") else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("wifi", {}).get("enabled", False),
+        value_fn=lambda space: format_signal_level(
+            space.hub_details.get("wifi", {}).get("signalLevel")
+        )
+        if space.hub_details and space.hub_details.get("wifi", {}).get("enabled")
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("wifi", {}).get("enabled", False),
     ),
     AjaxSpaceSensorDescription(
         key="hub_gsm",
         translation_key="hub_gsm",
         icon="mdi:sim",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: format_signal_level(space.hub_details.get("gsm", {}).get("signalLevel")) if space.hub_details else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("gsm") is not None,
+        value_fn=lambda space: format_signal_level(
+            space.hub_details.get("gsm", {}).get("signalLevel")
+        )
+        if space.hub_details
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("gsm") is not None,
     ),
     AjaxSpaceSensorDescription(
         key="hub_led_brightness",
         translation_key="hub_led_brightness",
         icon="mdi:brightness-6",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("ledBrightnessLevel") if space.hub_details else None,
+        value_fn=lambda space: space.hub_details.get("ledBrightnessLevel")
+        if space.hub_details
+        else None,
     ),
     AjaxSpaceSensorDescription(
         key="hub_timezone",
         translation_key="hub_timezone",
         icon="mdi:clock-outline",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: format_timezone(space.hub_details.get("timeZone")) if space.hub_details else None,
+        value_fn=lambda space: format_timezone(space.hub_details.get("timeZone"))
+        if space.hub_details
+        else None,
     ),
     # Rooms count
     AjaxSpaceSensorDescription(
@@ -264,8 +298,11 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         translation_key="hub_users",
         icon="mdi:account-group",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: len(getattr(space, "_users", [])) if hasattr(space, "_users") else None,
-        should_create=lambda space: hasattr(space, "_users") and len(getattr(space, "_users", [])) > 0,
+        value_fn=lambda space: len(getattr(space, "_users", []))
+        if hasattr(space, "_users")
+        else None,
+        should_create=lambda space: hasattr(space, "_users")
+        and len(getattr(space, "_users", [])) > 0,
     ),
     # Grade Mode (security level)
     AjaxSpaceSensorDescription(
@@ -277,8 +314,11 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
             "GRADE_1": "Grade 1",
             "GRADE_2": "Grade 2",
             "GRADE_3": "Grade 3",
-        }.get(space.hub_details.get("gradeMode"), space.hub_details.get("gradeMode")) if space.hub_details else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("gradeMode"),
+        }.get(space.hub_details.get("gradeMode"), space.hub_details.get("gradeMode"))
+        if space.hub_details
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("gradeMode"),
     ),
     # Active Channels (WiFi, Ethernet, GSM)
     AjaxSpaceSensorDescription(
@@ -286,8 +326,11 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         translation_key="hub_active_channels",
         icon="mdi:access-point-network",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: ", ".join(space.hub_details.get("activeChannels", [])) if space.hub_details and space.hub_details.get("activeChannels") else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("activeChannels"),
+        value_fn=lambda space: ", ".join(space.hub_details.get("activeChannels", []))
+        if space.hub_details and space.hub_details.get("activeChannels")
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("activeChannels"),
     ),
     # Ping Period
     AjaxSpaceSensorDescription(
@@ -296,8 +339,11 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         icon="mdi:timer-outline",
         native_unit_of_measurement="s",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("pingPeriodSeconds") if space.hub_details else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("pingPeriodSeconds"),
+        value_fn=lambda space: space.hub_details.get("pingPeriodSeconds")
+        if space.hub_details
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("pingPeriodSeconds"),
     ),
     # Offline Alarm Delay
     AjaxSpaceSensorDescription(
@@ -306,8 +352,11 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         icon="mdi:timer-alert-outline",
         native_unit_of_measurement="s",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: space.hub_details.get("offlineAlarmSeconds") if space.hub_details else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("offlineAlarmSeconds"),
+        value_fn=lambda space: space.hub_details.get("offlineAlarmSeconds")
+        if space.hub_details
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("offlineAlarmSeconds"),
     ),
     # Noise Level (radio interference)
     AjaxSpaceSensorDescription(
@@ -315,8 +364,13 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         translation_key="hub_noise_level",
         icon="mdi:signal-off",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: "Élevé" if space.hub_details.get("noiseLevel", {}).get("high", False) else "Normal" if space.hub_details and space.hub_details.get("noiseLevel") else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("noiseLevel"),
+        value_fn=lambda space: "Élevé"
+        if space.hub_details.get("noiseLevel", {}).get("high", False)
+        else "Normal"
+        if space.hub_details and space.hub_details.get("noiseLevel")
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("noiseLevel"),
     ),
     # Limits (sensors, rooms, etc.)
     AjaxSpaceSensorDescription(
@@ -324,8 +378,11 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         translation_key="hub_limits",
         icon="mdi:counter",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: f"{len(space.devices)}/{space.hub_details.get('limits', {}).get('sensors', 0)} capteurs" if space.hub_details and space.hub_details.get("limits") else None,
-        should_create=lambda space: space.hub_details and space.hub_details.get("limits"),
+        value_fn=lambda space: f"{len(space.devices)}/{space.hub_details.get('limits', {}).get('sensors', 0)} capteurs"
+        if space.hub_details and space.hub_details.get("limits")
+        else None,
+        should_create=lambda space: space.hub_details
+        and space.hub_details.get("limits"),
     ),
 )
 
@@ -369,8 +426,6 @@ async def async_setup_entry(
         _LOGGER.warning("No Ajax account found, no sensors created")
         return
 
-    sqs_configured = coordinator.sqs_manager is not None
-
     # Create space-level sensors for each space (hub)
     for space_id, space in coordinator.account.spaces.items():
         for description in SPACE_SENSORS:
@@ -378,9 +433,7 @@ async def async_setup_entry(
                 continue
             # recent_events is now created from REST API state changes, not just SQS
             # So we always create it
-            entities.append(
-                AjaxSpaceSensor(coordinator, entry, space_id, description)
-            )
+            entities.append(AjaxSpaceSensor(coordinator, entry, space_id, description))
 
     # Create device-level sensors using handlers
     for space_id, space in coordinator.account.spaces.items():
@@ -460,12 +513,16 @@ class AjaxSpaceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
         if not space:
             return {}
 
-        hub_display_name = "Ajax Hub" if space.name == "Hub" else f"Ajax Hub - {space.name}"
+        hub_display_name = (
+            "Ajax Hub" if space.name == "Hub" else f"Ajax Hub - {space.name}"
+        )
         device_info = {
             "identifiers": {(DOMAIN, self._space_id)},
             "name": hub_display_name,
             "manufacturer": "Ajax Systems",
-            "model": format_hub_type(space.hub_details.get("hubSubtype")) if space.hub_details else "Security Hub",
+            "model": format_hub_type(space.hub_details.get("hubSubtype"))
+            if space.hub_details
+            else "Security Hub",
         }
 
         if space.hub_details and space.hub_details.get("firmware"):
@@ -508,7 +565,9 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
             self._attr_device_class = sensor_desc["device_class"]
 
         if "native_unit_of_measurement" in sensor_desc:
-            self._attr_native_unit_of_measurement = sensor_desc["native_unit_of_measurement"]
+            self._attr_native_unit_of_measurement = sensor_desc[
+                "native_unit_of_measurement"
+            ]
 
         if "state_class" in sensor_desc:
             self._attr_state_class = sensor_desc["state_class"]
@@ -517,7 +576,9 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
             self._attr_icon = sensor_desc["icon"]
 
         if "enabled_by_default" in sensor_desc:
-            self._attr_entity_registry_enabled_default = sensor_desc["enabled_by_default"]
+            self._attr_entity_registry_enabled_default = sensor_desc[
+                "enabled_by_default"
+            ]
 
     @property
     def native_value(self) -> Any:
@@ -560,7 +621,9 @@ class AjaxDeviceSensor(CoordinatorEntity[AjaxDataCoordinator], SensorEntity):
             if space and device.room_id in space.rooms:
                 room_name = space.rooms[device.room_id].name
 
-        device_display_name = f"{room_name} - {device.name}" if room_name else device.name
+        device_display_name = (
+            f"{room_name} - {device.name}" if room_name else device.name
+        )
 
         return {
             "identifiers": {(DOMAIN, self._device_id)},

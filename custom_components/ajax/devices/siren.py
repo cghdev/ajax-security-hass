@@ -56,7 +56,9 @@ class SirenHandler(AjaxDeviceHandler):
                 "device_class": SensorDeviceClass.BATTERY,
                 "native_unit_of_measurement": PERCENTAGE,
                 "state_class": SensorStateClass.MEASUREMENT,
-                "value_fn": lambda: self.device.battery_level if self.device.battery_level is not None else None,
+                "value_fn": lambda: self.device.battery_level
+                if self.device.battery_level is not None
+                else None,
                 "enabled_by_default": True,
             }
         )
@@ -69,7 +71,9 @@ class SirenHandler(AjaxDeviceHandler):
                 "icon": "mdi:signal",
                 "native_unit_of_measurement": PERCENTAGE,
                 "state_class": SensorStateClass.MEASUREMENT,
-                "value_fn": lambda: self.device.signal_strength if self.device.signal_strength is not None else None,
+                "value_fn": lambda: self.device.signal_strength
+                if self.device.signal_strength is not None
+                else None,
                 "enabled_by_default": True,
             }
         )
@@ -95,7 +99,9 @@ class SirenHandler(AjaxDeviceHandler):
                     "key": "alarm_volume_level",
                     "translation_key": "alarm_volume_level",
                     "icon": "mdi:volume-high",
-                    "value_fn": lambda: self._format_volume(self.device.attributes.get("siren_volume_level")),
+                    "value_fn": lambda: self._format_volume(
+                        self.device.attributes.get("siren_volume_level")
+                    ),
                     "enabled_by_default": True,
                 }
             )
@@ -107,7 +113,9 @@ class SirenHandler(AjaxDeviceHandler):
                     "key": "beep_volume_level",
                     "translation_key": "beep_volume_level",
                     "icon": "mdi:volume-medium",
-                    "value_fn": lambda: self._format_volume(self.device.attributes.get("beep_volume_level")),
+                    "value_fn": lambda: self._format_volume(
+                        self.device.attributes.get("beep_volume_level")
+                    ),
                     "enabled_by_default": True,
                 }
             )
@@ -119,7 +127,9 @@ class SirenHandler(AjaxDeviceHandler):
                     "key": "alarm_duration",
                     "translation_key": "alarm_duration",
                     "icon": "mdi:timer-outline",
-                    "value_fn": lambda: self._format_duration(self.device.attributes.get("alarm_duration")),
+                    "value_fn": lambda: self._format_duration(
+                        self.device.attributes.get("alarm_duration")
+                    ),
                     "enabled_by_default": True,
                 }
             )
@@ -187,7 +197,9 @@ class SirenHandler(AjaxDeviceHandler):
                 "translation_key": "beep_on_arm",
                 "name": "Bip lors armement/désarmement",
                 "icon": "mdi:volume-high",
-                "value_fn": lambda: self.device.attributes.get("beep_on_arm_disarm", False),
+                "value_fn": lambda: self.device.attributes.get(
+                    "beep_on_arm_disarm", False
+                ),
                 "api_key": "beepOnArmDisarm",
                 "enabled_by_default": True,
             }

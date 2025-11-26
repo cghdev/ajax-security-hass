@@ -76,7 +76,9 @@ class LightHandler(AjaxDeviceHandler):
                     "key": "external_power",
                     "translation_key": "external_power",
                     "device_class": BinarySensorDeviceClass.POWER,
-                    "value_fn": lambda: self.device.attributes.get("external_power", False),
+                    "value_fn": lambda: self.device.attributes.get(
+                        "external_power", False
+                    ),
                     "enabled_by_default": True,
                 }
             )
@@ -153,16 +155,13 @@ class LightHandler(AjaxDeviceHandler):
             brightness_percent = 100
 
         await self.device.coordinator.api.async_set_light_state(
-            self.device.device_id,
-            state=True,
-            brightness=brightness_percent
+            self.device.device_id, state=True, brightness=brightness_percent
         )
         await self.device.coordinator.async_request_refresh()
 
     async def _async_turn_off(self) -> None:
         """Turn the light off."""
         await self.device.coordinator.api.async_set_light_state(
-            self.device.device_id,
-            state=False
+            self.device.device_id, state=False
         )
         await self.device.coordinator.async_request_refresh()

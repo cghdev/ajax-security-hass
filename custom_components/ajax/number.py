@@ -3,6 +3,7 @@
 This module creates number entities for Ajax device settings like:
 - accelerometerTiltDegrees: Tilt angle threshold (5-25)
 """
+
 from __future__ import annotations
 
 import logging
@@ -42,9 +43,7 @@ async def async_setup_entry(
 
             if device_type in DEVICES_WITH_DOOR_PLUS_NUMBERS:
                 # Tilt degrees
-                entities.append(
-                    AjaxTiltDegreesNumber(coordinator, space_id, device_id)
-                )
+                entities.append(AjaxTiltDegreesNumber(coordinator, space_id, device_id))
                 _LOGGER.debug(
                     "Created number entities for device: %s",
                     device.name,
@@ -61,7 +60,9 @@ class AjaxDoorPlusBaseNumber(CoordinatorEntity[AjaxDataCoordinator], NumberEntit
     _attr_has_entity_name = True
     _attr_mode = NumberMode.SLIDER
 
-    def __init__(self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str) -> None:
+    def __init__(
+        self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str
+    ) -> None:
         super().__init__(coordinator)
         self._space_id = space_id
         self._device_id = device_id
@@ -92,7 +93,9 @@ class AjaxTiltDegreesNumber(AjaxDoorPlusBaseNumber):
     _attr_native_step = 5
     _attr_native_unit_of_measurement = "°"
 
-    def __init__(self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str) -> None:
+    def __init__(
+        self, coordinator: AjaxDataCoordinator, space_id: str, device_id: str
+    ) -> None:
         super().__init__(coordinator, space_id, device_id)
         self._attr_unique_id = f"{device_id}_tilt_degrees"
         self._attr_translation_key = "tilt_degrees"
@@ -112,11 +115,13 @@ class AjaxTiltDegreesNumber(AjaxDoorPlusBaseNumber):
             return
         try:
             await self.coordinator.api.async_update_device(
-                space.hub_id,
-                self._device_id,
-                {"accelerometerTiltDegrees": int(value)}
+                space.hub_id, self._device_id, {"accelerometerTiltDegrees": int(value)}
             )
-            _LOGGER.info("Set accelerometerTiltDegrees=%d for device %s", int(value), self._device_id)
+            _LOGGER.info(
+                "Set accelerometerTiltDegrees=%d for device %s",
+                int(value),
+                self._device_id,
+            )
             await self.coordinator.async_request_refresh()
         except Exception as err:
             _LOGGER.error("Failed to set accelerometerTiltDegrees: %s", err)

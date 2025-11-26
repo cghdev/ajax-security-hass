@@ -1,4 +1,5 @@
 """Ajax REST API client based on official PDF documentation."""
+
 from __future__ import annotations
 
 import asyncio
@@ -146,7 +147,7 @@ class AjaxRestApi:
 
                 _LOGGER.info(
                     "Login successful, session token obtained (userId: %s)",
-                    self.user_id
+                    self.user_id,
                 )
                 return self.session_token
 
@@ -264,8 +265,7 @@ class AjaxRestApi:
                     raise AjaxRestApiError("No sessionToken in refresh response")
 
                 _LOGGER.info(
-                    "Session token refreshed successfully (userId: %s)",
-                    self.user_id
+                    "Session token refreshed successfully (userId: %s)", self.user_id
                 )
                 return self.session_token
 
@@ -326,7 +326,9 @@ class AjaxRestApi:
                         try:
                             # Try refresh token first (faster, no password needed)
                             await self.async_refresh_token()
-                            _LOGGER.info("Token refreshed successfully, retrying request")
+                            _LOGGER.info(
+                                "Token refreshed successfully, retrying request"
+                            )
                             # Retry the request with the new token (only once)
                             return await self._request(
                                 method, endpoint, data, _retry_on_auth_error=False
@@ -353,9 +355,7 @@ class AjaxRestApi:
                         _LOGGER.error("Authentication failed after token renewal")
                         raise AjaxRestAuthError("Invalid or expired token")
                 elif response.status == 403:
-                    _LOGGER.error(
-                        "Access denied (403) - Insufficient permissions"
-                    )
+                    _LOGGER.error("Access denied (403) - Insufficient permissions")
                     raise AjaxRestAuthError("Access denied")
 
                 response.raise_for_status()
@@ -365,7 +365,9 @@ class AjaxRestApi:
             _LOGGER.error("API request to %s failed: %s", endpoint, err)
             raise AjaxRestApiError(f"API request failed: {err}") from err
         except asyncio.TimeoutError as err:
-            _LOGGER.error("API request to %s timed out after %ss", endpoint, AJAX_REST_API_TIMEOUT)
+            _LOGGER.error(
+                "API request to %s timed out after %ss", endpoint, AJAX_REST_API_TIMEOUT
+            )
             raise AjaxRestApiError("API request timeout") from err
 
     # Hub methods
@@ -463,7 +465,9 @@ class AjaxRestApi:
         Returns:
             Device details dictionary
         """
-        return await self._request("GET", f"user/{self.user_id}/hubs/{hub_id}/devices/{device_id}")
+        return await self._request(
+            "GET", f"user/{self.user_id}/hubs/{hub_id}/devices/{device_id}"
+        )
 
     async def async_get_device_state(self, device_id: str) -> dict[str, Any]:
         """Get device state.
@@ -477,7 +481,9 @@ class AjaxRestApi:
         return await self._request("GET", f"devices/{device_id}/state")
 
     # Relay methods
-    async def async_set_relay_state(self, device_id: str, state: bool) -> dict[str, Any]:
+    async def async_set_relay_state(
+        self, device_id: str, state: bool
+    ) -> dict[str, Any]:
         """Set relay state (on/off).
 
         Args:
@@ -488,12 +494,12 @@ class AjaxRestApi:
             Updated relay state
         """
         return await self._request(
-            "POST",
-            f"devices/{device_id}/control",
-            {"state": "on" if state else "off"}
+            "POST", f"devices/{device_id}/control", {"state": "on" if state else "off"}
         )
 
-    async def async_pulse_relay(self, device_id: str, duration: int = 1) -> dict[str, Any]:
+    async def async_pulse_relay(
+        self, device_id: str, duration: int = 1
+    ) -> dict[str, Any]:
         """Trigger relay pulse (for gates, doors, etc.).
 
         Args:
@@ -506,11 +512,13 @@ class AjaxRestApi:
         return await self._request(
             "POST",
             f"devices/{device_id}/control",
-            {"action": "pulse", "duration": duration}
+            {"action": "pulse", "duration": duration},
         )
 
     # Socket methods
-    async def async_set_socket_state(self, device_id: str, state: bool) -> dict[str, Any]:
+    async def async_set_socket_state(
+        self, device_id: str, state: bool
+    ) -> dict[str, Any]:
         """Set socket state (on/off).
 
         Args:
@@ -521,9 +529,7 @@ class AjaxRestApi:
             Updated socket state
         """
         return await self._request(
-            "POST",
-            f"devices/{device_id}/control",
-            {"state": "on" if state else "off"}
+            "POST", f"devices/{device_id}/control", {"state": "on" if state else "off"}
         )
 
     async def async_get_socket_power(self, device_id: str) -> dict[str, Any]:
@@ -639,12 +645,13 @@ class AjaxRestApi:
             Automation trigger response
         """
         return await self._request(
-            "POST",
-            f"hubs/{hub_id}/automations/{automation_id}/trigger"
+            "POST", f"hubs/{hub_id}/automations/{automation_id}/trigger"
         )
 
     # Events methods
-    async def async_get_events(self, hub_id: str, limit: int = 100) -> list[dict[str, Any]]:
+    async def async_get_events(
+        self, hub_id: str, limit: int = 100
+    ) -> list[dict[str, Any]]:
         """Get hub events history.
 
         Args:
@@ -688,7 +695,7 @@ class AjaxRestApi:
         """
         return await self._request(
             "GET",
-            f"devices/{nvr_id}/recordings?cameraId={camera_id}&start={start}&end={end}"
+            f"devices/{nvr_id}/recordings?cameraId={camera_id}&start={start}&end={end}",
         )
 
     # Device settings methods
@@ -720,7 +727,7 @@ class AjaxRestApi:
         await self._request_no_response(
             "PUT",
             f"user/{self.user_id}/hubs/{hub_id}/devices/{device_id}",
-            updated_device
+            updated_device,
         )
 
     async def _request_no_response(
@@ -802,7 +809,7 @@ class AjaxRestApi:
         await self._request_no_response(
             "PUT",
             f"user/{self.user_id}/hubs/{hub_id}/commands/arming",
-            {"command": "ARM", "ignoreProblems": ignore_problems}
+            {"command": "ARM", "ignoreProblems": ignore_problems},
         )
 
     async def async_disarm(self, hub_id: str, ignore_problems: bool = True) -> None:
@@ -818,7 +825,7 @@ class AjaxRestApi:
         await self._request_no_response(
             "PUT",
             f"user/{self.user_id}/hubs/{hub_id}/commands/arming",
-            {"command": "DISARM", "ignoreProblems": ignore_problems}
+            {"command": "DISARM", "ignoreProblems": ignore_problems},
         )
 
     async def async_night_mode(self, hub_id: str, enabled: bool = True) -> None:
@@ -835,5 +842,5 @@ class AjaxRestApi:
         await self._request_no_response(
             "PUT",
             f"user/{self.user_id}/hubs/{hub_id}/commands/arming",
-            {"command": command, "ignoreProblems": True}
+            {"command": command, "ignoreProblems": True},
         )
