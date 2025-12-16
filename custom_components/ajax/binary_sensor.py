@@ -44,6 +44,7 @@ DEVICE_HANDLERS = {
     DeviceType.GLASS_BREAK: GlassBreakHandler,
     DeviceType.SOCKET: SocketHandler,
     DeviceType.RELAY: SocketHandler,
+    DeviceType.WALLSWITCH: SocketHandler,
     DeviceType.SIREN: SirenHandler,
     DeviceType.HUB: HubHandler,
 }

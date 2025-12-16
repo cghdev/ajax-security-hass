@@ -1409,6 +1409,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # Smart devices
             "socket": DeviceType.SOCKET,
             "relay": DeviceType.RELAY,
+            "wallswitch": DeviceType.WALLSWITCH,
             "thermostat": DeviceType.THERMOSTAT,
             "life_quality": DeviceType.LIFE_QUALITY,
             "lifequality": DeviceType.LIFE_QUALITY,

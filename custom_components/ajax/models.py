@@ -55,6 +55,7 @@ class DeviceType(Enum):
     # Smart Devices
     SOCKET = "socket"
     RELAY = "relay"
+    WALLSWITCH = "wallswitch"
     THERMOSTAT = "thermostat"
     LIFE_QUALITY = (
         "life_quality"  # LifeQuality air quality sensor (CO2, temperature, humidity)
