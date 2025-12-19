@@ -515,16 +515,22 @@ class AjaxRestApi:
         return await self._request("POST", f"hubs/{hub_id}/mode", {"mode": mode})
 
     # Device methods
-    async def async_get_devices(self, hub_id: str) -> list[dict[str, Any]]:
+    async def async_get_devices(
+        self, hub_id: str, enrich: bool = True
+    ) -> list[dict[str, Any]]:
         """Get all devices for a specific hub.
 
         Args:
             hub_id: Hub ID
+            enrich: If True, returns full device details (default True)
 
         Returns:
-            List of device dictionaries
+            List of device dictionaries (with full details if enrich=True)
         """
-        return await self._request("GET", f"user/{self.user_id}/hubs/{hub_id}/devices")
+        endpoint = f"user/{self.user_id}/hubs/{hub_id}/devices"
+        if enrich:
+            endpoint += "?enrich=true"
+        return await self._request("GET", endpoint)
 
     async def async_get_device(self, hub_id: str, device_id: str) -> dict[str, Any]:
         """Get device details.

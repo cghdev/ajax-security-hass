@@ -661,194 +661,174 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             device.online = device_data.get("online", True)
             device.bypassed = device_data.get("bypassed", False)
 
-            # Fetch detailed device info for battery, signal, tamper, etc.
-            try:
-                device_details = await self.api.async_get_device(space_id, device_id)
-                if device_details:
-                    # malfunctions can be a list or an int - normalize to int (count)
-                    malfunctions_data = device_details.get("malfunctions", 0)
-                    if isinstance(malfunctions_data, list):
-                        device.malfunctions = len(malfunctions_data)
-                    else:
-                        device.malfunctions = malfunctions_data
-                    device.battery_level = device_details.get(
-                        "batteryChargeLevelPercentage",
-                        device_details.get("battery_level"),
-                    )
-                    device.battery_state = device_details.get(
-                        "batteryState", device_details.get("battery_state")
-                    )
-                    # Convert signal level string to percentage
-                    signal_level = device_details.get(
-                        "signalLevel", device_details.get("signal_strength")
-                    )
-                    if isinstance(signal_level, str):
-                        signal_map = {
-                            "EXCELLENT": 100,
-                            "STRONG": 85,
-                            "GOOD": 70,
-                            "MEDIUM": 50,
-                            "WEAK": 30,
-                            "POOR": 15,
-                        }
-                        device.signal_strength = signal_map.get(
-                            signal_level.upper(), None
-                        )
-                    else:
-                        device.signal_strength = signal_level
-                    device.firmware_version = device_details.get(
-                        "firmwareVersion", device_details.get("firmware_version")
-                    )
-                    device.hardware_version = device_details.get(
-                        "hardwareVersion", device_details.get("hardware_version")
-                    )
-                    device.states = device_details.get("states", [])
+            # With ?enrich=true, device_data contains full device details
+            # No need for individual async_get_device calls (N+1 optimization)
+            # malfunctions can be a list or an int - normalize to int (count)
+            malfunctions_data = device_data.get("malfunctions", 0)
+            if isinstance(malfunctions_data, list):
+                device.malfunctions = len(malfunctions_data)
+            else:
+                device.malfunctions = malfunctions_data
+            device.battery_level = device_data.get(
+                "batteryChargeLevelPercentage",
+                device_data.get("battery_level"),
+            )
+            device.battery_state = device_data.get(
+                "batteryState", device_data.get("battery_state")
+            )
+            # Convert signal level string to percentage
+            signal_level = device_data.get(
+                "signalLevel", device_data.get("signal_strength")
+            )
+            if isinstance(signal_level, str):
+                signal_map = {
+                    "EXCELLENT": 100,
+                    "STRONG": 85,
+                    "GOOD": 70,
+                    "MEDIUM": 50,
+                    "WEAK": 30,
+                    "POOR": 15,
+                }
+                device.signal_strength = signal_map.get(signal_level.upper(), None)
+            else:
+                device.signal_strength = signal_level
+            device.firmware_version = device_data.get(
+                "firmwareVersion", device_data.get("firmware_version")
+            )
+            device.hardware_version = device_data.get(
+                "hardwareVersion", device_data.get("hardware_version")
+            )
+            device.states = device_data.get("states", [])
 
-                    # Store tampered status in attributes
-                    if "tampered" in device_details:
-                        device.attributes["tampered"] = device_details.get(
-                            "tampered", False
-                        )
+            # Store tampered status in attributes
+            if "tampered" in device_data:
+                device.attributes["tampered"] = device_data.get("tampered", False)
 
-                    # Store temperature if available (DoorProtect Plus)
-                    if "temperature" in device_details:
-                        device.attributes["temperature"] = device_details.get(
-                            "temperature"
-                        )
+            # Store temperature if available (DoorProtect Plus)
+            if "temperature" in device_data:
+                device.attributes["temperature"] = device_data.get("temperature")
 
-                    # Store other useful attributes
-                    if "alwaysActive" in device_details:
-                        device.attributes["always_active"] = device_details.get(
-                            "alwaysActive", False
-                        )
-                    if (
-                        "nightModeArm" in device_details
-                        or "armedInNightMode" in device_details
-                    ):
-                        device.attributes["armed_in_night_mode"] = device_details.get(
-                            "nightModeArm",
-                            device_details.get("armedInNightMode", False),
-                        )
+            # Store other useful attributes
+            if "alwaysActive" in device_data:
+                device.attributes["always_active"] = device_data.get(
+                    "alwaysActive", False
+                )
+            if "nightModeArm" in device_data or "armedInNightMode" in device_data:
+                device.attributes["armed_in_night_mode"] = device_data.get(
+                    "nightModeArm",
+                    device_data.get("armedInNightMode", False),
+                )
 
-                    # DoorProtect Plus specific attributes
-                    if "extraContactAware" in device_details:
-                        device.attributes["extra_contact_aware"] = device_details.get(
-                            "extraContactAware", False
-                        )
-                    if "shockSensorAware" in device_details:
-                        device.attributes["shock_sensor_aware"] = device_details.get(
-                            "shockSensorAware", False
-                        )
-                    if "accelerometerAware" in device_details:
-                        device.attributes["accelerometer_aware"] = device_details.get(
-                            "accelerometerAware", False
-                        )
-                    if "shockSensorSensitivity" in device_details:
-                        device.attributes["shock_sensor_sensitivity"] = (
-                            device_details.get("shockSensorSensitivity", 0)
-                        )
-                    if "accelerometerTiltDegrees" in device_details:
-                        device.attributes["accelerometer_tilt_degrees"] = (
-                            device_details.get("accelerometerTiltDegrees", 5)
-                        )
-                    if "ignoreSimpleImpact" in device_details:
-                        device.attributes["ignore_simple_impact"] = device_details.get(
-                            "ignoreSimpleImpact", False
-                        )
-                    if "sirenTriggers" in device_details:
-                        device.attributes["siren_triggers"] = device_details.get(
-                            "sirenTriggers", []
-                        )
+            # DoorProtect Plus specific attributes
+            if "extraContactAware" in device_data:
+                device.attributes["extra_contact_aware"] = device_data.get(
+                    "extraContactAware", False
+                )
+            if "shockSensorAware" in device_data:
+                device.attributes["shock_sensor_aware"] = device_data.get(
+                    "shockSensorAware", False
+                )
+            if "accelerometerAware" in device_data:
+                device.attributes["accelerometer_aware"] = device_data.get(
+                    "accelerometerAware", False
+                )
+            if "shockSensorSensitivity" in device_data:
+                device.attributes["shock_sensor_sensitivity"] = device_data.get(
+                    "shockSensorSensitivity", 0
+                )
+            if "accelerometerTiltDegrees" in device_data:
+                device.attributes["accelerometer_tilt_degrees"] = device_data.get(
+                    "accelerometerTiltDegrees", 5
+                )
+            if "ignoreSimpleImpact" in device_data:
+                device.attributes["ignore_simple_impact"] = device_data.get(
+                    "ignoreSimpleImpact", False
+                )
+            if "sirenTriggers" in device_data:
+                device.attributes["siren_triggers"] = device_data.get(
+                    "sirenTriggers", []
+                )
 
-                    # Door contact state (reedClosed -> door_opened)
-                    if "reedClosed" in device_details:
-                        # reedClosed=True means door is closed, so door_opened=False
-                        device.attributes["door_opened"] = not device_details.get(
-                            "reedClosed", True
-                        )
-                    # External contact state (extraContactClosed -> external_contact_opened)
-                    if "extraContactClosed" in device_details:
-                        device.attributes[
-                            "external_contact_opened"
-                        ] = not device_details.get("extraContactClosed", True)
+            # Door contact state (reedClosed -> door_opened)
+            if "reedClosed" in device_data:
+                # reedClosed=True means door is closed, so door_opened=False
+                device.attributes["door_opened"] = not device_data.get(
+                    "reedClosed", True
+                )
+            # External contact state (extraContactClosed -> external_contact_opened)
+            if "extraContactClosed" in device_data:
+                device.attributes["external_contact_opened"] = not device_data.get(
+                    "extraContactClosed", True
+                )
 
-                    # Sensitivity (GlassProtect, MotionProtect, etc.)
-                    if "sensitivity" in device_details:
-                        device.attributes["sensitivity"] = device_details.get(
-                            "sensitivity"
-                        )
+            # Sensitivity (GlassProtect, MotionProtect, etc.)
+            if "sensitivity" in device_data:
+                device.attributes["sensitivity"] = device_data.get("sensitivity")
 
-                    # Device color
-                    if "color" in device_details:
-                        device.attributes["color"] = device_details.get("color")
+            # Device color
+            if "color" in device_data:
+                device.attributes["color"] = device_data.get("color")
 
-                    # Siren specific attributes
-                    if "sirenVolumeLevel" in device_details:
-                        device.attributes["siren_volume_level"] = device_details.get(
-                            "sirenVolumeLevel"
-                        )
-                    if "beepVolumeLevel" in device_details:
-                        device.attributes["beep_volume_level"] = device_details.get(
-                            "beepVolumeLevel"
-                        )
-                    if "alarmDuration" in device_details:
-                        device.attributes["alarm_duration"] = device_details.get(
-                            "alarmDuration"
-                        )
-                    if "v2sirenIndicatorLightMode" in device_details:
-                        device.attributes["led_indication"] = device_details.get(
-                            "v2sirenIndicatorLightMode"
-                        )
-                    elif "blinkWhileArmed" in device_details:
-                        device.attributes["led_indication"] = device_details.get(
-                            "blinkWhileArmed"
-                        )
-                    # Siren beep/chime settings
-                    if "beepOnArmDisarm" in device_details:
-                        device.attributes["beep_on_arm_disarm"] = device_details.get(
-                            "beepOnArmDisarm"
-                        )
-                    if "beepOnDelay" in device_details:
-                        device.attributes["beep_on_delay"] = device_details.get(
-                            "beepOnDelay"
-                        )
-                    if "chimesEnabled" in device_details:
-                        device.attributes["chimes_enabled"] = device_details.get(
-                            "chimesEnabled"
-                        )
-                    if "buzzerState" in device_details:
-                        device.attributes["buzzer_state"] = device_details.get(
-                            "buzzerState"
-                        )
+            # Siren specific attributes
+            if "sirenVolumeLevel" in device_data:
+                device.attributes["siren_volume_level"] = device_data.get(
+                    "sirenVolumeLevel"
+                )
+            if "beepVolumeLevel" in device_data:
+                device.attributes["beep_volume_level"] = device_data.get(
+                    "beepVolumeLevel"
+                )
+            if "alarmDuration" in device_data:
+                device.attributes["alarm_duration"] = device_data.get("alarmDuration")
+            if "v2sirenIndicatorLightMode" in device_data:
+                device.attributes["led_indication"] = device_data.get(
+                    "v2sirenIndicatorLightMode"
+                )
+            elif "blinkWhileArmed" in device_data:
+                device.attributes["led_indication"] = device_data.get("blinkWhileArmed")
+            # Siren beep/chime settings
+            if "beepOnArmDisarm" in device_data:
+                device.attributes["beep_on_arm_disarm"] = device_data.get(
+                    "beepOnArmDisarm"
+                )
+            if "beepOnDelay" in device_data:
+                device.attributes["beep_on_delay"] = device_data.get("beepOnDelay")
+            if "chimesEnabled" in device_data:
+                device.attributes["chimes_enabled"] = device_data.get("chimesEnabled")
+            if "buzzerState" in device_data:
+                device.attributes["buzzer_state"] = device_data.get("buzzerState")
 
-                    # LED indicator mode (all devices)
-                    if "indicatorLightMode" in device_details:
-                        device.attributes["indicatorLightMode"] = device_details.get(
-                            "indicatorLightMode"
-                        )
+            # LED indicator mode (all devices)
+            if "indicatorLightMode" in device_data:
+                device.attributes["indicatorLightMode"] = device_data.get(
+                    "indicatorLightMode"
+                )
 
-                    # Alerts by sirens setting
-                    if "alertsBySirens" in device_details:
-                        device.attributes["alertsBySirens"] = device_details.get(
-                            "alertsBySirens", False
-                        )
+            # Alerts by sirens setting
+            if "alertsBySirens" in device_data:
+                device.attributes["alertsBySirens"] = device_data.get(
+                    "alertsBySirens", False
+                )
 
-                    # MotionCam specific attributes
-                    if "imageResolution" in device_details:
-                        device.attributes["imageResolution"] = device_details.get(
-                            "imageResolution"
-                        )
-                    if "photosPerAlarm" in device_details:
-                        device.attributes["photosPerAlarm"] = device_details.get(
-                            "photosPerAlarm"
-                        )
-            except Exception:
-                pass  # Device details are optional
+            # MotionCam specific attributes
+            if "imageResolution" in device_data:
+                device.attributes["imageResolution"] = device_data.get(
+                    "imageResolution"
+                )
+            if "photosPerAlarm" in device_data:
+                device.attributes["photosPerAlarm"] = device_data.get("photosPerAlarm")
+
+            # Socket/Relay/WallSwitch: Parse switchState to is_on (direct from enriched data)
+            if "switchState" in device_data:
+                switch_state = device_data["switchState"]
+                # switchState is a list like ["SWITCHED_ON"] or ["SWITCHED_OFF"]
+                if isinstance(switch_state, list) and len(switch_state) > 0:
+                    device.attributes["is_on"] = switch_state[0] == "SWITCHED_ON"
+                else:
+                    device.attributes["is_on"] = False
 
             # Update device metadata (API uses "color" not "device_color")
-            device.device_color = device_data.get("color") or device_details.get(
-                "color"
-            )
+            device.device_color = device_data.get("color")
             device.device_label = device_data.get("device_label")
             device.device_marketing_id = device_data.get("device_marketing_id")
 
