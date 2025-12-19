@@ -593,11 +593,23 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         devices_data = await self.api.async_get_devices(space_id)
 
         new_devices_count = 0
+        processed_ids: set[str] = set()  # Track processed IDs to skip duplicates
 
         for device_data in devices_data:
             device_id = device_data.get("id")
             if not device_id:
                 continue
+
+            # Skip duplicate device IDs in the same API response
+            # (MultiTransmitter can appear twice with different names)
+            if device_id in processed_ids:
+                _LOGGER.debug(
+                    "Skipping duplicate device ID %s (%s)",
+                    device_id,
+                    device_data.get("deviceName", "unknown"),
+                )
+                continue
+            processed_ids.add(device_id)
 
             # Parse device type - API uses camelCase (deviceType, deviceName)
             raw_device_type = device_data.get(

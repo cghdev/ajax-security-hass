@@ -35,7 +35,7 @@ async def async_setup_entry(
     # Create device tracker for each space/hub with geofence data
     for space_id, space in coordinator.account.spaces.items():
         if space.hub_details:
-            geofence = space.hub_details.get("geoFence", {})
+            geofence = space.hub_details.get("geoFence") or {}
             if geofence.get("latitude") and geofence.get("longitude"):
                 entities.append(AjaxHubTracker(coordinator, space_id))
                 _LOGGER.debug(
