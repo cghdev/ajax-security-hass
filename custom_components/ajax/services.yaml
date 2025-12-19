@@ -18,28 +18,21 @@ generate_device_info:
   name: Generate Device Info
   description: Generate a JSON file with anonymized device information for debugging and support.
 
-device_debug:
-  name: Device Debug
-  description: Show all raw attributes for a specific device. Useful for debugging and identifying missing features.
+get_raw_device:
+  name: Get Raw Device
+  description: Get raw API JSON data for a device. Saves the complete API response to ajax_raw_device.json.
   fields:
     device:
       name: Device
-      description: Select an Ajax device to debug
+      description: Select an Ajax device
       required: false
       selector:
         device:
           integration: ajax
     device_id:
       name: Device ID (Ajax)
-      description: The Ajax device ID (e.g., 00B994ED) - use this if device selector doesn't work
+      description: The Ajax device ID (e.g., 00B994ED)
       required: false
       example: "00B994ED"
-      selector:
-        text:
-    device_name:
-      name: Device Name
-      description: Part of the device name to search for (case insensitive)
-      required: false
-      example: "parking"
       selector:
         text:
