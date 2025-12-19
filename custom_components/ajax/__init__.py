@@ -39,7 +39,7 @@ _LOGGER = logging.getLogger(__name__)
 # Service names
 SERVICE_FORCE_ARM = "force_arm"
 SERVICE_FORCE_ARM_NIGHT = "force_arm_night"
-SERVICE_GET_RAW_DEVICE = "get_raw_device"
+SERVICE_GET_RAW_DEVICES = "get_raw_devices"
 
 PLATFORMS: list[Platform] = [
     Platform.ALARM_CONTROL_PANEL,
@@ -199,100 +199,59 @@ async def _async_setup_services(
                         "Failed to force arm night mode hub %s: %s", hub_id, err
                     )
 
-    async def handle_get_raw_device(call: ServiceCall) -> None:
-        """Handle get raw device service call - get raw API data for a device."""
-        from homeassistant.helpers import device_registry as dr
+    async def handle_get_raw_devices(call: ServiceCall) -> None:
+        """Handle get raw devices service call - get raw API data for all devices."""
+        _LOGGER.info("Getting raw data for all devices")
 
-        ha_device_id = call.data.get("device")
-        device_id = call.data.get("device_id", "").upper()
+        all_devices = []
+        hub_count = 0
 
-        # If HA device selector was used, extract the Ajax device ID from identifiers
-        if ha_device_id:
-            device_registry = dr.async_get(hass)
-            ha_device = device_registry.async_get(ha_device_id)
-            if ha_device:
-                for identifier in ha_device.identifiers:
-                    if identifier[0] == DOMAIN:
-                        device_id = identifier[1].upper()
-                        break
-
-        if not device_id:
-            _LOGGER.warning("No device_id provided")
-            from homeassistant.components.persistent_notification import async_create
-
-            async_create(
-                hass,
-                "No device_id provided. Use the device selector or provide device_id.",
-                title="Ajax Get Raw Device",
-                notification_id="ajax_get_raw_device",
-            )
-            return
-
-        _LOGGER.info("Getting raw device data for id=%s", device_id)
-
-        # Find the hub_id for this device
-        hub_id = None
         if coordinator.account:
             for _space_id, space in coordinator.account.spaces.items():
-                if device_id in space.devices:
-                    hub_id = space.hub_id
-                    break
+                hub_id = space.hub_id
+                if hub_id:
+                    hub_count += 1
+                    try:
+                        devices = await coordinator.api.async_get_devices(hub_id)
+                        all_devices.extend(devices)
+                    except Exception as err:
+                        _LOGGER.error(
+                            "Failed to get devices for hub %s: %s", hub_id, err
+                        )
 
-        if not hub_id:
-            _LOGGER.warning("Device not found in any hub: id=%s", device_id)
-            from homeassistant.components.persistent_notification import async_create
+        # Write to file
+        output_path = Path(hass.config.path("ajax_raw_devices.json"))
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(all_devices, f, indent=2, default=str, ensure_ascii=False)
 
-            async_create(
-                hass,
-                f"Device not found: id={device_id}",
-                title="Ajax Get Raw Device",
-                notification_id="ajax_get_raw_device",
-            )
-            return
+        _LOGGER.info(
+            "Raw devices data written to %s (%d devices)", output_path, len(all_devices)
+        )
 
-        try:
-            # Call API directly to get raw device data
-            raw_data = await coordinator.api.async_get_device(hub_id, device_id)
+        # Create notification with summary
+        from homeassistant.components.persistent_notification import async_create
 
-            # Write to file
-            output_path = Path(hass.config.path("ajax_raw_device.json"))
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(raw_data, f, indent=2, default=str, ensure_ascii=False)
+        # Count device types
+        type_counts: dict[str, int] = {}
+        for device in all_devices:
+            dtype = device.get("deviceType", "unknown")
+            type_counts[dtype] = type_counts.get(dtype, 0) + 1
 
-            _LOGGER.info("Raw device data written to %s", output_path)
+        type_list = "\n".join(f"- {t}: {c}" for t, c in sorted(type_counts.items()))
 
-            # Create notification with summary
-            from homeassistant.components.persistent_notification import async_create
+        message = (
+            f"**Hubs:** {hub_count}\n"
+            f"**Total devices:** {len(all_devices)}\n\n"
+            f"**Types:**\n{type_list}\n\n"
+            f"Saved to: {output_path}"
+        )
 
-            device_name = raw_data.get("deviceName", device_id)
-            device_type = raw_data.get("deviceType", "unknown")
-            attr_count = len(raw_data)
-
-            message = (
-                f"**Device:** {device_name}\n"
-                f"**Type:** {device_type}\n"
-                f"**ID:** {device_id}\n"
-                f"**Attributes:** {attr_count}\n\n"
-                f"Full raw JSON saved to: {output_path}"
-            )
-
-            async_create(
-                hass,
-                message,
-                title=f"Ajax Raw: {device_name}",
-                notification_id="ajax_get_raw_device",
-            )
-
-        except Exception as err:
-            _LOGGER.error("Failed to get raw device data: %s", err)
-            from homeassistant.components.persistent_notification import async_create
-
-            async_create(
-                hass,
-                f"Failed to get raw device data: {err}",
-                title="Ajax Get Raw Device Error",
-                notification_id="ajax_get_raw_device",
-            )
+        async_create(
+            hass,
+            message,
+            title="Ajax Raw Devices",
+            notification_id="ajax_get_raw_devices",
+        )
 
     # Register services if not already registered
     if not hass.services.has_service(DOMAIN, SERVICE_FORCE_ARM):
@@ -311,17 +270,11 @@ async def _async_setup_services(
             schema=vol.Schema({vol.Optional("entity_id"): cv.entity_ids}),
         )
 
-    if not hass.services.has_service(DOMAIN, SERVICE_GET_RAW_DEVICE):
+    if not hass.services.has_service(DOMAIN, SERVICE_GET_RAW_DEVICES):
         hass.services.async_register(
             DOMAIN,
-            SERVICE_GET_RAW_DEVICE,
-            handle_get_raw_device,
-            schema=vol.Schema(
-                {
-                    vol.Optional("device"): cv.string,
-                    vol.Optional("device_id"): cv.string,
-                }
-            ),
+            SERVICE_GET_RAW_DEVICES,
+            handle_get_raw_devices,
         )
 
 

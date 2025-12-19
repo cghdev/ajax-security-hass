@@ -14,21 +14,6 @@ force_arm_night:
       integration: ajax
       domain: alarm_control_panel
 
-get_raw_device:
-  name: Get Raw Device
-  description: Get raw API JSON data for a device. Saves the complete API response to ajax_raw_device.json.
-  fields:
-    device:
-      name: Device
-      description: Select an Ajax device
-      required: false
-      selector:
-        device:
-          integration: ajax
-    device_id:
-      name: Device ID (Ajax)
-      description: The Ajax device ID (e.g., 00B994ED)
-      required: false
-      example: "00B994ED"
-      selector:
-        text:
+get_raw_devices:
+  name: Get Raw Devices
+  description: Get raw API JSON data for all devices. Saves the complete API response to ajax_raw_devices.json.
