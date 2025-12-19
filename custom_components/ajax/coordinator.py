@@ -130,9 +130,9 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         self._sse_initialized = False
 
         # Device details refresh optimization
-        # Battery/signal don't change often, so refresh every 10 minutes instead of every poll
+        # Battery/signal don't change often, so refresh every 5 minutes instead of every poll
         self._last_device_details_refresh: float = 0
-        self._device_details_refresh_interval: int = 600  # 10 minutes in seconds
+        self._device_details_refresh_interval: int = 300  # 5 minutes in seconds
 
         super().__init__(
             hass,
@@ -602,20 +602,18 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
         if not space:
             return
 
-        # Get device list (basic info: online, deviceType, deviceName, etc.)
-        devices_list = await self.api.async_get_devices(space.hub_id, enrich=False)
+        # Get all devices with full details in one API call (enrich=True)
+        # The detailed data is nested in a "model" object that we merge into the device
+        devices_list = await self.api.async_get_devices(space.hub_id, enrich=True)
 
-        # Check if we need to refresh device details (battery, signal)
-        # This is done every 10 minutes instead of every poll to reduce API calls
+        # Check if we need to refresh battery/signal (every 5 minutes)
         current_time = time.time()
         need_details_refresh = (
             current_time - self._last_device_details_refresh
             >= self._device_details_refresh_interval
         )
         if need_details_refresh:
-            _LOGGER.debug(
-                "Refreshing device details (battery/signal) - 10 min interval"
-            )
+            _LOGGER.debug("Refreshing battery/signal - 5 min interval")
             self._last_device_details_refresh = current_time
 
         new_devices_count = 0
@@ -637,17 +635,13 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 continue
             processed_ids.add(device_id)
 
-            # Get full device details - needed for state attributes (reedClosed, etc.)
-            # The summary doesn't include critical state info, only the details endpoint does
-            try:
-                device_data = await self.api.async_get_device(space.hub_id, device_id)
-            except Exception as err:
-                _LOGGER.warning(
-                    "Failed to get device %s details: %s",
-                    device_id,
-                    err,
-                )
-                device_data = device_summary  # Fall back to summary
+            # With enrich=True, detailed data is in the "model" sub-object
+            # Merge model into device_data so the rest of the code works
+            device_data = dict(device_summary)
+            if "model" in device_summary:
+                device_data.update(device_summary["model"])
+
+            is_new_device = device_id not in space.devices
 
             # Parse device type - API uses camelCase (deviceType, deviceName)
             raw_device_type = device_data.get(
@@ -705,36 +699,40 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             device.online = device_data.get("online", True)
             device.bypassed = device_data.get("bypassed", False)
 
-            # Get full device details from individual API call
             # malfunctions can be a list or an int - normalize to int (count)
             malfunctions_data = device_data.get("malfunctions", 0)
             if isinstance(malfunctions_data, list):
                 device.malfunctions = len(malfunctions_data)
             else:
                 device.malfunctions = malfunctions_data
-            device.battery_level = device_data.get(
-                "batteryChargeLevelPercentage",
-                device_data.get("battery_level"),
-            )
-            device.battery_state = device_data.get(
-                "batteryState", device_data.get("battery_state")
-            )
-            # Convert signal level string to percentage
-            signal_level = device_data.get(
-                "signalLevel", device_data.get("signal_strength")
-            )
-            if isinstance(signal_level, str):
-                signal_map = {
-                    "EXCELLENT": 100,
-                    "STRONG": 85,
-                    "GOOD": 70,
-                    "MEDIUM": 50,
-                    "WEAK": 30,
-                    "POOR": 15,
-                }
-                device.signal_strength = signal_map.get(signal_level.upper(), None)
-            else:
-                device.signal_strength = signal_level
+
+            # Battery and signal: only update every 5 minutes (or for new devices)
+            # These don't change often and SQS sends MALFUNCTION events for low battery
+            if need_details_refresh or is_new_device:
+                device.battery_level = device_data.get(
+                    "batteryChargeLevelPercentage",
+                    device_data.get("battery_level"),
+                )
+                device.battery_state = device_data.get(
+                    "batteryState", device_data.get("battery_state")
+                )
+                # Convert signal level string to percentage
+                signal_level = device_data.get(
+                    "signalLevel", device_data.get("signal_strength")
+                )
+                if isinstance(signal_level, str):
+                    signal_map = {
+                        "EXCELLENT": 100,
+                        "STRONG": 85,
+                        "GOOD": 70,
+                        "MEDIUM": 50,
+                        "WEAK": 30,
+                        "POOR": 15,
+                    }
+                    device.signal_strength = signal_map.get(signal_level.upper(), None)
+                else:
+                    device.signal_strength = signal_level
+
             device.firmware_version = device_data.get(
                 "firmwareVersion", device_data.get("firmware_version")
             )
