@@ -200,8 +200,8 @@ async def _async_setup_services(
                     )
 
     async def handle_get_raw_devices(call: ServiceCall) -> None:
-        """Handle get raw devices service call - get raw API data for all devices."""
-        _LOGGER.info("Getting raw data for all devices")
+        """Handle get raw devices service call - get full raw API data for all devices."""
+        _LOGGER.info("Getting full raw data for all devices")
 
         all_devices = []
         hub_count = 0
@@ -212,8 +212,26 @@ async def _async_setup_services(
                 if hub_id:
                     hub_count += 1
                     try:
-                        devices = await coordinator.api.async_get_devices(hub_id)
-                        all_devices.extend(devices)
+                        # First get device list (light)
+                        devices_list = await coordinator.api.async_get_devices(hub_id)
+                        # Then get full details for each device
+                        for device_summary in devices_list:
+                            device_id = device_summary.get("id")
+                            if device_id:
+                                try:
+                                    full_device = (
+                                        await coordinator.api.async_get_device(
+                                            hub_id, device_id
+                                        )
+                                    )
+                                    all_devices.append(full_device)
+                                except Exception as dev_err:
+                                    _LOGGER.warning(
+                                        "Failed to get device %s: %s",
+                                        device_id,
+                                        dev_err,
+                                    )
+                                    all_devices.append(device_summary)
                     except Exception as err:
                         _LOGGER.error(
                             "Failed to get devices for hub %s: %s", hub_id, err
