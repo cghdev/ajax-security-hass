@@ -47,6 +47,7 @@ class DeviceType(Enum):
     SIREN = "siren"
     SPEAKERPHONE = "speakerphone"  # SpeakerPhone Jeweller
     TRANSMITTER = "transmitter"
+    MULTI_TRANSMITTER = "multi_transmitter"  # MultiTransmitter for wired sensors
     REPEATER = "repeater"
     WIRE_INPUT = (
         "wire_input"  # Wired input modules for connecting third-party detectors

@@ -869,6 +869,16 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                 # Invert the logic: reedClosed=False means door is open
                 normalized["door_opened"] = not api_attributes["reedClosed"]
 
+            # MultiTransmitterWireInput uses externalContactState
+            if (
+                "door_opened" not in normalized
+                and "externalContactState" in api_attributes
+            ):
+                # externalContactState: "OK" = closed, anything else = open
+                normalized["door_opened"] = (
+                    api_attributes["externalContactState"] != "OK"
+                )
+
             # External contact: Support both formats
             if (
                 "external_contact_opened" not in api_attributes
@@ -1393,6 +1403,12 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
             # Transmitter
             "transmitter": DeviceType.TRANSMITTER,
             "integration": DeviceType.TRANSMITTER,
+            # MultiTransmitter (wired sensors hub)
+            "multitransmitter": DeviceType.MULTI_TRANSMITTER,
+            "multi_transmitter": DeviceType.MULTI_TRANSMITTER,
+            # MultiTransmitter wired inputs (treat as door contacts)
+            "multitransmitterwireinput": DeviceType.WIRE_INPUT,
+            "multitransmitter_wire_input": DeviceType.WIRE_INPUT,
             # Repeater / Range Extender
             "repeater": DeviceType.REPEATER,
             "rex": DeviceType.REPEATER,

@@ -47,6 +47,8 @@ DEVICE_HANDLERS = {
     DeviceType.WALLSWITCH: SocketHandler,
     DeviceType.SIREN: SirenHandler,
     DeviceType.SPEAKERPHONE: SirenHandler,
+    DeviceType.MULTI_TRANSMITTER: SirenHandler,
+    DeviceType.KEYPAD: SirenHandler,
     DeviceType.HUB: HubHandler,
 }
 
