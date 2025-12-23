@@ -46,12 +46,12 @@ Issues, pull requests, and feedback are welcome!
 ## ✨ Key Features
 
 ### 🔄 Real-Time Synchronization (Optional)
-- **Instant bidirectional sync** - Changes in Ajax app appear immediately in Home Assistant and vice versa
-- **Sub-second updates** - State changes reflected in < 1 second
+- **Real-time security events** - Arm/disarm, alarms, and intrusions in < 1 second
+- **Real-time sensor events** - Motion/door events when system is armed or sensor in "Always Active" mode
 - **Multiple connection modes**:
   - **Direct mode** - Direct API connection with optional AWS SQS for real-time events
   - **Proxy mode** - Connection via proxy server with SSE (Server-Sent Events) for real-time events
-- **Polling fallback** - Works without real-time events with 30-second polling interval
+- **Polling fallback** - 30-second polling for sensor states when disarmed (motion/door events not sent by Ajax API when disarmed)
 
 ### 🛡️ Complete Security Control
 - ✅ **Arm** (Away mode)
@@ -65,7 +65,7 @@ Issues, pull requests, and feedback are welcome!
 - ✅ **Real-time Notifications** - Arming/disarming events with user name
 - ✅ **Persistent Notifications** - Optional Home Assistant notifications
 - ✅ **Notification Filters** - None, Alarms only, Security events, or All notifications
-- ✅ **Device Events** - Motion detection, door/window opened, etc.
+- ✅ **Device Events** - Motion detection, door/window opened (when armed or "Always Active")
 
 ### 📱 Device Support
 
