@@ -46,6 +46,7 @@ Users tested:
 - ✅ **ReX 2 Jeweller**
 - ✅ **StreetSiren Jeweller**
 - ✅ **Superior MotionCam (PhOD) Jeweller**
+- ✅ **MultiTransmitter Fibra** (with external contact state)
 
 Since I don't have access to all Ajax devices, **I cannot test every device type**.
 
