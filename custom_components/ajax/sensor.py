@@ -71,15 +71,8 @@ def format_signal_level(signal: str | None) -> str | None:
     """Format signal level string to be more readable."""
     if not signal:
         return None
-    signal_map = {
-        "STRONG": "Fort",
-        "WEAK": "Faible",
-        "MEDIUM": "Moyen",
-        "EXCELLENT": "Excellent",
-        "GOOD": "Bon",
-        "POOR": "Mauvais",
-    }
-    return signal_map.get(signal.upper(), signal.title())
+    # Return lowercase for translation keys
+    return signal.lower()
 
 
 def format_event_text(event: dict) -> str:
@@ -433,9 +426,9 @@ SPACE_SENSORS: tuple[AjaxSpaceSensorDescription, ...] = (
         translation_key="hub_noise_level",
         icon="mdi:signal-off",
         entity_category=EntityCategory.DIAGNOSTIC,
-        value_fn=lambda space: "Élevé"
+        value_fn=lambda space: "high"
         if space.hub_details.get("noiseLevel", {}).get("high", False)
-        else "Normal"
+        else "normal"
         if space.hub_details and space.hub_details.get("noiseLevel")
         else None,
         should_create=lambda space: space.hub_details

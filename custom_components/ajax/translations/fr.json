@@ -591,6 +591,10 @@
       },
       "hub_noise_level": {
         "name": "Niveau de bruit radio",
+        "state": {
+          "high": "Élevé",
+          "normal": "Normal"
+        },
         "state_attributes": {
           "channel_1_dbm": {
             "name": "Canal 1 (dBm)"

@@ -524,6 +524,10 @@
       },
       "hub_noise_level": {
         "name": "Radio noise level",
+        "state": {
+          "high": "High",
+          "normal": "Normal"
+        },
         "state_attributes": {
           "channel_1_dbm": {
             "name": "Channel 1 (dBm)"
