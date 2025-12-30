@@ -648,9 +648,26 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
                     or hub_details.get("deviceName")
                     or f"Hub {hub_id[:6]}"  # Use first 6 chars of hub_id as fallback
                 )
-                # Parse security state from hub details - use 'state' field, not 'securityMode'
+                # Parse security state from hub details
+                # Check night mode first - it can be active even when groups are disarmed
+                night_mode_active = (
+                    hub_details.get("nightMode")
+                    or hub_details.get("nightModeEnabled")
+                    or hub_details.get("nightModeActive")
+                    or hub_details.get("isNightMode")
+                )
                 hub_state = hub_details.get("state", "DISARMED")
-                security_state = self._parse_security_state(hub_state)
+                _LOGGER.debug(
+                    "Hub %s state parsing: state=%s, nightMode=%s, nightModeEnabled=%s",
+                    hub_id,
+                    hub_state,
+                    hub_details.get("nightMode"),
+                    hub_details.get("nightModeEnabled"),
+                )
+                if night_mode_active:
+                    security_state = SecurityState.NIGHT_MODE
+                else:
+                    security_state = self._parse_security_state(hub_state)
             except Exception as err:
                 _LOGGER.warning("Failed to get hub details for %s: %s", hub_id, err)
                 hub_name = f"Hub {hub_id}"
