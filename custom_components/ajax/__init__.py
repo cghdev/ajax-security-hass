@@ -328,14 +328,15 @@ async def _async_setup_areas(
                 rooms_created += 1
                 _LOGGER.info("Created HA Area: %s", room_name)
 
-            # Assign devices in this room to the area
+            # Assign devices in this room to the area (only if not already assigned)
             for device_id, device in space.devices.items():
                 if device.room_id == room_id:
                     # Find the HA device by identifiers
                     ha_device = device_reg.async_get_device(
                         identifiers={(DOMAIN, device_id)}
                     )
-                    if ha_device and ha_device.area_id != area.id:
+                    # Only assign area if device has no area yet (respect user changes)
+                    if ha_device and ha_device.area_id is None:
                         device_reg.async_update_device(ha_device.id, area_id=area.id)
                         devices_assigned += 1
                         _LOGGER.debug(

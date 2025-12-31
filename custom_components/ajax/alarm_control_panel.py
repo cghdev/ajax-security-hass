@@ -109,13 +109,8 @@ class AjaxAlarmControlPanel(
         hub_subtype_formatted = hub_subtype.replace("_", " ").title()
 
         hub_color = space.hub_details.get("color", "") if space.hub_details else ""
-        # Handle uppercase color values (WHITE, BLACK)
-        color_name = {
-            "WHITE": "Blanc",
-            "White": "Blanc",
-            "BLACK": "Noir",
-            "Black": "Noir",
-        }.get(hub_color, hub_color)
+        # Keep color as-is from API (WHITE/BLACK are product colors)
+        color_name = str(hub_color).title() if hub_color else ""
 
         model_name = (
             f"{hub_subtype_formatted} ({color_name})"
@@ -247,12 +242,7 @@ class AjaxAlarmControlPanel(
                 hub_subtype = space.hub_details.get("hubSubtype", "Security Hub")
                 hub_subtype_formatted = hub_subtype.replace("_", " ").title()
                 hub_color = space.hub_details.get("color", "")
-                color_name = {
-                    "WHITE": "Blanc",
-                    "White": "Blanc",
-                    "BLACK": "Noir",
-                    "Black": "Noir",
-                }.get(hub_color, hub_color)
+                color_name = str(hub_color).title() if hub_color else ""
                 model_name = (
                     f"{hub_subtype_formatted} ({color_name})"
                     if color_name
@@ -306,12 +296,7 @@ class AjaxAlarmControlPanel(
         hub_subtype = space.hub_details.get("hubSubtype", "Security Hub")
         hub_subtype_formatted = hub_subtype.replace("_", " ").title()
         hub_color = space.hub_details.get("color", "")
-        color_name = {
-            "WHITE": "Blanc",
-            "White": "Blanc",
-            "BLACK": "Noir",
-            "Black": "Noir",
-        }.get(hub_color, hub_color)
+        color_name = str(hub_color).title() if hub_color else ""
         model_name = (
             f"{hub_subtype_formatted} ({color_name})"
             if color_name
