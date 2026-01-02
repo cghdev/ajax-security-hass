@@ -15,7 +15,6 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     PERCENTAGE,
-    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     UnitOfTemperature,
 )
 
@@ -128,8 +127,8 @@ class DoorContactHandler(AjaxDeviceHandler):
             {
                 "key": "signal_strength",
                 "translation_key": "signal_strength",
-                "device_class": SensorDeviceClass.SIGNAL_STRENGTH,
-                "native_unit_of_measurement": SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+                "icon": "mdi:signal",
+                "native_unit_of_measurement": PERCENTAGE,
                 "state_class": SensorStateClass.MEASUREMENT,
                 "value_fn": lambda: self.device.signal_strength
                 if self.device.signal_strength is not None
