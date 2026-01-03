@@ -954,7 +954,7 @@ class AjaxDataCoordinator(DataUpdateCoordinator[AjaxAccount]):
 
             # Store other useful attributes
             # For MultiTransmitterWireInput, settings are in wiredDeviceSettings
-            wired_settings = device_data.get("wiredDeviceSettings", {})
+            wired_settings = device_data.get("wiredDeviceSettings") or {}
 
             if "alwaysActive" in device_data:
                 device.attributes["always_active"] = device_data.get(
